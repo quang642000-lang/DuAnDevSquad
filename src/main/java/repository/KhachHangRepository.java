@@ -1,0 +1,109 @@
+package repository;
+
+import model.KhachHang;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+
+public class KhachHangRepository {
+
+    public List<KhachHang> getAll() {
+        List<KhachHang> list = new ArrayList<>();
+        String sql = "SELECT * FROM KHACH_HANG";
+        try (Connection con = DBConnect.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                KhachHang kh = new KhachHang();
+                kh.setMaKH(rs.getString("ma_kh"));
+                kh.setTenKH(rs.getString("ten_khach_hang"));
+                kh.setSDT(rs.getString("so_dien_thoai"));
+                kh.setDiemTichLuy(rs.getInt("diem_tich_luy"));
+                list.add(kh);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public KhachHang timKiemTheoSdt(String sdt) {
+        String sql = "SELECT * FROM KHACH_HANG WHERE so_dien_thoai = ?";
+        try (Connection con = DBConnect.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, sdt);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    KhachHang kh = new KhachHang();
+                    kh.setMaKH(rs.getString("ma_kh"));
+                    kh.setTenKH(rs.getString("ten_khach_hang"));
+                    kh.setSDT(rs.getString("so_dien_thoai"));
+                    kh.setDiemTichLuy(rs.getInt("diem_tich_luy"));
+                    return kh;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public boolean add(KhachHang kh) {
+        // Đã xóa 'ma_kh' khỏi INSERT để SQL tự động sinh mã
+        String sql = "INSERT INTO KHACH_HANG (ten_khach_hang, so_dien_thoai, diem_tich_luy) VALUES (?, ?, ?)";
+        try (Connection con = DBConnect.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, kh.getTenKH());
+            ps.setString(2, kh.getSDT());
+            ps.setInt(3, kh.getDiemTichLuy());
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean congDiemTichLuy(String maKh, int diemCongThem) {
+        String sql = "UPDATE KHACH_HANG SET diem_tich_luy = diem_tich_luy + ? WHERE ma_kh = ?";
+        try (Connection con = DBConnect.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, diemCongThem);
+            ps.setString(2, maKh);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // THÊM CHỨC NĂNG CẬP NHẬT
+    public boolean update(KhachHang kh) {
+        String sql = "UPDATE KHACH_HANG SET ten_khach_hang = ?, so_dien_thoai = ? WHERE ma_kh = ?";
+        try (Connection con = DBConnect.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, kh.getTenKH());
+            ps.setString(2, kh.getSDT());
+            ps.setString(3, kh.getMaKH());
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // THÊM CHỨC NĂNG XÓA
+    public boolean delete(String maKH) {
+        String sql = "DELETE FROM KHACH_HANG WHERE ma_kh = ?";
+        try (Connection con = DBConnect.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, maKH);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            // Nếu khách hàng đã có đơn hàng (ràng buộc khóa ngoại), SQL sẽ quăng lỗi.
+            System.out.println("Lỗi khi xóa khách hàng: " + e.getMessage());
+        }
+        return false;
+    }
+}
