@@ -53,7 +53,7 @@
                             <label class="form-label fw-bold">Danh Mục</label>
                             <select class="form-select" name="maDanhMuc" required>
                                 <option value="" disabled selected>-- Chọn danh mục sản phẩm --</option>
-                                <c:forEach var="dm" items="${requestScope.danhSachDm}">
+                                <c:forEach var="dm" items="${requestScope.danhSachDM}">
                                     <option value="${dm.maDanhMuc}">${dm.tenDanhMuc}</option>
                                 </c:forEach>
                             </select>
@@ -95,7 +95,7 @@
                                 <label class="form-label fw-semibold text-muted small">Lọc theo Danh mục</label>
                                 <select class="form-select" name="filterDanhMuc">
                                     <option value="all">-- Tất cả danh mục --</option>
-                                    <c:forEach var="dm" items="${requestScope.danhSachDm}">
+                                    <c:forEach var="dm" items="${requestScope.danhSachDM}">
                                         <option value="${dm.maDanhMuc}" ${requestScope.selectedDanhMuc == dm.maDanhMuc ? 'selected' : ''}>
                                                 ${dm.tenDanhMuc}
                                         </option>
@@ -144,8 +144,8 @@
                         </thead>
                         <tbody>
                         <c:choose>
-                            <c:when test="${not empty requestScope.danhSachSp}">
-                                <c:forEach var="sp" items="${requestScope.danhSachSp}" varStatus="status">
+                            <c:when test="${not empty requestScope.danhSachSP}">
+                                <c:forEach var="sp" items="${requestScope.danhSachSP}" varStatus="status">
                                     <tr>
                                         <td class="text-center fw-bold">${status.index + 1}</td>
                                         <td class="text-center">
@@ -244,7 +244,7 @@
                     <div class="mb-3">
                         <label class="form-label fw-bold">Danh Mục</label>
                         <select class="form-select" name="maDanhMuc" id="edit_maDanhMuc" required>
-                            <c:forEach var="dm" items="${requestScope.danhSachDm}">
+                            <c:forEach var="dm" items="${requestScope.danhSachDM}">
                                 <option value="${dm.maDanhMuc}">${dm.tenDanhMuc}</option>
                             </c:forEach>
                         </select>

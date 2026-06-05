@@ -17,7 +17,7 @@
     <!-- Hiển thị thông báo -->
     <c:if test="${not empty sessionScope.message}">
         <c:choose>
-            <c:when test="${fn:contains(sessionScope.message, 'Lỗi')}">
+            <c:when test="${fn:contains(sessionScope.message, 'Lỗi') || fn:contains(sessionScope.message, 'Không thể')}">
                 <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
                     <i class="bi bi-exclamation-triangle-fill me-2"></i> <strong>Cảnh báo:</strong> ${sessionScope.message}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -51,6 +51,7 @@
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">Số Điện Thoại</label>
+                            <!-- Sửa name thành SDT -->
                             <input type="text" class="form-control" name="SDT" placeholder="Nhập 10 chữ số" pattern="\d{10}" required>
                         </div>
 
@@ -107,6 +108,7 @@
                             <c:when test="${not empty requestScope.danhSach}">
                                 <c:forEach var="nv" items="${requestScope.danhSach}">
                                     <tr>
+                                        <!-- Khớp chính xác tên biến maNV, SDT -->
                                         <td class="text-center fw-bold text-secondary">${nv.maNV}</td>
                                         <td class="fw-bold">${nv.hoTen}</td>
                                         <td>${nv.SDT}</td>
@@ -137,7 +139,7 @@
                                                 <c:when test="${nv.trangThai == 1}">
                                                     <a href="${pageContext.request.contextPath}/nhan-vien?action=toggle-status&id=${nv.maNV}&status=0"
                                                        class="btn btn-sm btn-outline-danger" title="Khóa tài khoản"
-                                                       onclick="return confirm('Khóa tài khoản của ${nv.hoTen}?');">
+                                                       onclick="return confirm('Khóa tài khoản của ${fn:escapeXml(nv.hoTen)}?');">
                                                         <i class="bi bi-lock-fill"></i>
                                                     </a>
                                                 </c:when>
@@ -149,17 +151,23 @@
                                                 </c:otherwise>
                                             </c:choose>
 
-                                            <!-- Sửa thông tin -->
-                                            <button class="btn btn-sm btn-warning ms-1" data-bs-toggle="modal" data-bs-target="#editModal"
-                                                    onclick="fillEditModal('${nv.maNV}', '${nv.hoTen}', '${nv.SDT}', '${nv.tenDangNhap}', '${nv.matKhau}', '${nv.vaiTro.maVaiTro}')">
+                                            <!-- Sửa thông tin (Bỏ truyền Mật khẩu) -->
+                                            <button class="btn btn-sm btn-warning ms-1" data-bs-toggle="modal" data-bs-target="#editModal" title="Sửa thông tin"
+                                                    onclick="fillEditModal('${nv.maNV}', '${fn:escapeXml(nv.hoTen)}', '${nv.SDT}', '${nv.tenDangNhap}', '${nv.vaiTro.maVaiTro}')">
                                                 <i class="bi bi-pencil-square"></i>
                                             </button>
 
-                                            <!-- Xóa sản phẩm: Truyền id = sp.maSP và tên = sp.tenSP -->
-                                            <a href="${pageContext.request.contextPath}/nhan-vien?action=delete&id=${sp.maNV}"
-                                               class="btn btn-sm btn-danger"
-                                               onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm ${sp.tenNV}?');">
-                                                <i class="bi bi-trash"></i>
+                                            <!-- Nút đổi mật khẩu mới (Reset Password) -->
+                                            <button class="btn btn-sm btn-info ms-1 text-white" data-bs-toggle="modal" data-bs-target="#resetPasswordModal" title="Cấp lại mật khẩu"
+                                                    onclick="fillResetPasswordModal('${nv.maNV}', '${nv.tenDangNhap}')">
+                                                <i class="bi bi-key-fill"></i>
+                                            </button>
+
+                                            <!-- Xóa NV (Fix lỗi lấy sai id sp.maNV) -->
+                                            <a href="${pageContext.request.contextPath}/nhan-vien?action=delete&id=${nv.maNV}"
+                                               class="btn btn-sm btn-secondary ms-1" title="Xóa nhân viên"
+                                               onclick="return confirm('Bạn có chắc chắn muốn xóa vĩnh viễn nhân viên ${fn:escapeXml(nv.hoTen)} không?');">
+                                                <i class="bi bi-trash-fill"></i>
                                             </a>
                                         </td>
                                     </tr>
@@ -179,7 +187,7 @@
     </div>
 </div>
 
-<!-- MODAL CẬP NHẬT -->
+<!-- MODAL CẬP NHẬT THÔNG TIN -->
 <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -190,11 +198,12 @@
             <form action="${pageContext.request.contextPath}/nhan-vien" method="post">
                 <div class="modal-body">
                     <input type="hidden" name="action" value="update">
+                    <!-- Sửa name thành maNV -->
                     <input type="hidden" name="maNV" id="edit_maNV">
 
                     <div class="mb-3">
                         <label class="form-label text-muted fw-bold">Mã Nhân Viên</label>
-                        <input type="text" class="form-control bg-light" id="display_maNV" disabled>
+                        <input type="text" class="form-control bg-light fw-bold text-secondary" id="display_maNV" disabled>
                     </div>
 
                     <div class="mb-3">
@@ -204,17 +213,13 @@
 
                     <div class="mb-3">
                         <label class="form-label fw-bold">Số Điện Thoại</label>
-                        <input type="text" class="form-control" name="SDT" id="edit_SDT" required>
+                        <!-- Sửa name thành SDT -->
+                        <input type="text" class="form-control" name="SDT" id="edit_SDT" required pattern="\d{10}">
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label fw-bold">Tên Đăng Nhập</label>
                         <input type="text" class="form-control" name="tenDangNhap" id="edit_tenDangNhap" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Mật Khẩu</label>
-                        <input type="text" class="form-control" name="matKhau" id="edit_matKhau" required>
                     </div>
 
                     <div class="mb-3">
@@ -234,16 +239,54 @@
     </div>
 </div>
 
+<!-- MODAL CẤP LẠI MẬT KHẨU -->
+<div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title fw-bold"><i class="bi bi-key-fill"></i> Cấp Lại Mật Khẩu</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="${pageContext.request.contextPath}/nhan-vien" method="post">
+                <div class="modal-body">
+                    <input type="hidden" name="action" value="reset-password">
+                    <input type="hidden" name="maNV" id="reset_maNV">
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted fw-bold">Tài Khoản Đang Chọn:</label>
+                        <input type="text" class="form-control bg-light fw-bold text-danger" id="display_reset_tenDangNhap" disabled>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nhập Mật Khẩu Mới</label>
+                        <input type="text" class="form-control" name="matKhauMoi" placeholder="Nhập mật khẩu mới..." required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary fw-bold" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-info fw-bold text-white">Cập Nhật Mật Khẩu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    function fillEditModal(maNV, hoTen, SDT, tenDN, mk, maVaiTro) {
+    // Điền form Cập nhật thông tin (Không truyền matKhau)
+    function fillEditModal(maNV, hoTen, SDT, tenDN, maVaiTro) {
         document.getElementById('edit_maNV').value = maNV;
         document.getElementById('display_maNV').value = maNV;
         document.getElementById('edit_hoTen').value = hoTen;
         document.getElementById('edit_SDT').value = SDT;
         document.getElementById('edit_tenDangNhap').value = tenDN;
-        document.getElementById('edit_matKhau').value = mk;
         document.getElementById('edit_maVaiTro').value = maVaiTro;
+    }
+
+    // Điền form Cấp lại mật khẩu
+    function fillResetPasswordModal(maNV, tenDN) {
+        document.getElementById('reset_maNV').value = maNV;
+        document.getElementById('display_reset_tenDangNhap').value = tenDN;
     }
 </script>
 

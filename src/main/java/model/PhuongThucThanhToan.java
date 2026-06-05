@@ -3,12 +3,12 @@ package model;
 public class PhuongThucThanhToan {
     private String maPTTT;
     private String tenPhuongThuc;
-    private String trangThai;
+    private int trangThai;
 
     public PhuongThucThanhToan() {
     }
 
-    public PhuongThucThanhToan(String maPTTT, String tenPhuongThuc, String trangThai) {
+    public PhuongThucThanhToan(String maPTTT, String tenPhuongThuc, int trangThai) {
         this.maPTTT = maPTTT;
         this.tenPhuongThuc = tenPhuongThuc;
         this.trangThai = trangThai;
@@ -30,11 +30,11 @@ public class PhuongThucThanhToan {
         this.tenPhuongThuc = tenPhuongThuc;
     }
 
-    public String getTrangThai() {
+    public int getTrangThai() {
         return trangThai;
     }
 
-    public void setTrangThai(String trangThai) {
+    public void setTrangThai(int trangThai) {
         this.trangThai = trangThai;
     }
 }

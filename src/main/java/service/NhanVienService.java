@@ -2,6 +2,7 @@ package service;
 
 import model.NhanVien;
 import repository.NhanVienRepository;
+import Util.SecurityUtil; // Thêm thư viện mã hóa
 import java.util.List;
 
 public class NhanVienService {
@@ -19,6 +20,14 @@ public class NhanVienService {
             return "Lỗi: Dữ liệu không được để trống!";
         }
 
+        if (nv.getMaNV() == null || nv.getMaNV().isEmpty()) {
+            nv.setMaNV(nhanVienRepo.generateNextMaNV());
+        }
+
+        // Băm (Hash) mật khẩu ngay lúc thêm mới trước khi lưu xuống DB
+        String hashedMatKhau = SecurityUtil.hashPassword(nv.getMatKhau());
+        nv.setMatKhau(hashedMatKhau);
+
         nv.setTrangThai(1); // Mặc định Hoạt động khi mới tạo
         return nhanVienRepo.add(nv) ? "Thêm nhân viên thành công!" : "Lỗi hệ thống khi thêm!";
     }
@@ -28,7 +37,23 @@ public class NhanVienService {
         return nhanVienRepo.update(nv) ? "Cập nhật thành công!" : "Lỗi hệ thống khi cập nhật!";
     }
 
-    public String updateTrangThai(String maNv, int trangThaiMoi) {
-        return nhanVienRepo.updateTrangThai(maNv, trangThaiMoi) ? "Cập nhật trạng thái thành công!" : "Lỗi!";
+    public String updateTrangThai(String maNV, int trangThaiMoi) {
+        return nhanVienRepo.updateTrangThai(maNV, trangThaiMoi) ? "Cập nhật trạng thái thành công!" : "Lỗi!";
+    }
+
+    public String delete(String maNV) {
+        if (maNV == null || maNV.isEmpty()) return "Lỗi: Mã nhân viên không hợp lệ!";
+        boolean isDeleted = nhanVienRepo.delete(maNV);
+        return isDeleted ? "Đã xóa nhân viên thành công!" : "Lỗi: Không thể xóa vì nhân viên này đã từng lập hóa đơn bán hàng!";
+    }
+
+    public String resetPassword(String maNV, String matKhauMoi) {
+        if (maNV == null || maNV.isEmpty()) return "Lỗi: Mã nhân viên không hợp lệ!";
+        if (matKhauMoi == null || matKhauMoi.trim().isEmpty()) return "Lỗi: Mật khẩu mới không được để trống!";
+
+        // Băm (Hash) mật khẩu mới khi Admin cấp lại mật khẩu
+        String hashedMatKhauMoi = SecurityUtil.hashPassword(matKhauMoi);
+
+        return nhanVienRepo.resetPassword(maNV, hashedMatKhauMoi) ? "Khôi phục mật khẩu thành công!" : "Lỗi khi đổi mật khẩu!";
     }
 }

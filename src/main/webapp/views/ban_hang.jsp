@@ -5,91 +5,73 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Phần Mềm Bán Hàng (POS)</title>
+    <title>TEA POS - Hệ Thống Bán Hàng</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
         body { background-color: #f4f6f9; overflow-x: hidden; }
-        .product-card { cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+        .product-card { cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: 1px solid #e9ecef; }
         .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; border-color: #0d6efd;}
         .product-img { height: 120px; object-fit: cover; width: 100%; border-top-left-radius: var(--bs-border-radius); border-top-right-radius: var(--bs-border-radius); }
-        .cart-container { height: calc(100vh - 80px); position: sticky; top: 70px; display: flex; flex-direction: column;}
-        .cart-items { flex-grow: 1; overflow-y: auto; }
-        .navbar { box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        /* Tùy chỉnh thanh cuộn cho giỏ hàng */
-        .cart-items::-webkit-scrollbar { width: 6px; }
-        .cart-items::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 4px; }
+        .cart-container { height: calc(100vh - 75px); position: sticky; top: 70px; display: flex; flex-direction: column;}
+        .cart-items { flex-grow: 1; overflow-y: auto; background-color: #fafbfe; }
+        .cart-items::-webkit-scrollbar { width: 5px; }
+        .cart-items::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 5px; }
     </style>
 </head>
 <body>
 
-<!-- TOP NAVBAR -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm">
     <div class="container-fluid">
-        <a class="navbar-brand fw-bold text-warning" href="#"><i class="bi bi-cup-straw"></i> TEA POS</a>
-
+        <a class="navbar-brand fw-bold text-warning fs-4" href="#"><i class="bi bi-cup-straw"></i> TEA POS</a>
         <div class="d-flex align-items-center text-white">
-            <span class="me-4"><i class="bi bi-person-circle"></i> Xin chào, <strong>${sessionScope.nhanVienDangNhap.hoTen}</strong></span>
-
-            <!-- Nếu là Admin thì hiện nút quay về trang Quản Lý -->
+            <span class="me-4"><i class="bi bi-person-badge-fill"></i> ${sessionScope.nhanVienDangNhap.hoTen}</span>
             <c:if test="${sessionScope.nhanVienDangNhap.vaiTro.maVaiTro == 1}">
-                <a href="${pageContext.request.contextPath}/nhan-vien" class="btn btn-sm btn-outline-light me-2">
-                    <i class="bi bi-gear-fill"></i> Quản Lý
-                </a>
+                <a href="${pageContext.request.contextPath}/nhan-vien" class="btn btn-sm btn-outline-light me-3"><i class="bi bi-gear-fill"></i> Quản Lý</a>
             </c:if>
-
-            <a href="${pageContext.request.contextPath}/auth?action=logout" class="btn btn-sm btn-danger">
-                <i class="bi bi-box-arrow-right"></i> Đăng Xuất
-            </a>
+            <a href="${pageContext.request.contextPath}/auth?action=logout" class="btn btn-sm btn-danger"><i class="bi bi-power"></i> Đăng Xuất</a>
         </div>
     </div>
 </nav>
 
 <div class="container-fluid mt-3">
-
-    <!-- Thông báo tạo đơn thành công/thất bại từ Server -->
     <c:if test="${not empty sessionScope.message}">
         <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
-            <i class="bi bi-check-circle-fill"></i> ${sessionScope.message}
+            <i class="bi bi-check-circle-fill"></i> <strong class="fs-6">${sessionScope.message}</strong>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         <c:remove var="message" scope="session"/>
     </c:if>
 
     <div class="row">
-        <!-- CỘT TRÁI: DANH SÁCH MENU MÓN -->
-        <div class="col-lg-8 mb-4">
-
-            <!-- Thanh Lọc Danh Mục (Nâng cao) -->
+        <!-- CỘT TRÁI: DANH SÁCH MENU -->
+        <div class="col-lg-7 col-xl-8 mb-4">
             <div class="d-flex mb-3 overflow-auto pb-2" style="white-space: nowrap;">
-                <a href="${pageContext.request.contextPath}/ban-hang" class="btn btn-${empty param.maDanhMuc ? 'primary' : 'outline-primary'} rounded-pill me-2 fw-bold">
+                <a href="${pageContext.request.contextPath}/ban-hang" class="btn btn-${empty param.maDanhMuc ? 'primary shadow-sm' : 'outline-primary'} rounded-pill me-2 fw-bold px-4">
                     Tất cả
                 </a>
                 <c:forEach var="dm" items="${requestScope.danhSachDanhMuc}">
                     <a href="${pageContext.request.contextPath}/ban-hang?maDanhMuc=${dm.maDanhMuc}"
-                       class="btn btn-${param.maDanhMuc == dm.maDanhMuc ? 'primary' : 'outline-primary'} rounded-pill me-2 fw-bold">
+                       class="btn btn-${param.maDanhMuc == dm.maDanhMuc ? 'primary shadow-sm' : 'outline-primary'} rounded-pill me-2 fw-bold px-3">
                             ${dm.tenDanhMuc}
                     </a>
                 </c:forEach>
             </div>
 
-            <!-- Grid Sản Phẩm (Hiển thị Biến thể - Từng Kích cỡ) -->
             <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-3">
                 <c:choose>
                     <c:when test="${not empty requestScope.danhSachBienThe}">
                         <c:forEach var="bt" items="${requestScope.danhSachBienThe}">
                             <div class="col">
-                                <!-- Gọi hàm addToCart(maBT, tenSP, size, gia) khi click -->
-                                <div class="card h-100 shadow-sm product-card border-0"
-                                     onclick="addToCart('${bt.maBienThe}', '${bt.sanPham.tenSP}', '${bt.kichCo}', ${bt.giaBan})">
+                                <div class="card h-100 shadow-sm product-card bg-white rounded-3"
+                                     onclick="openOptionsModal('${bt.maBienThe}', '${bt.sanPham.tenSP}', '${bt.kichCo}', ${bt.giaBan})">
                                     <img src="${pageContext.request.contextPath}/assets/img/${not empty bt.sanPham.hinhAnh ? bt.sanPham.hinhAnh : 'default.png'}"
-                                         class="product-img"
-                                         onerror="this.src='https://placehold.co/300x200?text=No+Image'" alt="${bt.sanPham.tenSP}">
+                                         class="product-img" onerror="this.src='https://placehold.co/300x200?text=No+Image'">
 
-                                    <div class="card-body p-2 text-center">
-                                        <h6 class="card-title fw-bold mb-1 text-truncate" title="${bt.sanPham.tenSP}">${bt.sanPham.tenSP}</h6>
-                                        <span class="badge bg-warning text-dark mb-2">Size ${bt.kichCo}</span>
+                                    <div class="card-body p-3 text-center">
+                                        <h6 class="card-title fw-bold mb-2 text-truncate" title="${bt.sanPham.tenSP}">${bt.sanPham.tenSP}</h6>
+                                        <span class="badge bg-warning text-dark mb-2 border border-warning">Size ${bt.kichCo}</span>
                                         <h5 class="text-danger fw-bold mb-0">
                                             <fmt:formatNumber value="${bt.giaBan}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
                                         </h5>
@@ -99,67 +81,97 @@
                         </c:forEach>
                     </c:when>
                     <c:otherwise>
-                        <div class="col-12 text-center py-5">
-                            <i class="bi bi-inbox fs-1 text-muted"></i>
-                            <h5 class="text-muted mt-2">Không có sản phẩm nào đang bán!</h5>
-                        </div>
+                        <div class="col-12 text-center py-5"><h5 class="text-muted">Không có món nào!</h5></div>
                     </c:otherwise>
                 </c:choose>
             </div>
         </div>
 
-        <!-- CỘT PHẢI: HÓA ĐƠN & GIỎ HÀNG -->
-        <div class="col-lg-4">
-            <div class="card shadow-sm border-0 cart-container">
+        <!-- CỘT PHẢI: GIỎ HÀNG & THANH TOÁN -->
+        <div class="col-lg-5 col-xl-4">
+            <div class="card shadow-sm border-0 cart-container rounded-3">
                 <div class="card-header bg-white border-bottom border-2 border-primary py-3">
-                    <h5 class="mb-0 fw-bold text-primary"><i class="bi bi-receipt"></i> CHI TIẾT ĐƠN HÀNG</h5>
+                    <h5 class="mb-0 fw-bold text-primary"><i class="bi bi-receipt"></i> ĐƠN HÀNG</h5>
                 </div>
 
-                <!-- Khu vực chứa các món đã chọn -->
-                <div class="card-body p-0 cart-items bg-light" id="cart-items-container">
-                    <!-- Javascript sẽ đổ HTML các món hàng vào đây -->
+                <div class="card-body p-0 cart-items" id="cart-items-container">
                     <div class="text-center text-muted mt-5" id="empty-cart-msg">
-                        <i class="bi bi-cart-x fs-1"></i>
-                        <p class="mt-2">Chưa có món nào được chọn</p>
+                        <i class="bi bi-cart-x text-secondary" style="font-size: 4rem;"></i>
+                        <p class="mt-2 fw-medium">Chưa chọn món nào</p>
                     </div>
                 </div>
 
-                <!-- Khu vực Thanh toán & Khách hàng -->
                 <div class="card-footer bg-white border-top shadow-lg p-3">
                     <form action="${pageContext.request.contextPath}/ban-hang" method="post" id="checkout-form" onsubmit="return validateCheckout()">
                         <input type="hidden" name="action" value="checkout">
-
-                        <!-- Vùng chứa Dữ liệu Giỏ hàng Ẩn (Sẽ được JS sinh ra khi bấm Thanh toán) -->
                         <div id="hidden-cart-inputs"></div>
 
-                        <!-- Khách hàng -->
-                        <div class="mb-3">
-                            <div class="input-group">
-                                <span class="input-group-text bg-light"><i class="bi bi-telephone"></i></span>
-                                <input type="text" class="form-control" name="sdtKhachHang" id="sdtKhachHang" placeholder="Nhập SĐT Khách (Để trống nếu khách lẻ)">
+                        <input type="hidden" name="tongTienHang" id="input_tongTienHang" value="0">
+                        <input type="hidden" name="tienGiamGia" id="input_tienGiamGia" value="0">
+                        <input type="hidden" name="tongPhaiTra" id="input_tongPhaiTra" value="0">
+                        <input type="hidden" name="maKM" id="input_maKM" value="">
+
+                        <!-- KHÁCH HÀNG -->
+                        <div class="row g-2 mb-2">
+                            <div class="col-5">
+                                <input type="text" class="form-control form-control-sm" name="sdtKhachHang" placeholder="SĐT Khách">
+                            </div>
+                            <div class="col-7">
+                                <input type="text" class="form-control form-control-sm" name="tenKhachHang" placeholder="Tên (Nếu là Khách Mới)">
                             </div>
                         </div>
 
-                        <!-- Tính tiền -->
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="fw-bold text-muted">Tổng số lượng:</span>
-                            <span class="fw-bold" id="total-qty">0</span>
+                        <!-- VOUCHER -->
+                        <div class="input-group input-group-sm mb-2">
+                            <button class="btn btn-outline-primary fw-bold" type="button" data-bs-toggle="modal" data-bs-target="#voucherModal"><i class="bi bi-list-stars"></i> Xem Mã</button>
+                            <input type="text" class="form-control text-uppercase text-center" id="voucherCode" placeholder="Nhập mã voucher...">
+                            <button class="btn btn-success fw-bold" type="button" onclick="applyVoucher()">Áp Dụng</button>
                         </div>
-                        <div class="d-flex justify-content-between mb-3 align-items-center">
-                            <span class="fw-bold fs-5 text-dark">TỔNG TIỀN:</span>
-                            <span class="fw-bold fs-4 text-danger" id="total-price">0 ₫</span>
+
+                        <!-- TỔNG KẾT -->
+                        <div class="border rounded p-2 mb-2 bg-light text-end small">
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted fw-bold">Tổng tiền hàng:</span>
+                                <span class="fw-bold text-dark" id="display_tongTienHang">0 ₫</span>
+                            </div>
+                            <div class="d-flex justify-content-between text-success">
+                                <span class="fw-bold">Khuyến mãi:</span>
+                                <span class="fw-bold" id="display_tienGiamGia">- 0 ₫</span>
+                            </div>
+                            <hr class="my-1">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold fs-6 text-dark">PHẢI THANH TOÁN:</span>
+                                <span class="fw-bold fs-4 text-danger" id="display_tongPhaiTra">0 ₫</span>
+                            </div>
+                        </div>
+
+                        <!-- THANH TOÁN -->
+                        <div class="row g-2 align-items-center mb-3">
+                            <div class="col-5">
+                                <select class="form-select form-select-sm fw-bold border-secondary" name="maPTTT" required>
+                                    <c:forEach var="pt" items="${requestScope.danhSachPTTT}">
+                                        <option value="${pt.maPTTT}">${pt.tenPhuongThuc}</option>
+                                    </c:forEach>
+                                </select>
+                            </div>
+                            <div class="col-7">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-white fw-bold">Khách đưa</span>
+                                    <input type="number" class="form-control text-end fw-bold text-primary" name="tienKhachDua" id="tienKhachDua" required oninput="calculateChange()">
+                                </div>
+                            </div>
+                            <div class="col-12 text-end small" id="tienThuaContainer" style="display: none;">
+                                <span class="fw-bold text-muted">Tiền thừa trả khách:</span>
+                                <span class="fw-bold text-success fs-6" id="tienThuaLabel">0 ₫</span>
+                            </div>
                         </div>
 
                         <div class="row g-2">
-                            <div class="col-6">
-                                <button type="button" class="btn btn-outline-danger w-100 fw-bold" onclick="clearCart()">
-                                    <i class="bi bi-trash"></i> Hủy Đơn
-                                </button>
+                            <div class="col-4">
+                                <button type="button" class="btn btn-outline-danger w-100 fw-bold py-2" onclick="clearCart()"><i class="bi bi-trash"></i> Hủy</button>
                             </div>
-                            <div class="col-6">
-                                <button type="submit" class="btn btn-success w-100 fw-bold fs-5 shadow-sm" id="btn-checkout" disabled>
-                                    <i class="bi bi-cash-coin"></i> THANH TOÁN
-                                </button>
+                            <div class="col-8">
+                                <button type="submit" class="btn btn-primary w-100 fw-bold fs-5 shadow-sm py-2" id="btn-checkout" disabled>THANH TOÁN</button>
                             </div>
                         </div>
                     </form>
@@ -169,139 +181,349 @@
     </div>
 </div>
 
+<div class="modal fade" id="optionModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-primary text-white border-0">
+                <h5 class="modal-title fw-bold" id="modalProductName">Tên Sản Phẩm</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body bg-light">
+                <input type="hidden" id="modalMaBT">
+                <input type="hidden" id="modalSize">
+                <input type="hidden" id="modalGiaBan">
+
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <label class="fw-bold small text-muted mb-2">MỨC ĐÁ</label>
+                        <select class="form-select form-select-sm" id="modalDa">
+                            <option value="100%">100% Đá</option>
+                            <option value="50%">50% Đá</option>
+                            <option value="0%">Không đá</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label class="fw-bold small text-muted mb-2">MỨC ĐƯỜNG</label>
+                        <select class="form-select form-select-sm" id="modalDuong">
+                            <option value="100%">100% Đường</option>
+                            <option value="50%">50% Đường</option>
+                            <option value="0%">Không đường</option>
+                        </select>
+                    </div>
+                </div>
+
+                <label class="fw-bold small text-muted mb-2">THÊM TOPPING</label>
+                <!-- ĐÃ SỬA: Nút chọn số lượng Topping thay vì Checkbox -->
+                <div class="d-flex flex-column gap-2 max-height-200 overflow-auto px-1">
+                    <c:forEach var="tp" items="${requestScope.danhSachTopping}">
+                        <c:if test="${tp.trangThai == 1}">
+                            <div class="d-flex justify-content-between align-items-center bg-white p-2 border rounded shadow-sm">
+                                <div>
+                                    <span class="fw-bold d-block">${tp.tenTopping}</span>
+                                    <span class="text-danger small">+<fmt:formatNumber value="${tp.giaBan}" type="number"/>đ</span>
+                                </div>
+                                <div class="input-group input-group-sm" style="width: 100px;">
+                                    <button class="btn btn-outline-secondary fw-bold" type="button" onclick="changeToppingQty('${tp.maTopping}', -1)">-</button>
+                                    <input type="text" class="form-control text-center fw-bold topping-qty-input"
+                                           id="qty_tp_${tp.maTopping}" data-id="${tp.maTopping}" data-name="${tp.tenTopping}" data-price="${tp.giaBan}" value="0" readonly>
+                                    <button class="btn btn-outline-secondary fw-bold" type="button" onclick="changeToppingQty('${tp.maTopping}', 1)">+</button>
+                                </div>
+                            </div>
+                        </c:if>
+                    </c:forEach>
+                </div>
+            </div>
+            <div class="modal-footer border-0 p-3 bg-white">
+                <button type="button" class="btn btn-primary w-100 fw-bold fs-5 shadow-sm" onclick="confirmAddToCart()">
+                    <i class="bi bi-cart-plus"></i> XONG & THÊM VÀO ĐƠN
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="voucherModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title fw-bold"><i class="bi bi-ticket-perforated"></i> Danh Sách Khuyến Mãi</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-2">
+                <ul class="list-group">
+                    <c:forEach var="km" items="${requestScope.danhSachKhuyenMai}">
+                        <c:if test="${km.trangThai == 1 && (km.soLuong - km.soLuongDaDung > 0)}">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-0 fw-bold text-danger">${km.maCode}</h6>
+                                    <small class="text-muted">${km.tenKM} (Đơn Min: <fmt:formatNumber value="${km.dieuKienToiThieu}" type="number"/>đ)</small>
+                                </div>
+                                <button class="btn btn-sm btn-outline-success fw-bold" onclick="selectVoucher('${km.maCode}')">Chọn</button>
+                            </li>
+                        </c:if>
+                    </c:forEach>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- SCRIPT XỬ LÝ GIỎ HÀNG BẰNG JAVASCRIPT -->
 <script>
-    // Mảng lưu trữ giỏ hàng: [{ maBT, ten, size, gia, soLuong }]
+    const danhSachVoucher = [
+        <c:forEach var="km" items="${requestScope.danhSachKhuyenMai}">
+        <c:if test="${km.trangThai == 1 && (km.soLuong - km.soLuongDaDung > 0)}">
+        { code: '${km.maCode}', loai: '${km.loaiGiamGia}', giaTri: ${km.giaTrịGiam}, min: ${km.dieuKienToiThieu}, id: '${km.maKM}' },
+        </c:if>
+        </c:forEach>
+    ];
+</script>
+
+<script>
     let cart = [];
+    const formatCurrency = (number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(number);
 
-    // 1. Thêm món vào giỏ
-    function addToCart(maBT, ten, size, gia) {
-        // Kiểm tra xem món đó (cùng mã biến thể) đã có trong giỏ chưa
-        let existingItem = cart.find(item => item.maBT === maBT);
+    const optionModal = new bootstrap.Modal(document.getElementById('optionModal'));
+    const voucherModal = new bootstrap.Modal(document.getElementById('voucherModal'));
 
+    function openOptionsModal(maBT, ten, size, gia) {
+        document.getElementById('modalMaBT').value = maBT;
+        document.getElementById('modalProductName').innerText = ten + " (Size " + size + ")";
+        document.getElementById('modalSize').value = size;
+        document.getElementById('modalGiaBan').value = gia;
+
+        // Reset Modal Options
+        document.getElementById('modalDa').value = '100%';
+        document.getElementById('modalDuong').value = '100%';
+        document.querySelectorAll('.topping-qty-input').forEach(input => input.value = '0');
+
+        optionModal.show();
+    }
+
+    // Nút cộng/trừ Topping trong Modal
+    function changeToppingQty(id, change) {
+        let input = document.getElementById('qty_tp_' + id);
+        let currentQty = parseInt(input.value);
+        let newQty = currentQty + change;
+        if (newQty >= 0 && newQty <= 10) { // Giới hạn max 10 phần mỗi loại
+            input.value = newQty;
+        }
+    }
+
+    function confirmAddToCart() {
+        let maBT = document.getElementById('modalMaBT').value;
+        let ten = document.getElementById('modalProductName').innerText;
+        let gia = parseInt(document.getElementById('modalGiaBan').value);
+        let da = document.getElementById('modalDa').value;
+        let duong = document.getElementById('modalDuong').value;
+
+        let toppings = [];
+        let extraToppingPrice = 0;
+
+        // Lấy tất cả topping có số lượng > 0
+        document.querySelectorAll('.topping-qty-input').forEach(input => {
+            let qty = parseInt(input.value);
+            if (qty > 0) {
+                let price = parseInt(input.getAttribute('data-price'));
+                toppings.push({
+                    id: input.getAttribute('data-id'),
+                    name: input.getAttribute('data-name'),
+                    price: price,
+                    qty: qty
+                });
+                extraToppingPrice += (price * qty);
+            }
+        });
+
+        // Ghép chuỗi ID giỏ hàng để gom nhóm các ly y chang nhau
+        let cartId = maBT + "_" + da + "_" + duong + "_" + toppings.map(t => t.id + "x" + t.qty).join('-');
+
+        let existingItem = cart.find(item => item.cartId === cartId);
         if (existingItem) {
             existingItem.soLuong++;
         } else {
-            cart.push({ maBT: maBT, ten: ten, size: size, gia: gia, soLuong: 1 });
+            cart.push({ cartId, maBT, ten, giaChot: gia + extraToppingPrice, soLuong: 1, da, duong, toppings });
+        }
+
+        optionModal.hide();
+        renderCart();
+    }
+
+    function updateQty(cartId, change) {
+        let idx = cart.findIndex(i => i.cartId === cartId);
+        if (idx > -1) {
+            cart[idx].soLuong += change;
+            if (cart[idx].soLuong <= 0) cart.splice(idx, 1);
         }
         renderCart();
     }
 
-    // 2. Tăng/Giảm số lượng
-    function updateQty(maBT, change) {
-        let itemIndex = cart.findIndex(item => item.maBT === maBT);
-        if (itemIndex > -1) {
-            cart[itemIndex].soLuong += change;
-            if (cart[itemIndex].soLuong <= 0) {
-                cart.splice(itemIndex, 1); // Xóa nếu số lượng = 0
-            }
-        }
-        renderCart();
-    }
-
-    // 3. Xóa hoàn toàn 1 món
-    function removeItem(maBT) {
-        cart = cart.filter(item => item.maBT !== maBT);
-        renderCart();
-    }
-
-    // 4. Hủy toàn bộ đơn
     function clearCart() {
-        if(confirm("Bạn có chắc chắn muốn hủy đơn hàng này?")) {
+        if(confirm("Hủy đơn hàng này?")) {
             cart = [];
-            document.getElementById('sdtKhachHang').value = '';
+            document.getElementById('voucherCode').value = '';
+            document.getElementById('input_maKM').value = '';
+            document.getElementById('tienKhachDua').value = '';
+            document.getElementsByName('sdtKhachHang')[0].value = '';
+            document.getElementsByName('tenKhachHang')[0].value = '';
             renderCart();
         }
     }
 
-    // 5. Cập nhật giao diện giỏ hàng
-    function renderCart() {
-        const cartContainer = document.getElementById('cart-items-container');
-        const emptyMsg = document.getElementById('empty-cart-msg');
-        const totalQtyEl = document.getElementById('total-qty');
-        const totalPriceEl = document.getElementById('total-price');
-        const btnCheckout = document.getElementById('btn-checkout');
+    // Xử lý Khuyến Mãi
+    let currentDiscount = 0;
 
-        // Reset nội dung cũ
-        cartContainer.innerHTML = '';
-        let totalQty = 0;
-        let totalPrice = 0;
+    function selectVoucher(code) {
+        document.getElementById('voucherCode').value = code;
+        voucherModal.hide();
+        applyVoucher();
+    }
+
+    function applyVoucher() {
+        let code = document.getElementById('voucherCode').value.toUpperCase();
+        if(!code) {
+            currentDiscount = 0; document.getElementById('input_maKM').value = ''; renderCart(); return;
+        }
+
+        let tongTienHienTai = cart.reduce((sum, item) => sum + (item.giaChot * item.soLuong), 0);
+        let voucher = danhSachVoucher.find(v => v.code === code);
+
+        if (!voucher) { alert("Mã giảm giá không tồn tại hoặc đã hết!"); return; }
+        if (tongTienHienTai < voucher.min) { alert("Đơn chưa đạt mức tối thiểu " + formatCurrency(voucher.min) + "!"); return; }
+
+        if (voucher.loai === 'Phần Trăm') {
+            currentDiscount = (tongTienHienTai * voucher.giaTri) / 100;
+        } else {
+            currentDiscount = voucher.giaTri;
+            if(currentDiscount > tongTienHienTai) currentDiscount = tongTienHienTai; // Không thối tiền km
+        }
+
+        document.getElementById('input_maKM').value = voucher.id;
+        renderCart(); // Cập nhật lại UI tiền
+    }
+
+    function renderCart() {
+        const container = document.getElementById('cart-items-container');
+        const emptyMsg = document.getElementById('empty-cart-msg');
+        container.innerHTML = '';
+
+        let tongTienHang = 0;
 
         if (cart.length === 0) {
-            cartContainer.appendChild(emptyMsg);
+            container.appendChild(emptyMsg);
             emptyMsg.style.display = 'block';
-            btnCheckout.disabled = true;
+            document.getElementById('btn-checkout').disabled = true;
+            currentDiscount = 0;
+            document.getElementById('input_maKM').value = '';
         } else {
-            if(emptyMsg) emptyMsg.style.display = 'none';
-            btnCheckout.disabled = false;
+            emptyMsg.style.display = 'none';
+            document.getElementById('btn-checkout').disabled = false;
 
-            // Render từng dòng sản phẩm
             cart.forEach(item => {
-                totalQty += item.soLuong;
-                let thanhTien = item.gia * item.soLuong;
-                totalPrice += thanhTien;
+                tongTienHang += item.giaChot * item.soLuong;
 
-                // Format tiền
-                let formattedThanhTien = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(thanhTien);
-
+                // Nối tên topping kèm số lượng
+                let tpStr = item.toppings.map(t => `<span class='badge bg-info text-dark me-1'>+`+t.name+` (x`+t.qty+`)</span>`).join('');
                 let itemHtml = `
-                    <div class="d-flex justify-content-between align-items-center p-3 border-bottom bg-white">
-                        <div class="flex-grow-1">
-                            <h6 class="mb-1 fw-bold">` + item.ten + `</h6>
-                            <small class="text-muted">Size ` + item.size + ` | ` + new Intl.NumberFormat('vi-VN').format(item.gia) + `đ</small>
+                    <div class="p-3 border-bottom bg-white shadow-sm mb-1">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1 fw-bold text-dark">` + item.ten + `</h6>
+                                <div class="small text-secondary mb-1">Đá: `+item.da+` | Đường: `+item.duong+`</div>
+                                <div>` + tpStr + `</div>
+                            </div>
+                            <div class="text-end ms-2">
+                                <h6 class="mb-1 fw-bold text-danger">` + formatCurrency(item.giaChot * item.soLuong) + `</h6>
+                                <small class="text-muted">`+formatCurrency(item.giaChot)+`/ly</small>
+                            </div>
                         </div>
-
-                        <div class="d-flex align-items-center mx-3">
-                            <button type="button" class="btn btn-sm btn-light border rounded-circle fw-bold text-danger" onclick="updateQty('`+item.maBT+`', -1)">-</button>
-                            <span class="mx-2 fw-bold">`+item.soLuong+`</span>
-                            <button type="button" class="btn btn-sm btn-light border rounded-circle fw-bold text-success" onclick="updateQty('`+item.maBT+`', 1)">+</button>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <a href="javascript:void(0)" class="text-danger small text-decoration-none" onclick="updateQty('`+item.cartId+`', -999)"><i class="bi bi-trash"></i> Xóa</a>
+                            <div class="btn-group btn-group-sm shadow-sm">
+                                <button type="button" class="btn btn-light border fw-bold" onclick="updateQty('`+item.cartId+`', -1)">-</button>
+                                <span class="btn btn-light border fw-bold text-primary px-3" style="pointer-events: none;">`+item.soLuong+`</span>
+                                <button type="button" class="btn btn-light border fw-bold" onclick="updateQty('`+item.cartId+`', 1)">+</button>
+                            </div>
                         </div>
-
-                        <div class="text-end">
-                            <h6 class="mb-1 fw-bold text-danger">` + formattedThanhTien + `</h6>
-                            <a href="#" class="text-muted small text-decoration-none" onclick="removeItem('`+item.maBT+`')"><i class="bi bi-trash"></i> Xóa</a>
-                        </div>
-                    </div>
-                `;
-                cartContainer.insertAdjacentHTML('beforeend', itemHtml);
+                    </div>`;
+                container.insertAdjacentHTML('beforeend', itemHtml);
             });
         }
 
-        // Cập nhật tổng
-        totalQtyEl.innerText = totalQty;
-        totalPriceEl.innerText = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalPrice);
+        // Tự động gỡ voucher nếu đơn rớt xuống dưới mức tối thiểu
+        let code = document.getElementById('voucherCode').value.toUpperCase();
+        if (code) {
+            let voucher = danhSachVoucher.find(v => v.code === code);
+            if (voucher && tongTienHang < voucher.min) {
+                currentDiscount = 0;
+                document.getElementById('voucherCode').value = '';
+                document.getElementById('input_maKM').value = '';
+                alert("Đơn hàng không còn đủ điều kiện áp dụng mã giảm giá!");
+            }
+        }
+
+        let tongPhaiTra = tongTienHang - currentDiscount;
+
+        document.getElementById('display_tongTienHang').innerText = formatCurrency(tongTienHang);
+        document.getElementById('display_tienGiamGia').innerText = "- " + formatCurrency(currentDiscount);
+        document.getElementById('display_tongPhaiTra').innerText = formatCurrency(tongPhaiTra);
+
+        document.getElementById('input_tongTienHang').value = tongTienHang;
+        document.getElementById('input_tienGiamGia').value = currentDiscount;
+        document.getElementById('input_tongPhaiTra').value = tongPhaiTra;
+
+        calculateChange();
     }
 
-    // 6. Xử lý trước khi Submit Hóa Đơn về Server
+    function calculateChange() {
+        let khachDua = parseInt(document.getElementById('tienKhachDua').value) || 0;
+        let phaiTra = parseInt(document.getElementById('input_tongPhaiTra').value) || 0;
+        let tienThua = khachDua - phaiTra;
+
+        let container = document.getElementById('tienThuaContainer');
+        if (khachDua > 0) {
+            container.style.display = 'block';
+            let label = document.getElementById('tienThuaLabel');
+            if (tienThua < 0) {
+                label.innerText = "Khách đưa chưa đủ tiền!";
+                label.className = "fw-bold fs-6 text-danger";
+            } else {
+                label.innerText = formatCurrency(tienThua);
+                label.className = "fw-bold fs-5 text-success";
+            }
+        } else {
+            container.style.display = 'none';
+        }
+    }
+
     function validateCheckout() {
-        if (cart.length === 0) {
-            alert("Vui lòng chọn ít nhất 1 sản phẩm để thanh toán!");
+        let khachDua = parseInt(document.getElementById('tienKhachDua').value);
+        let phaiTra = parseInt(document.getElementById('input_tongPhaiTra').value);
+        if (!khachDua || khachDua < phaiTra) {
+            alert("Số tiền khách đưa không đủ!");
+            document.getElementById('tienKhachDua').focus();
             return false;
         }
 
-        const hiddenContainer = document.getElementById('hidden-cart-inputs');
-        hiddenContainer.innerHTML = ''; // Xóa dữ liệu cũ (nếu có)
+        const h = document.getElementById('hidden-cart-inputs');
+        h.innerHTML = '';
 
-        // Tạo mảng dữ liệu ẩn để gửi về Server (mảng maBT[] và mảng soLuong[])
-        cart.forEach(item => {
-            let inputMaBT = document.createElement('input');
-            inputMaBT.type = 'hidden';
-            inputMaBT.name = 'maBT[]'; // Mảng mã biến thể
-            inputMaBT.value = item.maBT;
+        cart.forEach((item, idx) => {
+            h.innerHTML += `<input type="hidden" name="itemIndex[]" value="`+idx+`">`;
+            h.innerHTML += `<input type="hidden" name="maBT_`+idx+`" value="`+item.maBT+`">`;
+            h.innerHTML += `<input type="hidden" name="soLuong_`+idx+`" value="`+item.soLuong+`">`;
+            h.innerHTML += `<input type="hidden" name="giaChot_`+idx+`" value="`+item.giaChot+`">`;
+            h.innerHTML += `<input type="hidden" name="da_`+idx+`" value="`+item.da+`">`;
+            h.innerHTML += `<input type="hidden" name="duong_`+idx+`" value="`+item.duong+`">`;
 
-            let inputSoLuong = document.createElement('input');
-            inputSoLuong.type = 'hidden';
-            inputSoLuong.name = 'soLuong[]'; // Mảng số lượng tương ứng
-            inputSoLuong.value = item.soLuong;
-
-            hiddenContainer.appendChild(inputMaBT);
-            hiddenContainer.appendChild(inputSoLuong);
+            // Format gửi về: maTopping|giaBan|soLuongCuaTopping
+            item.toppings.forEach(tp => {
+                h.innerHTML += `<input type="hidden" name="toppings_`+idx+`[]" value="`+tp.id+`|`+tp.price+`|`+tp.qty+`">`;
+            });
         });
 
-        // Xác nhận lần cuối
-        return confirm("Tạo hóa đơn thanh toán?");
+        return confirm("Hoàn tất thanh toán đơn hàng này?");
     }
 </script>
 

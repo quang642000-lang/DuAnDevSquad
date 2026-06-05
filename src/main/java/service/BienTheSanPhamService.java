@@ -71,4 +71,9 @@ public class BienTheSanPhamService {
         if (maBienThe == null || maBienThe.isEmpty()) return "Lỗi: Mã không hợp lệ!";
         return bienTheRepo.delete(maBienThe) ? "Đã xóa kích cỡ!" : "Lỗi: Không thể xóa vì kích cỡ này đã phát sinh trong đơn hàng!";
     }
+
+    // HÀM MỚI: TÌM KIẾM
+    public List<BienTheSanPham> search(String keyword, String maSp) {
+        return bienTheRepo.search(keyword, maSp);
+    }
 }

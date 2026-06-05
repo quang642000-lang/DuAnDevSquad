@@ -16,7 +16,6 @@ import java.io.IOException;
 public class BienTheSanPhamController extends HttpServlet {
 
     private BienTheSanPhamService bienTheService = new BienTheSanPhamService();
-    // Khởi tạo Service của Sản Phẩm để lấy dữ liệu
     private SanPhamService sanPhamService = new SanPhamService();
 
     @Override
@@ -38,14 +37,25 @@ public class BienTheSanPhamController extends HttpServlet {
                 response.sendRedirect(request.getContextPath() + "/bien-the?action=list");
                 break;
 
+            case "search":
+                // XỬ LÝ TÌM KIẾM
+                String keyword = request.getParameter("keyword");
+                String filterSanPham = request.getParameter("filterSanPham");
+
+                request.setAttribute("danhSach", bienTheService.search(keyword, filterSanPham));
+                request.setAttribute("danhSachSP", sanPhamService.getAll()); // Nạp vào dropdown
+
+                // Trả về từ khóa để giữ lại trên giao diện
+                request.setAttribute("selectedKeyword", keyword);
+                request.setAttribute("selectedSanPham", filterSanPham);
+
+                request.getRequestDispatcher("/views/bien_the.jsp").forward(request, response);
+                break;
+
             case "list":
             default:
-                // 1. Lấy danh sách Biến thể nạp vào bảng
                 request.setAttribute("danhSach", bienTheService.getAll());
-
-                // 2. Lấy danh sách Sản phẩm nạp vào thẻ <select>
-                request.setAttribute("danhSachSp", sanPhamService.getAll());
-
+                request.setAttribute("danhSachSP", sanPhamService.getAll());
                 request.getRequestDispatcher("/views/bien_the.jsp").forward(request, response);
                 break;
         }
@@ -67,7 +77,7 @@ public class BienTheSanPhamController extends HttpServlet {
             }
 
             SanPham sp = new SanPham();
-            sp.setMaSP(request.getParameter("maSp"));
+            sp.setMaSP(request.getParameter("maSP"));
             bt.setSanPham(sp);
 
             request.getSession().setAttribute("message", bienTheService.add(bt));
@@ -84,7 +94,7 @@ public class BienTheSanPhamController extends HttpServlet {
             }
 
             SanPham sp = new SanPham();
-            sp.setMaSP(request.getParameter("maSp"));
+            sp.setMaSP(request.getParameter("maSP"));
             bt.setSanPham(sp);
 
             request.getSession().setAttribute("message", bienTheService.update(bt));

@@ -48,24 +48,24 @@ public class SanPhamService {
 
 
 
-    public String updateTrangThai(String maSp, int trangThai) {
-        if (maSp == null || maSp.isEmpty()) return "Mã sản phẩm không hợp lệ!";
+    public String updateTrangThai(String maSP, int trangThai) {
+        if (maSP == null || maSP.isEmpty()) return "Mã sản phẩm không hợp lệ!";
 
         // 1. Cập nhật trạng thái của Sản phẩm mẹ
-        boolean success = sanPhamRepo.updateTrangThai(maSp, trangThai);
+        boolean success = sanPhamRepo.updateTrangThai(maSP, trangThai);
 
         if (success) {
             // 2. Cập nhật dây chuyền: Đổi luôn trạng thái của tất cả Biến thể con (Kích cỡ)
-            bienTheRepo.updateTrangThaiBySanPham(maSp, trangThai);
+            bienTheRepo.updateTrangThaiBySanPham(maSP, trangThai);
             return "Cập nhật trạng thái thành công!";
         }
 
         return "Lỗi khi cập nhật trạng thái!";
     }
 
-    public String delete(String maSp) {
-        if (maSp == null || maSp.isEmpty()) return "Mã không hợp lệ!";
-        boolean success = sanPhamRepo.delete(maSp);
+    public String delete(String maSP) {
+        if (maSP == null || maSP.isEmpty()) return "Mã không hợp lệ!";
+        boolean success = sanPhamRepo.delete(maSP);
         return success ? "Đã xóa sản phẩm thành công!" : "Không thể xóa! Sản phẩm này đã tồn tại trong hóa đơn.";
     }
 

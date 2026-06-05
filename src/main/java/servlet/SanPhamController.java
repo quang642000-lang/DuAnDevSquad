@@ -1,4 +1,4 @@
-package controller;
+package servlet;
 
 import model.DanhMuc;
 import model.SanPham;
@@ -47,11 +47,11 @@ public class SanPhamController extends HttpServlet {
 
                 // Gọi Service tìm kiếm
                 List<SanPham> listSpFiltered = sanPhamService.search(keyword, filterDanhMuc);
-                request.setAttribute("danhSachSp", listSpFiltered);
+                request.setAttribute("danhSachSP", listSpFiltered);
 
                 // Luôn cần danh sách Danh Mục để nạp vào form và dropdown lọc
                 List<DanhMuc> listDmForSearch = danhMucService.getAll();
-                request.setAttribute("danhSachDm", listDmForSearch);
+                request.setAttribute("danhSachDM", listDmForSearch);
 
                 // Gửi ngược lại từ khóa cũ lên JSP để điền lại vào ô nhập
                 request.setAttribute("selectedKeyword", keyword);
@@ -62,11 +62,11 @@ public class SanPhamController extends HttpServlet {
 
             case "list":
             default:
-                List<SanPham> listSp = sanPhamService.getAll();
-                request.setAttribute("danhSachSp", listSp);
+                List<SanPham> listSP = sanPhamService.getAll();
+                request.setAttribute("danhSachSP", listSP);
 
-                List<DanhMuc> listDm = danhMucService.getAll();
-                request.setAttribute("danhSachDm", listDm);
+                List<DanhMuc> listDM = danhMucService.getAll();
+                request.setAttribute("danhSachDM", listDM);
 
                 request.getRequestDispatcher("/views/san_pham.jsp").forward(request, response);
                 break;

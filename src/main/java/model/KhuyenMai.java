@@ -9,6 +9,8 @@ public class KhuyenMai {
     private String maCode;
     private int giaTrịGiam;
     private int dieuKienToiThieu;
+    private int soLuong;
+    private int soLuongDaDung; // THÊM MỚI: Dùng để hứng kết quả đếm từ SQL
     private int trangThai;
     private Date ngayBatDau;
     private Date ngayKetThuc;
@@ -16,87 +18,50 @@ public class KhuyenMai {
     public KhuyenMai() {
     }
 
-    public KhuyenMai(String maKM, String tenKM, String loaiGiamGia, String maCode, int giaTrịGiam, int dieuKienToiThieu, int trangThai, Date ngayBatDau, Date ngayKetThuc) {
+    public KhuyenMai(String maKM, String tenKM, String loaiGiamGia, String maCode, int giaTrịGiam, int dieuKienToiThieu, int soLuong, int soLuongDaDung, int trangThai, Date ngayBatDau, Date ngayKetThuc) {
         this.maKM = maKM;
         this.tenKM = tenKM;
         this.loaiGiamGia = loaiGiamGia;
         this.maCode = maCode;
         this.giaTrịGiam = giaTrịGiam;
         this.dieuKienToiThieu = dieuKienToiThieu;
+        this.soLuong = soLuong;
+        this.soLuongDaDung = soLuongDaDung;
         this.trangThai = trangThai;
         this.ngayBatDau = ngayBatDau;
         this.ngayKetThuc = ngayKetThuc;
     }
 
-    public String getMaKM() {
-        return maKM;
-    }
+    public String getMaKM() { return maKM; }
+    public void setMaKM(String maKM) { this.maKM = maKM; }
 
-    public void setMaKM(String maKM) {
-        this.maKM = maKM;
-    }
+    public String getTenKM() { return tenKM; }
+    public void setTenKM(String tenKM) { this.tenKM = tenKM; }
 
-    public String getTenKM() {
-        return tenKM;
-    }
+    public String getLoaiGiamGia() { return loaiGiamGia; }
+    public void setLoaiGiamGia(String loaiGiamGia) { this.loaiGiamGia = loaiGiamGia; }
 
-    public void setTenKM(String tenKM) {
-        this.tenKM = tenKM;
-    }
+    public String getMaCode() { return maCode; }
+    public void setMaCode(String maCode) { this.maCode = maCode; }
 
-    public String getLoaiGiamGia() {
-        return loaiGiamGia;
-    }
+    public int getGiaTrịGiam() { return giaTrịGiam; }
+    public void setGiaTrịGiam(int giaTrịGiam) { this.giaTrịGiam = giaTrịGiam; }
 
-    public void setLoaiGiamGia(String loaiGiamGia) {
-        this.loaiGiamGia = loaiGiamGia;
-    }
+    public int getDieuKienToiThieu() { return dieuKienToiThieu; }
+    public void setDieuKienToiThieu(int dieuKienToiThieu) { this.dieuKienToiThieu = dieuKienToiThieu; }
 
-    public String getMaCode() {
-        return maCode;
-    }
+    public int getSoLuong() { return soLuong; }
+    public void setSoLuong(int soLuong) { this.soLuong = soLuong; }
 
-    public void setMaCode(String maCode) {
-        this.maCode = maCode;
-    }
+    public int getSoLuongDaDung() { return soLuongDaDung; }
+    public void setSoLuongDaDung(int soLuongDaDung) { this.soLuongDaDung = soLuongDaDung; }
 
-    public int getGiaTrịGiam() {
-        return giaTrịGiam;
-    }
+    public int getTrangThai() { return trangThai; }
+    public void setTrangThai(int trangThai) { this.trangThai = trangThai; }
 
-    public void setGiaTrịGiam(int giaTrịGiam) {
-        this.giaTrịGiam = giaTrịGiam;
-    }
+    public Date getNgayBatDau() { return ngayBatDau; }
+    public void setNgayBatDau(Date ngayBatDau) { this.ngayBatDau = ngayBatDau; }
 
-    public int getDieuKienToiThieu() {
-        return dieuKienToiThieu;
-    }
-
-    public void setDieuKienToiThieu(int dieuKienToiThieu) {
-        this.dieuKienToiThieu = dieuKienToiThieu;
-    }
-
-    public int getTrangThai() {
-        return trangThai;
-    }
-
-    public void setTrangThai(int trangThai) {
-        this.trangThai = trangThai;
-    }
-
-    public Date getNgayBatDau() {
-        return ngayBatDau;
-    }
-
-    public void setNgayBatDau(Date ngayBatDau) {
-        this.ngayBatDau = ngayBatDau;
-    }
-
-    public Date getNgayKetThuc() {
-        return ngayKetThuc;
-    }
-
-    public void setNgayKetThuc(Date ngayKetThuc) {
-        this.ngayKetThuc = ngayKetThuc;
-    }
+    public Date getNgayKetThuc() { return ngayKetThuc; }
+    public void setNgayKetThuc(Date ngayKetThuc) { this.ngayKetThuc = ngayKetThuc; }
 }
