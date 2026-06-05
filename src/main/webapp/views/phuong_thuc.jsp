@@ -6,28 +6,33 @@
 <head>
     <meta charset="UTF-8">
     <title>Cấu Hình Thanh Toán</title>
-    <!-- Thêm Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>body { background-color: #f4f6f9; }</style>
 </head>
-<body class="bg-light">
+<body>
 
-<div class="container mt-5">
-    <h2 class="mb-4 text-center text-primary fw-bold">CẤU HÌNH PHƯƠNG THỨC THANH TOÁN</h2>
+<div class="container mt-4 mb-5">
+    <!-- HEADER & NÚT QUAY LẠI -->
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-2 border-primary">
+        <h3 class="text-primary fw-bold m-0"><i class="bi bi-wallet2 me-2"></i>CẤU HÌNH THANH TOÁN</h3>
+        <a href="${pageContext.request.contextPath}/admin" class="btn btn-outline-secondary fw-bold shadow-sm">
+            <i class="bi bi-arrow-left-circle"></i> Về Dashboard
+        </a>
+    </div>
 
-    <!-- Hiển thị thông báo -->
     <c:if test="${not empty sessionScope.message}">
         <c:choose>
             <c:when test="${fn:contains(sessionScope.message, 'Lỗi') || fn:contains(sessionScope.message, 'Không thể')}">
                 <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
                     <i class="bi bi-exclamation-triangle-fill me-2"></i> <strong>Cảnh báo:</strong> ${sessionScope.message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             </c:when>
             <c:otherwise>
                 <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
                     <i class="bi bi-check-circle-fill me-2"></i> <strong>Thành công:</strong> ${sessionScope.message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             </c:otherwise>
         </c:choose>
@@ -37,37 +42,33 @@
     <div class="row">
         <!-- FORM THÊM MỚI -->
         <div class="col-lg-4 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0 fw-bold"><i class="bi bi-wallet2"></i> Thêm Phương Thức Mới</h5>
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-plus-circle"></i> Thêm Phương Thức</h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body bg-white p-4">
                     <form action="${pageContext.request.contextPath}/phuong-thuc" method="post">
                         <input type="hidden" name="action" value="add">
 
                         <div class="mb-3">
-                            <label class="form-label fw-bold text-muted">Tên phương thức</label>
-                            <input type="text" class="form-control" name="tenPhuongThuc" placeholder="VD: Ví VNPay, Thẻ tín dụng..." required>
+                            <label class="form-label fw-bold text-dark">Tên hình thức thanh toán</label>
+                            <input type="text" class="form-control" name="tenPhuongThuc" placeholder="VD: Ví VNPay, Momo..." required>
                         </div>
 
-                        <div class="alert alert-info py-2 small">
-                            <i class="bi bi-info-circle"></i> Phương thức mới sẽ tự động được <strong class="text-success">Kích hoạt</strong> trên màn hình thu ngân.
+                        <div class="alert alert-info py-2 small border-0 bg-primary bg-opacity-10 text-primary">
+                            <i class="bi bi-info-circle-fill"></i> Sẽ được <strong>Kích hoạt</strong> ngay khi thêm.
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100 fw-bold">
-                            <i class="bi bi-save"></i> Thêm Mới
-                        </button>
+                        <button type="submit" class="btn btn-primary w-100 fw-bold py-2 shadow-sm">Lưu Dữ Liệu</button>
                     </form>
                 </div>
             </div>
         </div>
 
-        <!-- CỘT PHẢI: TÌM KIẾM & BẢNG -->
+        <!-- TÌM KIẾM & BẢNG -->
         <div class="col-lg-8 mb-4">
-
-            <!-- THANH TÌM KIẾM -->
-            <div class="card shadow-sm mb-3">
-                <div class="card-body bg-white rounded py-2">
+            <div class="card shadow-sm border-0 rounded-3 mb-3">
+                <div class="card-body bg-white py-2">
                     <form action="${pageContext.request.contextPath}/phuong-thuc" method="get">
                         <input type="hidden" name="action" value="search">
                         <div class="row g-2">
@@ -80,7 +81,7 @@
                                 </div>
                             </div>
                             <div class="col-md-3">
-                                <button type="submit" class="btn btn-success w-100 fw-bold">Tìm Kiếm</button>
+                                <button type="submit" class="btn btn-success w-100 fw-bold">Tra Cứu</button>
                             </div>
                         </div>
                     </form>
@@ -88,12 +89,10 @@
             </div>
 
             <!-- BẢNG DANH SÁCH -->
-            <div class="card shadow-sm">
-                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-2">
-                    <h6 class="mb-0 fw-bold"><i class="bi bi-list-check"></i> Các Hình Thức Khả Dụng</h6>
-                    <a href="${pageContext.request.contextPath}/phuong-thuc?action=list" class="btn btn-sm btn-outline-light py-0">
-                        <i class="bi bi-arrow-clockwise"></i> Làm mới
-                    </a>
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-3">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-list-check"></i> Các Hình Thức Khả Dụng</h5>
+                    <a href="${pageContext.request.contextPath}/phuong-thuc?action=list" class="btn btn-sm btn-outline-light"><i class="bi bi-arrow-clockwise"></i> Làm mới</a>
                 </div>
                 <div class="card-body p-0">
                     <table class="table table-striped table-hover mb-0 align-middle">
@@ -113,7 +112,7 @@
                                     <tr>
                                         <td class="text-center fw-bold">${status.index + 1}</td>
                                         <td class="fw-bold text-secondary">${pt.maPTTT}</td>
-                                        <td class="fw-bold">${pt.tenPhuongThuc}</td>
+                                        <td class="fw-bold text-dark">${pt.tenPhuongThuc}</td>
 
                                         <td class="text-center">
                                             <c:choose>
@@ -176,30 +175,30 @@
 <!-- MODAL SỬA -->
 <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content border-0 shadow">
             <div class="modal-header bg-warning">
                 <h5 class="modal-title fw-bold text-dark"><i class="bi bi-pencil-square"></i> Cập Nhật Thông Tin</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="${pageContext.request.contextPath}/phuong-thuc" method="post">
-                <div class="modal-body">
+                <div class="modal-body bg-light p-4">
                     <input type="hidden" name="action" value="update">
                     <input type="hidden" name="maPTTT" id="edit_maPTTT">
 
                     <div class="mb-3">
                         <label class="form-label fw-bold small text-muted">Mã Hệ Thống</label>
-                        <input type="text" class="form-control bg-light fw-bold text-secondary" id="display_maPTTT" disabled>
+                        <input type="text" class="form-control bg-white fw-bold text-secondary" id="display_maPTTT" disabled>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Tên Phương Thức</label>
-                        <input type="text" class="form-control" name="tenPhuongThuc" id="edit_tenPhuongThuc" required>
+                        <label class="form-label fw-bold text-dark">Tên Phương Thức</label>
+                        <input type="text" class="form-control border-primary" name="tenPhuongThuc" id="edit_tenPhuongThuc" required>
                     </div>
                 </div>
 
-                <div class="modal-footer bg-light">
+                <div class="modal-footer bg-white">
                     <button type="button" class="btn btn-secondary fw-bold" data-bs-dismiss="modal">Hủy</button>
-                    <button type="submit" class="btn btn-primary fw-bold"><i class="bi bi-save"></i> Lưu</button>
+                    <button type="submit" class="btn btn-primary fw-bold"><i class="bi bi-save"></i> Cập Nhật</button>
                 </div>
             </form>
         </div>

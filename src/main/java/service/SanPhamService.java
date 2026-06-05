@@ -12,13 +12,8 @@ public class SanPhamService {
         return sanPhamRepo.getAll();
     }
 
-    public List<SanPham> getSanPhamByDanhMuc(String maDanhMuc) {
-        if (maDanhMuc == null || maDanhMuc.trim().isEmpty()) return null;
-        return sanPhamRepo.getSanPhamByDanhMuc(maDanhMuc);
-    }
-
     public String add(SanPham sp) {
-        if (sp.getTenSP() == null || sp.getTenSP().trim().isEmpty()) {
+        if (sp.getTenSanPham() == null || sp.getTenSanPham().trim().isEmpty()) { // ĐÃ CHUẨN HÓA
             return "Tên sản phẩm không được để trống!";
         }
         if (sp.getDanhMuc() == null || sp.getDanhMuc().getMaDanhMuc() == null || sp.getDanhMuc().getMaDanhMuc().isEmpty()) {
@@ -31,45 +26,27 @@ public class SanPhamService {
     }
 
     public String update(SanPham sp) {
-        if (sp.getMaSP() == null || sp.getMaSP().isEmpty()) {
-            return "Mã sản phẩm không hợp lệ!";
-        }
-        if (sp.getTenSP() == null || sp.getTenSP().trim().isEmpty()) {
-            return "Tên sản phẩm không được để trống!";
-        }
-        if (sp.getDanhMuc() == null || sp.getDanhMuc().getMaDanhMuc() == null || sp.getDanhMuc().getMaDanhMuc().isEmpty()) {
-            return "Vui lòng chọn danh mục!";
-        }
+        if (sp.getMaSP() == null || sp.getMaSP().isEmpty()) return "Mã sản phẩm không hợp lệ!"; // ĐÃ CHUẨN HÓA
+        if (sp.getTenSanPham() == null || sp.getTenSanPham().trim().isEmpty()) return "Tên sản phẩm không được trống!"; // ĐÃ CHUẨN HÓA
         return sanPhamRepo.update(sp) ? "Cập nhật sản phẩm thành công!" : "Lỗi khi cập nhật!";
     }
 
-// Nhớ import thêm BienTheSanPhamRepository ở đầu file nếu chưa có nhé:
-    // import repository.BienTheSanPhamRepository;
-
-
-
-    public String updateTrangThai(String maSP, int trangThai) {
+    public String updateTrangThai(String maSP, int trangThai) { // ĐÃ CHUẨN HÓA
         if (maSP == null || maSP.isEmpty()) return "Mã sản phẩm không hợp lệ!";
 
-        // 1. Cập nhật trạng thái của Sản phẩm mẹ
         boolean success = sanPhamRepo.updateTrangThai(maSP, trangThai);
-
         if (success) {
-            // 2. Cập nhật dây chuyền: Đổi luôn trạng thái của tất cả Biến thể con (Kích cỡ)
             bienTheRepo.updateTrangThaiBySanPham(maSP, trangThai);
             return "Cập nhật trạng thái thành công!";
         }
-
         return "Lỗi khi cập nhật trạng thái!";
     }
 
-    public String delete(String maSP) {
+    public String delete(String maSP) { // ĐÃ CHUẨN HÓA
         if (maSP == null || maSP.isEmpty()) return "Mã không hợp lệ!";
-        boolean success = sanPhamRepo.delete(maSP);
-        return success ? "Đã xóa sản phẩm thành công!" : "Không thể xóa! Sản phẩm này đã tồn tại trong hóa đơn.";
+        return sanPhamRepo.delete(maSP) ? "Đã xóa sản phẩm thành công!" : "Lỗi: Sản phẩm đang tồn tại trong hóa đơn!";
     }
 
-    // --- THÊM HÀM GỌI TÌM KIẾM ---
     public List<SanPham> search(String keyword, String maDanhMuc) {
         return sanPhamRepo.search(keyword, maDanhMuc);
     }

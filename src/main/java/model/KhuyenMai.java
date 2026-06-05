@@ -7,10 +7,10 @@ public class KhuyenMai {
     private String tenKM;
     private String loaiGiamGia;
     private String maCode;
-    private int giaTrịGiam;
+    private int giaTriGiam; // ĐÃ SỬA: Bỏ dấu nặng
     private int dieuKienToiThieu;
     private int soLuong;
-    private int soLuongDaDung; // THÊM MỚI: Dùng để hứng kết quả đếm từ SQL
+    private int soLuongDaDung;
     private int trangThai;
     private Date ngayBatDau;
     private Date ngayKetThuc;
@@ -18,12 +18,12 @@ public class KhuyenMai {
     public KhuyenMai() {
     }
 
-    public KhuyenMai(String maKM, String tenKM, String loaiGiamGia, String maCode, int giaTrịGiam, int dieuKienToiThieu, int soLuong, int soLuongDaDung, int trangThai, Date ngayBatDau, Date ngayKetThuc) {
+    public KhuyenMai(String maKM, String tenKM, String loaiGiamGia, String maCode, int giaTriGiam, int dieuKienToiThieu, int soLuong, int soLuongDaDung, int trangThai, Date ngayBatDau, Date ngayKetThuc) {
         this.maKM = maKM;
         this.tenKM = tenKM;
         this.loaiGiamGia = loaiGiamGia;
         this.maCode = maCode;
-        this.giaTrịGiam = giaTrịGiam;
+        this.giaTriGiam = giaTriGiam; // ĐÃ SỬA
         this.dieuKienToiThieu = dieuKienToiThieu;
         this.soLuong = soLuong;
         this.soLuongDaDung = soLuongDaDung;
@@ -44,8 +44,8 @@ public class KhuyenMai {
     public String getMaCode() { return maCode; }
     public void setMaCode(String maCode) { this.maCode = maCode; }
 
-    public int getGiaTrịGiam() { return giaTrịGiam; }
-    public void setGiaTrịGiam(int giaTrịGiam) { this.giaTrịGiam = giaTrịGiam; }
+    public int getGiaTriGiam() { return giaTriGiam; } // ĐÃ SỬA
+    public void setGiaTriGiam(int giaTriGiam) { this.giaTriGiam = giaTriGiam; } // ĐÃ SỬA
 
     public int getDieuKienToiThieu() { return dieuKienToiThieu; }
     public void setDieuKienToiThieu(int dieuKienToiThieu) { this.dieuKienToiThieu = dieuKienToiThieu; }

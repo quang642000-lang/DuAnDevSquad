@@ -1,4 +1,4 @@
-package servlet;
+package controller;
 
 import model.BienTheSanPham;
 import model.SanPham;
@@ -38,14 +38,12 @@ public class BienTheSanPhamController extends HttpServlet {
                 break;
 
             case "search":
-                // XỬ LÝ TÌM KIẾM
                 String keyword = request.getParameter("keyword");
                 String filterSanPham = request.getParameter("filterSanPham");
 
                 request.setAttribute("danhSach", bienTheService.search(keyword, filterSanPham));
-                request.setAttribute("danhSachSP", sanPhamService.getAll()); // Nạp vào dropdown
+                request.setAttribute("danhSachSP", sanPhamService.getAll());
 
-                // Trả về từ khóa để giữ lại trên giao diện
                 request.setAttribute("selectedKeyword", keyword);
                 request.setAttribute("selectedSanPham", filterSanPham);
 
@@ -77,7 +75,7 @@ public class BienTheSanPhamController extends HttpServlet {
             }
 
             SanPham sp = new SanPham();
-            sp.setMaSP(request.getParameter("maSP"));
+            sp.setMaSP(request.getParameter("maSP")); // ĐÃ CHUẨN HÓA
             bt.setSanPham(sp);
 
             request.getSession().setAttribute("message", bienTheService.add(bt));
@@ -94,7 +92,7 @@ public class BienTheSanPhamController extends HttpServlet {
             }
 
             SanPham sp = new SanPham();
-            sp.setMaSP(request.getParameter("maSP"));
+            sp.setMaSP(request.getParameter("maSP")); // ĐÃ CHUẨN HÓA
             bt.setSanPham(sp);
 
             request.getSession().setAttribute("message", bienTheService.update(bt));

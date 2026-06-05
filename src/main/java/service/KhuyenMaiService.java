@@ -38,11 +38,10 @@ public class KhuyenMaiService {
 
         if (daDung > 0) {
             km.setLoaiGiamGia(oldKm.getLoaiGiamGia());
-            km.setGiaTrịGiam(oldKm.getGiaTrịGiam());
+            km.setGiaTriGiam(oldKm.getGiaTriGiam()); // ĐÃ SỬA
             km.setDieuKienToiThieu(oldKm.getDieuKienToiThieu());
         }
 
-        // ĐÃ SỬA LỖI: Dùng java.time.LocalDate thay cho java.util.Date.setHours (Deprecated)
         LocalDate today = LocalDate.now();
         java.sql.Date sqlToday = java.sql.Date.valueOf(today);
 

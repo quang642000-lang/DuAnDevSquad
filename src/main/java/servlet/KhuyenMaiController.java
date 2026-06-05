@@ -60,9 +60,9 @@ public class KhuyenMaiController extends HttpServlet {
             km.setMaCode(request.getParameter("maCode").toUpperCase());
             km.setLoaiGiamGia(request.getParameter("loaiGiamGia"));
 
-            km.setGiaTrịGiam(Integer.parseInt(request.getParameter("giaTriGiam")));
+            km.setGiaTriGiam(Integer.parseInt(request.getParameter("giaTriGiam"))); // ĐÃ SỬA
             km.setDieuKienToiThieu(Integer.parseInt(request.getParameter("dieuKienToiThieu")));
-            km.setSoLuong(Integer.parseInt(request.getParameter("soLuong"))); // Lấy số lượng từ Form
+            km.setSoLuong(Integer.parseInt(request.getParameter("soLuong")));
 
             km.setNgayBatDau(java.sql.Date.valueOf(request.getParameter("ngayBatDau")));
             km.setNgayKetThuc(java.sql.Date.valueOf(request.getParameter("ngayKetThuc")));

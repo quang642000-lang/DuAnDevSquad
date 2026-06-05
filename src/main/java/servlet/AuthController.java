@@ -59,8 +59,8 @@ public class AuthController extends HttpServlet {
 
                 // --- PHÂN QUYỀN ĐIỀU HƯỚNG ---
                 if (nv.getVaiTro().getMaVaiTro() == 1) {
-                    // 1: Admin -> Điều hướng vào trang quản lý đầu tiên (VD: Quản lý nhân viên)
-                    response.sendRedirect(request.getContextPath() + "/nhan-vien");
+                    // 1: Admin -> Điều hướng vào trang Dashboard chính
+                    response.sendRedirect(request.getContextPath() + "/admin");
                 } else {
                     // 2: Nhân viên -> Bắt buộc điều hướng vào màn hình POS (Bán hàng)
                     response.sendRedirect(request.getContextPath() + "/ban-hang");

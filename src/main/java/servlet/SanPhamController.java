@@ -6,13 +6,18 @@ import service.SanPhamService;
 import service.DanhMucService;
 
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+// THÊM ANNOTATION NÀY ĐỂ BẬT TÍNH NĂNG UPLOAD FILE (Tối đa 5MB)
+@MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 10)
 @WebServlet(name = "SanPhamController", value = "/san-pham")
 public class SanPhamController extends HttpServlet {
 
@@ -41,19 +46,15 @@ public class SanPhamController extends HttpServlet {
                 break;
 
             case "search":
-                // Lấy các tham số tìm kiếm
                 String keyword = request.getParameter("keyword");
                 String filterDanhMuc = request.getParameter("filterDanhMuc");
 
-                // Gọi Service tìm kiếm
                 List<SanPham> listSpFiltered = sanPhamService.search(keyword, filterDanhMuc);
-                request.setAttribute("danhSachSP", listSpFiltered);
+                request.setAttribute("danhSachSp", listSpFiltered);
 
-                // Luôn cần danh sách Danh Mục để nạp vào form và dropdown lọc
                 List<DanhMuc> listDmForSearch = danhMucService.getAll();
-                request.setAttribute("danhSachDM", listDmForSearch);
+                request.setAttribute("danhSachDm", listDmForSearch);
 
-                // Gửi ngược lại từ khóa cũ lên JSP để điền lại vào ô nhập
                 request.setAttribute("selectedKeyword", keyword);
                 request.setAttribute("selectedDanhMuc", filterDanhMuc);
 
@@ -62,11 +63,11 @@ public class SanPhamController extends HttpServlet {
 
             case "list":
             default:
-                List<SanPham> listSP = sanPhamService.getAll();
-                request.setAttribute("danhSachSP", listSP);
+                List<SanPham> listSp = sanPhamService.getAll();
+                request.setAttribute("danhSachSp", listSp);
 
-                List<DanhMuc> listDM = danhMucService.getAll();
-                request.setAttribute("danhSachDM", listDM);
+                List<DanhMuc> listDm = danhMucService.getAll();
+                request.setAttribute("danhSachDm", listDm);
 
                 request.getRequestDispatcher("/views/san_pham.jsp").forward(request, response);
                 break;
@@ -78,10 +79,26 @@ public class SanPhamController extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action");
 
+        // ĐƯỜNG DẪN LƯU ẢNH TRÊN SERVER (Thư mục assets/img)
+        String uploadPath = getServletContext().getRealPath("") + File.separator + "assets" + File.separator + "img";
+        File uploadDir = new File(uploadPath);
+
+        // ĐÃ SỬA: Dùng mkdirs() thay vì mkdir() để tạo cả thư mục cha nếu chưa có
+        if (!uploadDir.exists()) uploadDir.mkdirs();
+
         if ("add".equals(action)) {
             SanPham sp = new SanPham();
-            sp.setTenSP(request.getParameter("tenSanPham"));
-            sp.setHinhAnh(request.getParameter("hinhAnh"));
+            sp.setTenSanPham(request.getParameter("tenSanPham"));
+
+            // XỬ LÝ LƯU FILE ẢNH
+            Part filePart = request.getPart("hinhAnhFile");
+            String fileName = filePart.getSubmittedFileName();
+            if (fileName != null && !fileName.isEmpty()) {
+                filePart.write(uploadPath + File.separator + fileName);
+                sp.setHinhAnh(fileName);
+            } else {
+                sp.setHinhAnh("default.png"); // Nếu không chọn ảnh thì gán mặc định
+            }
 
             DanhMuc dm = new DanhMuc();
             dm.setMaDanhMuc(request.getParameter("maDanhMuc"));
@@ -93,8 +110,19 @@ public class SanPhamController extends HttpServlet {
         } else if ("update".equals(action)) {
             SanPham sp = new SanPham();
             sp.setMaSP(request.getParameter("maSP"));
-            sp.setTenSP(request.getParameter("tenSanPham"));
-            sp.setHinhAnh(request.getParameter("hinhAnh"));
+            sp.setTenSanPham(request.getParameter("tenSanPham"));
+
+            // XỬ LÝ FILE ẢNH (NẾU CHỌN FILE MỚI THÌ LƯU, KHÔNG THÌ GIỮ ẢNH CŨ)
+            Part filePart = request.getPart("hinhAnhFile");
+            String fileName = filePart.getSubmittedFileName();
+            if (fileName != null && !fileName.isEmpty()) {
+                filePart.write(uploadPath + File.separator + fileName);
+                sp.setHinhAnh(fileName);
+            } else {
+                // Lấy lại tên ảnh cũ từ thẻ input hidden
+                String oldHinhAnh = request.getParameter("oldHinhAnh");
+                sp.setHinhAnh(oldHinhAnh != null && !oldHinhAnh.isEmpty() ? oldHinhAnh : "default.png");
+            }
 
             DanhMuc dm = new DanhMuc();
             dm.setMaDanhMuc(request.getParameter("maDanhMuc"));

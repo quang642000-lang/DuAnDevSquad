@@ -4,12 +4,17 @@ import model.Topping;
 import service.ToppingService;
 
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
+import java.io.File;
 import java.io.IOException;
 
+// THÊM ANNOTATION ĐỂ NHẬN FILE
+@MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 10)
 @WebServlet(name = "ToppingController", value = "/topping")
 public class ToppingController extends HttpServlet {
 
@@ -37,7 +42,7 @@ public class ToppingController extends HttpServlet {
             case "search":
                 String keyword = request.getParameter("keyword");
                 request.setAttribute("danhSach", toppingService.search(keyword));
-                request.setAttribute("selectedKeyword", keyword); // Trả lại keyword cho thẻ input
+                request.setAttribute("selectedKeyword", keyword);
                 request.getRequestDispatcher("/views/topping.jsp").forward(request, response);
                 break;
 
@@ -54,15 +59,29 @@ public class ToppingController extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action");
 
+        // ĐƯỜNG DẪN LƯU ẢNH TRÊN SERVER
+        String uploadPath = getServletContext().getRealPath("") + File.separator + "assets" + File.separator + "img";
+        File uploadDir = new File(uploadPath);
+        if (!uploadDir.exists()) uploadDir.mkdirs();
+
         if ("add".equals(action)) {
             Topping tp = new Topping();
             tp.setTenTopping(request.getParameter("tenTopping"));
-            tp.setHinhAnh(request.getParameter("hinhAnh"));
 
             try {
                 tp.setGiaBan(Integer.parseInt(request.getParameter("giaBan")));
             } catch (Exception e) {
                 tp.setGiaBan(0);
+            }
+
+            // XỬ LÝ LƯU FILE ẢNH
+            Part filePart = request.getPart("hinhAnhFile");
+            String fileName = filePart.getSubmittedFileName();
+            if (fileName != null && !fileName.isEmpty()) {
+                filePart.write(uploadPath + File.separator + fileName);
+                tp.setHinhAnh(fileName);
+            } else {
+                tp.setHinhAnh("default.png");
             }
 
             String tb = toppingService.add(tp);
@@ -72,12 +91,22 @@ public class ToppingController extends HttpServlet {
             Topping tp = new Topping();
             tp.setMaTopping(request.getParameter("maTopping"));
             tp.setTenTopping(request.getParameter("tenTopping"));
-            tp.setHinhAnh(request.getParameter("hinhAnh"));
 
             try {
                 tp.setGiaBan(Integer.parseInt(request.getParameter("giaBan")));
             } catch (Exception e) {
                 tp.setGiaBan(0);
+            }
+
+            // XỬ LÝ FILE ẢNH
+            Part filePart = request.getPart("hinhAnhFile");
+            String fileName = filePart.getSubmittedFileName();
+            if (fileName != null && !fileName.isEmpty()) {
+                filePart.write(uploadPath + File.separator + fileName);
+                tp.setHinhAnh(fileName);
+            } else {
+                String oldHinhAnh = request.getParameter("oldHinhAnh");
+                tp.setHinhAnh(oldHinhAnh != null && !oldHinhAnh.isEmpty() ? oldHinhAnh : "default.png");
             }
 
             String tb = toppingService.update(tp);
