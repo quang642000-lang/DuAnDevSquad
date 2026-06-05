@@ -19,7 +19,7 @@ public class DBConnect {
     private static final String USER = "sa";
 
     // 3. Sửa thành Mật khẩu tài khoản sa của bạn
-    private static final String PASS = "P6t4q29!";
+    private static final String PASS = "!";
 
     private static final String URL = "jdbc:sqlserver://" + HOST + ":" + PORT + ";databaseName=" + DB_NAME + ";encrypt=true;trustServerCertificate=true;";
 
