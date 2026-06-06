@@ -43,7 +43,6 @@
     </c:if>
 
     <div class="row">
-        <!-- FORM THÊM -->
         <div class="col-lg-3 mb-4">
             <div class="card shadow-sm border-0 rounded-3">
                 <div class="card-header bg-primary text-white py-3">
@@ -70,7 +69,6 @@
             </div>
         </div>
 
-        <!-- DANH SÁCH -->
         <div class="col-lg-9 mb-4">
             <div class="card shadow-sm border-0 rounded-3 mb-3">
                 <div class="card-body bg-white py-2">
@@ -121,7 +119,7 @@
                                     <tr>
                                         <td class="fw-bold">${status.index + 1}</td>
                                         <td>
-                                            <img src="${pageContext.request.contextPath}/assets/img/${not empty tp.hinhAnh ? tp.hinhAnh : 'default.png'}"
+                                            <img src="${pageContext.request.contextPath}/image/${not empty tp.hinhAnh ? tp.hinhAnh : 'default.png'}"
                                                  class="product-img shadow-sm" onerror="this.src='https://placehold.co/100x100?text=No+Image'" alt="${fn:escapeXml(tp.tenTopping)}">
                                         </td>
                                         <td class="fw-bold text-secondary">${tp.maTopping}</td>
@@ -163,7 +161,6 @@
     </div>
 </div>
 
-<!-- MODAL CẬP NHẬT -->
 <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content border-0 shadow">
@@ -218,7 +215,7 @@
         document.getElementById('edit_giaBan').value = giaBan;
 
         document.getElementById('edit_oldHinhAnh').value = hinhAnh;
-        let imgUrl = hinhAnh ? ('${pageContext.request.contextPath}/assets/img/' + hinhAnh) : 'https://placehold.co/100x100?text=No+Image';
+        let imgUrl = hinhAnh ? ('${pageContext.request.contextPath}/image/' + hinhAnh) : 'https://placehold.co/100x100?text=No+Image';
         document.getElementById('preview_hinhAnh').src = imgUrl;
 
         document.getElementById('btn-delete-modal').href = '${pageContext.request.contextPath}/topping?action=delete&id=' + maTP;

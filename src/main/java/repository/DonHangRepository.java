@@ -42,7 +42,10 @@ public class DonHangRepository {
                 psDH.setString(8, dh.getPhuongThucThanhToan().getMaPTTT());
 
                 try (ResultSet rsDH = psDH.executeQuery()) {
-                    if (rsDH.next()) maDHMoi = rsDH.getString("ma_dh");
+                    if (rsDH.next()) {
+                        maDHMoi = rsDH.getString("ma_dh");
+                        dh.setMaDH(maDHMoi); // <-- BỔ SUNG: Gắn mã tự động sinh vào Object để đem đi in Bill
+                    }
                 }
             }
 

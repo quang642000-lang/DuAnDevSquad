@@ -1,4 +1,4 @@
-package servlet;
+package controller;
 
 import model.*;
 import service.*;
@@ -95,8 +95,17 @@ public class BanHangController extends HttpServlet {
                 dh.setTongTienHang(Integer.parseInt(request.getParameter("tongTienHang")));
                 dh.setSoTienKhachDua(Integer.parseInt(request.getParameter("tienKhachDua")));
 
+                String maPTTT = request.getParameter("maPTTT");
                 PhuongThucThanhToan pttt = new PhuongThucThanhToan();
-                pttt.setMaPTTT(request.getParameter("maPTTT"));
+                pttt.setMaPTTT(maPTTT);
+
+                // --- BỔ SUNG: Tìm Tên phương thức thanh toán để in ra Bill ---
+                for (PhuongThucThanhToan pt : ptttService.getAll()) {
+                    if (pt.getMaPTTT().equals(maPTTT)) {
+                        pttt.setTenPhuongThuc(pt.getTenPhuongThuc());
+                        break;
+                    }
+                }
                 dh.setPhuongThucThanhToan(pttt);
 
                 String maKM = request.getParameter("maKM");
@@ -116,7 +125,7 @@ public class BanHangController extends HttpServlet {
                         bt.setMaBienThe(request.getParameter("maBT_" + idx));
 
                         SanPham sp = new SanPham();
-                        // ĐÃ SỬA LỖI BUILD TẠI ĐÂY:
+                        // ĐÃ SỬA LỖI BUILD: Gọi đúng hàm setTenSanPham
                         sp.setTenSanPham(request.getParameter("tenMon_" + idx));
                         bt.setSanPham(sp);
 

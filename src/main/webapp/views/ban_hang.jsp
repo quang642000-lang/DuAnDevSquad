@@ -20,7 +20,6 @@
         .cart-items::-webkit-scrollbar { width: 5px; }
         .cart-items::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 5px; }
 
-        /* CSS cho thiết kế hóa đơn máy in nhiệt chuẩn Highlands */
         .thermal-receipt {
             background: #fff;
             width: 100%;
@@ -79,6 +78,7 @@
     </c:if>
 
     <div class="row">
+        <!-- CỘT TRÁI: DANH SÁCH MÓN -->
         <div class="col-lg-7 col-xl-8 mb-4">
             <div class="d-flex mb-3 overflow-auto pb-2" style="white-space: nowrap;">
                 <a href="${pageContext.request.contextPath}/ban-hang" class="btn btn-${empty param.maDanhMuc ? 'primary shadow-sm' : 'outline-primary'} rounded-pill me-2 fw-bold px-4">
@@ -100,7 +100,7 @@
                                 <div class="col">
                                     <div class="card h-100 shadow-sm product-card bg-white rounded-3"
                                          onclick="openOptionsModal('${sp.maSP}', '${fn:escapeXml(sp.tenSanPham)}')">
-                                        <img src="${pageContext.request.contextPath}/assets/img/${not empty sp.hinhAnh ? sp.hinhAnh : 'default.png'}"
+                                        <img src="${pageContext.request.contextPath}/image/${not empty sp.hinhAnh ? sp.hinhAnh : 'default.png'}"
                                              class="product-img" onerror="this.src='https://placehold.co/300x200?text=No+Image'" alt="${fn:escapeXml(sp.tenSanPham)}">
                                         <div class="card-body p-3 text-center d-flex flex-column justify-content-center">
                                             <h6 class="card-title fw-bold mb-1 text-truncate" title="${fn:escapeXml(sp.tenSanPham)}">${sp.tenSanPham}</h6>
@@ -112,12 +112,13 @@
                         </c:forEach>
                     </c:when>
                     <c:otherwise>
-                        <div class="col-12 text-center py-5"><h5 class="text-muted">Không có sản phẩm nào thuộc danh mục này!</h5></div>
+                        <div class="col-12 text-center py-5"><h5 class="text-muted">Không có sản phẩm nào!</h5></div>
                     </c:otherwise>
                 </c:choose>
             </div>
         </div>
 
+        <!-- CỘT PHẢI: GIỎ HÀNG -->
         <div class="col-lg-5 col-xl-4">
             <div class="card shadow-sm border-0 cart-container rounded-3">
                 <div class="card-header bg-white border-bottom border-2 border-primary py-3">
@@ -132,7 +133,8 @@
                 </div>
 
                 <div class="card-footer bg-white border-top shadow-lg p-3">
-                    <form action="${pageContext.request.contextPath}/ban-hang" method="post" id="checkout-form" onsubmit="return validateCheckout()">
+                    <!-- THAY ĐỔI: onsubmit nhận event để chặn submit mặc định -->
+                    <form action="${pageContext.request.contextPath}/ban-hang" method="post" id="checkout-form" onsubmit="return validateCheckout(event)">
                         <input type="hidden" name="action" value="checkout">
                         <div id="hidden-cart-inputs"></div>
 
@@ -141,6 +143,7 @@
                         <input type="hidden" name="tongPhaiTra" id="input_tongPhaiTra" value="0">
                         <input type="hidden" name="maKM" id="input_maKM" value="">
 
+                        <!-- KHÁCH HÀNG & ĐIỂM -->
                         <div class="row g-2 mb-1">
                             <div class="col-5">
                                 <input type="text" class="form-control form-control-sm" name="sdtKhachHang" id="sdtKhachHang" placeholder="SĐT Khách" maxlength="10" oninput="checkCustomerPhone()">
@@ -171,6 +174,7 @@
                             <i class="bi bi-info-circle"></i> Khách mới. Hệ thống tự tạo thẻ thành viên sau thanh toán!
                         </div>
 
+                        <!-- KHUYẾN MÃI -->
                         <div class="d-flex justify-content-between align-items-center mb-2 bg-light p-2 rounded border">
                             <span class="fw-bold small text-muted"><i class="bi bi-ticket-perforated"></i> Mã KM: <span id="voucherLabel" class="text-muted fw-normal">Trống</span></span>
                             <button type="button" class="btn btn-sm btn-outline-success fw-bold" data-bs-toggle="modal" data-bs-target="#voucherModal">
@@ -178,6 +182,7 @@
                             </button>
                         </div>
 
+                        <!-- TỔNG KẾT -->
                         <div class="border rounded p-2 mb-2 bg-light text-end small">
                             <div class="d-flex justify-content-between">
                                 <span class="text-muted fw-bold">Tổng tiền hàng:</span>
@@ -198,9 +203,10 @@
                             </div>
                         </div>
 
+                        <!-- THANH TOÁN (Thay đổi sự kiện onchange) -->
                         <div class="row g-2 align-items-center mb-3">
                             <div class="col-5">
-                                <select class="form-select form-select-sm fw-bold border-secondary" name="maPTTT" required>
+                                <select class="form-select form-select-sm fw-bold border-secondary" name="maPTTT" id="select_pttt" required onchange="handlePaymentMethodChange()">
                                     <c:forEach var="pt" items="${requestScope.danhSachPTTT}">
                                         <option value="${pt.maPTTT}">${pt.tenPhuongThuc}</option>
                                     </c:forEach>
@@ -226,7 +232,7 @@
                             </div>
                             <div class="col-8">
                                 <button type="submit" class="btn btn-primary w-100 fw-bold fs-5 shadow-sm py-2" id="btn-checkout" disabled>
-                                    THANH TOÁN (XUẤT BILL)
+                                    THANH TOÁN
                                 </button>
                             </div>
                         </div>
@@ -237,6 +243,39 @@
     </div>
 </div>
 
+<!-- ============================================= -->
+<!-- CÁC HỘP THOẠI MODAL -->
+<!-- ============================================= -->
+
+<!-- 1. Modal Quét Mã QR (THÊM MỚI) -->
+<div class="modal fade" id="qrModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-primary text-white border-0">
+                <h5 class="modal-title fw-bold"><i class="bi bi-qr-code-scan"></i> Thanh Toán Chuyển Khoản</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center bg-light">
+                <p class="mb-1 text-muted fw-bold">Số tiền cần thanh toán:</p>
+                <h3 class="text-danger fw-bold mb-3" id="qrAmount">0 đ</h3>
+
+                <div class="bg-white p-2 rounded shadow-sm d-inline-block mb-3">
+                    <img id="qrImage" src="" alt="Mã QR Thanh Toán" style="width: 220px; height: 220px; object-fit: contain;">
+                </div>
+
+                <p class="small text-muted mb-0"><i class="bi bi-info-circle"></i> Đưa mã này cho khách quét bằng ứng dụng Ngân hàng hoặc MoMo.</p>
+            </div>
+            <div class="modal-footer border-0 bg-white d-flex justify-content-between">
+                <button type="button" class="btn btn-outline-secondary fw-bold" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-success fw-bold" onclick="submitCheckoutForm()">
+                    <i class="bi bi-check-circle-fill"></i> Đã Nhận Tiền
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 2. Modal Tùy chọn món -->
 <div class="modal fade" id="optionModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg">
@@ -274,15 +313,20 @@
                     <c:forEach var="tp" items="${requestScope.danhSachTopping}">
                         <c:if test="${tp.trangThai == 1}">
                             <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
-                                <div>
-                                    <span class="fw-bold">${tp.tenTopping}</span><br>
-                                    <small class="text-danger">+<fmt:formatNumber value="${tp.giaBan}" type="number"/>đ</small>
+                                <div class="d-flex align-items-center">
+                                    <img src="${pageContext.request.contextPath}/image/${not empty tp.hinhAnh ? tp.hinhAnh : 'default.png'}"
+                                         class="rounded me-2 shadow-sm" style="width: 40px; height: 40px; object-fit: cover;"
+                                         onerror="this.src='https://placehold.co/100x100?text=No+Image'">
+                                    <div>
+                                        <span class="fw-bold" style="font-size: 0.9rem;">${tp.tenTopping}</span><br>
+                                        <small class="text-danger">+<fmt:formatNumber value="${tp.giaBan}" type="number"/>đ</small>
+                                    </div>
                                 </div>
                                 <div class="input-group input-group-sm w-auto">
                                     <button class="btn btn-outline-secondary" type="button" onclick="changeModalTpQty('${tp.maTopping}', -1)">-</button>
                                     <input type="text" class="form-control text-center fw-bold" style="max-width: 40px;"
                                            id="tp_qty_${tp.maTopping}" value="0" readonly
-                                           data-id="${tp.maTopping}" data-name="${tp.tenTopping}" data-price="${tp.giaBan}">
+                                           data-id="${tp.maTopping}" data-name="${fn:escapeXml(tp.tenTopping)}" data-price="${tp.giaBan}">
                                     <button class="btn btn-outline-secondary" type="button" onclick="changeModalTpQty('${tp.maTopping}', 1)">+</button>
                                 </div>
                             </div>
@@ -299,6 +343,7 @@
     </div>
 </div>
 
+<!-- 3. Modal Voucher -->
 <div class="modal fade" id="voucherModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -332,6 +377,7 @@
     </div>
 </div>
 
+<!-- 4. Modal In Hóa Đơn -->
 <c:if test="${not empty sessionScope.recentOrder}">
     <div class="modal fade" id="receiptModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered modal-sm">
@@ -339,19 +385,21 @@
                 <div class="modal-body thermal-receipt">
                     <div class="text-center mb-3">
                         <h4 class="fw-bold mb-0 text-uppercase">TEA POS RECEIPT</h4>
-                        <div class="small-text fw-semibold">ĐC: FPT Polytechnic - Bình Dương</div>
+                        <div class="small-text fw-semibold">ĐC: FPT Polytechnic</div>
                         <div class="small-text">SĐT Hệ Thống: 0988.888.888</div>
                         <hr>
                         <h5 class="fw-bold mt-2">HÓA ĐƠN THANH TOÁN</h5>
                     </div>
 
                     <div class="small-text mb-2">
-                        <div><span class="fw-bold">Mã phiếu:</span> ${sessionScope.recentOrder.maDH}</div>
+                        <div><span class="fw-bold">Số phiếu:</span> ${sessionScope.recentOrder.maDH}</div>
                         <div><span class="fw-bold">Thời gian nhập:</span> <fmt:formatDate value="${sessionScope.recentOrder.thoiGianTao}" pattern="dd/MM/yyyy HH:mm:ss"/></div>
                         <div><span class="fw-bold">Thu ngân:</span> ${sessionScope.nhanVienDangNhap.hoTen}</div>
                         <c:if test="${not empty sessionScope.recentOrder.khachHang}">
                             <div><span class="fw-bold">Khách hàng:</span> ${sessionScope.recentOrder.khachHang.tenKH} (${sessionScope.recentOrder.khachHang.SDT})</div>
                         </c:if>
+                        <!-- BỔ SUNG DÒNG NÀY ĐỂ HIỂN THỊ PHƯƠNG THỨC THANH TOÁN LÊN BILL -->
+                        <div><span class="fw-bold">Thanh toán:</span> ${sessionScope.recentOrder.phuongThucThanhToan.tenPhuongThuc}</div>
                     </div>
                     <hr>
 
@@ -404,16 +452,16 @@
 
                         <hr>
                         <div class="d-flex justify-content-between fw-bold fs-6 mt-2">
-                            <span>TỔNG TIỀN PHẢI TRẢ:</span>
+                            <span>TỔNG PHẢI TRẢ:</span>
                             <span><fmt:formatNumber value="${sessionScope.recentOrder.tongTienTra}" type="currency" currencySymbol="đ" maxFractionDigits="0"/></span>
                         </div>
 
                         <div class="d-flex justify-content-between mb-1 mt-2">
-                            <span>Tiền nhận của khách:</span>
+                            <span>Tiền khách đưa:</span>
                             <span><fmt:formatNumber value="${sessionScope.recentOrder.soTienKhachDua}" type="currency" currencySymbol="đ" maxFractionDigits="0"/></span>
                         </div>
                         <div class="d-flex justify-content-between mb-1">
-                            <span>Tiền thối lại chuẩn:</span>
+                            <span>Tiền thối lại:</span>
                             <span><fmt:formatNumber value="${sessionScope.recentOrder.soTienKhachDua - sessionScope.recentOrder.tongTienTra}" type="currency" currencySymbol="đ" maxFractionDigits="0"/></span>
                         </div>
                     </div>
@@ -421,12 +469,11 @@
                     <hr>
                     <div class="text-center small-text mt-3">
                         <p class="fw-bold mb-0">CẢM ƠN QUÝ KHÁCH & HẸN GẶP LẠI!</p>
-                        <p class="text-muted" style="font-size: 0.7rem;">Hệ thống phần mềm hỗ trợ TEA POS</p>
                     </div>
 
                     <div class="mt-4 d-print-none text-center">
-                        <button type="button" class="btn btn-outline-secondary btn-sm fw-bold me-2" data-bs-dismiss="modal">Đóng cửa sổ</button>
-                        <button type="button" class="btn btn-primary btn-sm fw-bold" onclick="window.print()"><i class="bi bi-printer"></i> Ra Lệnh In</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm fw-bold me-2" data-bs-dismiss="modal">Đóng</button>
+                        <button type="button" class="btn btn-primary btn-sm fw-bold" onclick="window.print()"><i class="bi bi-printer"></i> In Hóa Đơn</button>
                     </div>
                 </div>
             </div>
@@ -447,7 +494,6 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    // Tải mảng biến thể sản phẩm chuẩn từ DOM ẩn
     const allVariants = [];
     document.querySelectorAll('.variant-item-data').forEach(function(item) {
         allVariants.push({
@@ -461,11 +507,9 @@
     let cart = [];
     const formatCurrency = (number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(number);
 
-    let optionModalElement = document.getElementById('optionModal');
-    let optionModal = optionModalElement ? new bootstrap.Modal(optionModalElement) : null;
-
-    let voucherModalElement = document.getElementById('voucherModal');
-    let voucherModal = voucherModalElement ? new bootstrap.Modal(voucherModalElement) : null;
+    let optionModal = new bootstrap.Modal(document.getElementById('optionModal'));
+    let voucherModal = new bootstrap.Modal(document.getElementById('voucherModal'));
+    let qrModal = new bootstrap.Modal(document.getElementById('qrModal')); // Khởi tạo Modal QR
 
     let currentVoucher = null;
     let currentProductVariants = [];
@@ -475,18 +519,104 @@
 
     const appBasePath = document.getElementById('appContextPath').value;
 
-    // Lắng nghe sự kiện tải trang để hiển thị bill ngầm nếu có hóa đơn mới
     window.onload = function() {
         let receiptElement = document.getElementById('receiptModal');
         if(receiptElement) {
             let myModal = new bootstrap.Modal(receiptElement);
             myModal.show();
-            // Gọi lệnh ngầm giải phóng hóa đơn cũ để chống trùng lặp bill khi F5
             fetch(appBasePath + '/ban-hang?action=clear-bill').catch(e => console.log(e));
         }
     };
 
-    // 1. GỌI AJAX TRA CỨU KHÁCH HÀNG THÂN THIẾT THEO SĐT
+    // --- LOGIC XỬ LÝ THANH TOÁN (CẬP NHẬT MỚI: TỰ ĐIỀN TIỀN & MỞ QR MÔ PHỎNG) ---
+
+    // 1. Theo dõi khi thu ngân đổi phương thức thanh toán
+    function handlePaymentMethodChange() {
+        let ptttSelect = document.getElementById('select_pttt');
+        let ptttName = ptttSelect.options[ptttSelect.selectedIndex].text.toLowerCase();
+        let tienKhachDuaInput = document.getElementById('tienKhachDua');
+        let phaiTra = parseInt(document.getElementById('input_tongPhaiTra').value) || 0;
+
+        // Nếu là Tiền Mặt -> Cho phép gõ số tiền
+        if (ptttName.includes("tiền mặt") || ptttName.includes("cash")) {
+            tienKhachDuaInput.readOnly = false;
+            tienKhachDuaInput.value = '';
+        } else {
+            // Nếu là MoMo, ZaloPay, Chuyển khoản -> Khóa ô và tự điền đúng số tiền
+            tienKhachDuaInput.readOnly = true;
+            tienKhachDuaInput.value = phaiTra;
+        }
+        calculateChange();
+    }
+
+    // 2. Hàm gom dữ liệu Giỏ hàng Ẩn
+    function generateHiddenCartInputs() {
+        const h = document.getElementById('hidden-cart-inputs');
+        h.innerHTML = '';
+        cart.forEach(function(item, idx) {
+            let inputs = "<input type='hidden' name='itemIndex[]' value='" + idx + "'>" +
+                "<input type='hidden' name='tenMon_" + idx + "' value='" + item.ten + "'>" +
+                "<input type='hidden' name='maBT_" + idx + "' value='" + item.maBT + "'>" +
+                "<input type='hidden' name='soLuong_" + idx + "' value='" + item.soLuong + "'>" +
+                "<input type='hidden' name='giaChot_" + idx + "' value='" + item.giaChot + "'>" +
+                "<input type='hidden' name='da_" + idx + "' value='" + item.da + "'>" +
+                "<input type='hidden' name='duong_" + idx + "' value='" + item.duong + "'>";
+
+            item.toppings.forEach(function(tp) {
+                inputs += "<input type='hidden' name='toppings_" + idx + "[]' value='" + tp.id + "|" + tp.qty + "|" + tp.price + "|" + tp.name + "'>";
+            });
+            h.insertAdjacentHTML('beforeend', inputs);
+        });
+    }
+
+    // 3. Đánh chặn nút THANH TOÁN
+    function validateCheckout(event) {
+        event.preventDefault(); // CHẶN LẠI KHÔNG CHO GỬI FORM NGAY
+
+        let khachDua = parseInt(document.getElementById('tienKhachDua').value);
+        let phaiTra = parseInt(document.getElementById('input_tongPhaiTra').value);
+
+        if (!khachDua || khachDua < phaiTra) {
+            alert("Số tiền khách đưa không đủ để thanh toán!");
+            document.getElementById('tienKhachDua').focus();
+            return false;
+        }
+
+        generateHiddenCartInputs(); // Gọi hàm tạo giỏ hàng ẩn
+
+        let ptttSelect = document.getElementById('select_pttt');
+        let ptttName = ptttSelect.options[ptttSelect.selectedIndex].text.toLowerCase();
+
+        // Nếu là Tiền Mặt -> Xác nhận nhẹ rồi gửi đi luôn
+        if (ptttName.includes("tiền mặt") || ptttName.includes("cash")) {
+            if(confirm("Xác nhận thu đủ " + formatCurrency(khachDua) + " tiền mặt của khách?")) {
+                submitCheckoutForm();
+            }
+        } else {
+            // NẾU LÀ CHUYỂN KHOẢN HOẶC MOMO -> BẬT MODAL MÃ QR CÓ SẴN TIỀN
+            document.getElementById('qrAmount').innerText = formatCurrency(phaiTra);
+
+            // API VietQR tự động nhúng số tiền (phaiTra) vào QR Code (Sử dụng STK Demo của MBBank, có thể sửa lại)
+            // Cú pháp: https://img.vietqr.io/image/<Mã_Ngân_Hàng>-<Số_Tài_Khoản>-<Định_Dạng>.png?amount=<Số_Tiền>&addInfo=<Lời_Nhắn>
+            let qrUrl = "https://img.vietqr.io/image/MB-0346406405-compact2.png?amount=" + phaiTra + "&addInfo=TEA POS Thanh Toan";
+            document.getElementById('qrImage').src = qrUrl;
+
+            qrModal.show(); // Hiện mã QR lên màn hình thu ngân
+        }
+        return false;
+    }
+
+    // 4. Hàm thực sự gửi Form đi (Sẽ được gọi khi ấn nút "Đã nhận tiền" trong Modal QR)
+    function submitCheckoutForm() {
+        // Tắt Modal nếu đang mở
+        qrModal.hide();
+        // Submit form thủ công
+        document.getElementById('checkout-form').submit();
+    }
+
+
+    // --- CÁC HÀM XỬ LÝ GIỎ HÀNG KHÁC (GIỮ NGUYÊN) ---
+
     function checkCustomerPhone() {
         let phone = document.getElementById('sdtKhachHang').value;
         let tenInput = document.getElementById('tenKhachHang');
@@ -529,7 +659,6 @@
         }
     }
 
-    // 2. BẬT TẮT CHỨC NĂNG DÙNG ĐIỂM TÍCH LŨY
     function applyPoints() {
         isUsingPoints = document.getElementById('toggleDiem').checked;
         if(isUsingPoints) {
@@ -543,7 +672,6 @@
         renderCart();
     }
 
-    // Bộ lọc tính số điểm tối đa được phép tiêu thụ cho hóa đơn hiện tại
     function getMaxAllowedPoints() {
         let tongHang = 0;
         cart.forEach(item => { tongHang += item.giaChot * item.soLuong; });
@@ -560,7 +688,6 @@
         return (customerPoints > maxPointsForBill) ? maxPointsForBill : customerPoints;
     }
 
-    // Kiểm tra tính hợp lệ khi người dùng gõ số điểm bằng tay
     function calculateCustomPoints() {
         let inputVal = parseInt(document.getElementById('input_nhapDiemTay').value) || 0;
         let maxAllowed = getMaxAllowedPoints();
@@ -576,7 +703,6 @@
         renderCart();
     }
 
-    // Nút tắt gán số điểm tối đa nhanh
     function useMaxPoints() {
         let maxAllowed = getMaxAllowedPoints();
         document.getElementById('input_nhapDiemTay').value = maxAllowed;
@@ -590,7 +716,6 @@
         if(val >= 0) input.value = val;
     }
 
-    // 3. MỞ HỘP THOẠI CHỌN SIZE VÀ CẤU HÌNH LY NƯỚC
     function openOptionsModal(maSP, tenSP) {
         let decodedTenSP = tenSP.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#034;/g, '"').replace(/&#039;/g, "'");
         document.getElementById('modalProductName').innerText = decodedTenSP;
@@ -598,7 +723,7 @@
         currentProductVariants = allVariants.filter(v => v.maSP === maSP);
 
         if (currentProductVariants.length === 0) {
-            alert("Sản phẩm này hiện chưa được cấu hình kích cỡ (Size) nào! Vui lòng kiểm tra lại dữ liệu bên trang cấu hình.");
+            alert("Sản phẩm này hiện chưa được cấu hình kích cỡ (Size) nào!");
             return;
         }
 
@@ -619,7 +744,6 @@
         optionModal.show();
     }
 
-    // 4. XÁC NHẬN GOM DỮ LIỆU ĐỂ ĐẨY VÀO GIỎ HÀNG ẢO
     function confirmAddToCart() {
         let selectedSizeRadio = document.querySelector('input[name="modalSizeRadio"]:checked');
         if (!selectedSizeRadio) { alert("Vui lòng chọn Size món nước!"); return; }
@@ -698,7 +822,6 @@
         if(isUsingPoints) { calculateCustomPoints(); } else { renderCart(); }
     }
 
-    // 5. XỬ LÝ VẼ GIỎ HÀNG LÊN MÀN HÌNH POS VÀ TÍNH TOÁN TÀI CHÍNH
     function renderCart() {
         const container = document.getElementById('cart-items-container');
         container.innerHTML = '';
@@ -785,59 +908,8 @@
         document.getElementById('input_diemSuDung').value = diemThucTeSuDung;
         document.getElementById('input_tongPhaiTra').value = tongPhaiTra;
 
-        calculateChange();
-    }
-
-    function calculateChange() {
-        let khachDua = parseInt(document.getElementById('tienKhachDua').value) || 0;
-        let phaiTra = parseInt(document.getElementById('input_tongPhaiTra').value) || 0;
-        let tienThua = khachDua - phaiTra;
-
-        let container = document.getElementById('tienThuaContainer');
-        if (khachDua > 0) {
-            container.style.display = 'block';
-            let label = document.getElementById('tienThuaLabel');
-            if (tienThua < 0) {
-                label.innerText = "Khách đưa chưa đủ tiền!";
-                label.className = "fw-bold fs-6 text-danger";
-            } else {
-                label.innerText = formatCurrency(tienThua);
-                label.className = "fw-bold fs-5 text-success";
-            }
-        } else {
-            container.style.display = 'none';
-        }
-    }
-
-    // 6. ĐÓNG GÓI VÀ KIỂM TRA TOÀN BỘ GIỎ HÀNG TRƯỚC KHI SUBMIT VỀ SERVLET
-    function validateCheckout() {
-        let khachDua = parseInt(document.getElementById('tienKhachDua').value);
-        let phaiTra = parseInt(document.getElementById('input_tongPhaiTra').value);
-        if (!khachDua || khachDua < phaiTra) {
-            alert("Số tiền khách đưa chưa đủ để thực hiện giao dịch thanh toán!");
-            document.getElementById('tienKhachDua').focus();
-            return false;
-        }
-
-        const h = document.getElementById('hidden-cart-inputs');
-        h.innerHTML = '';
-
-        cart.forEach(function(item, idx) {
-            let inputs = "<input type='hidden' name='itemIndex[]' value='" + idx + "'>" +
-                "<input type='hidden' name='tenMon_" + idx + "' value='" + item.ten + "'>" +
-                "<input type='hidden' name='maBT_" + idx + "' value='" + item.maBT + "'>" +
-                "<input type='hidden' name='soLuong_" + idx + "' value='" + item.soLuong + "'>" +
-                "<input type='hidden' name='giaChot_" + idx + "' value='" + item.giaChot + "'>" +
-                "<input type='hidden' name='da_" + idx + "' value='" + item.da + "'>" +
-                "<input type='hidden' name='duong_" + idx + "' value='" + item.duong + "'>";
-
-            item.toppings.forEach(function(tp) {
-                // Định dạng đóng gói chuỗi Topping: ID | QTY | PRICE | NAME chuẩn
-                inputs += "<input type='hidden' name='toppings_" + idx + "[]' value='" + tp.id + "|" + tp.qty + "|" + tp.price + "|" + tp.name + "'>";
-            });
-            h.insertAdjacentHTML('beforeend', inputs);
-        });
-        return confirm("Hệ thống chuẩn bị xuất hóa đơn in nhiệt. Xác nhận hoàn tất thanh toán?");
+        // Gọi hàm handlePaymentMethodChange thay vì calculateChange để tự động xử lý điền tiền nếu đang chọn MoMo
+        handlePaymentMethodChange();
     }
 </script>
 

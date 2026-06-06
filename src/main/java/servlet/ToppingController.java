@@ -13,8 +13,11 @@ import jakarta.servlet.http.Part;
 import java.io.File;
 import java.io.IOException;
 
-// THÊM ANNOTATION ĐỂ NHẬN FILE
-@MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 10)
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024 * 2,
+        maxFileSize = 1024 * 1024 * 5,
+        maxRequestSize = 1024 * 1024 * 10
+)
 @WebServlet(name = "ToppingController", value = "/topping")
 public class ToppingController extends HttpServlet {
 
@@ -59,10 +62,11 @@ public class ToppingController extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action");
 
-        // ĐƯỜNG DẪN LƯU ẢNH TRÊN SERVER
-        String uploadPath = getServletContext().getRealPath("") + File.separator + "assets" + File.separator + "img";
+        String uploadPath = "C:" + File.separator + "tea_pos_images";
         File uploadDir = new File(uploadPath);
-        if (!uploadDir.exists()) uploadDir.mkdirs();
+        if (!uploadDir.exists()) {
+            uploadDir.mkdirs();
+        }
 
         if ("add".equals(action)) {
             Topping tp = new Topping();
@@ -74,7 +78,6 @@ public class ToppingController extends HttpServlet {
                 tp.setGiaBan(0);
             }
 
-            // XỬ LÝ LƯU FILE ẢNH
             Part filePart = request.getPart("hinhAnhFile");
             String fileName = filePart.getSubmittedFileName();
             if (fileName != null && !fileName.isEmpty()) {
@@ -98,7 +101,6 @@ public class ToppingController extends HttpServlet {
                 tp.setGiaBan(0);
             }
 
-            // XỬ LÝ FILE ẢNH
             Part filePart = request.getPart("hinhAnhFile");
             String fileName = filePart.getSubmittedFileName();
             if (fileName != null && !fileName.isEmpty()) {

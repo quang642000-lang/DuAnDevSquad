@@ -16,8 +16,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-// THÊM ANNOTATION NÀY ĐỂ BẬT TÍNH NĂNG UPLOAD FILE (Tối đa 5MB)
-@MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 10)
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024 * 2,  // 2MB
+        maxFileSize = 1024 * 1024 * 5,       // 5MB tối đa cho 1 file
+        maxRequestSize = 1024 * 1024 * 10    // 10MB tối đa tổng request
+)
 @WebServlet(name = "SanPhamController", value = "/san-pham")
 public class SanPhamController extends HttpServlet {
 
@@ -79,25 +82,25 @@ public class SanPhamController extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action");
 
-        // ĐƯỜNG DẪN LƯU ẢNH TRÊN SERVER (Thư mục assets/img)
-        String uploadPath = getServletContext().getRealPath("") + File.separator + "assets" + File.separator + "img";
+        // Thiết lập đường dẫn kho lưu trữ cố định trên ổ đĩa C
+        String uploadPath = "C:" + File.separator + "tea_pos_images";
         File uploadDir = new File(uploadPath);
-
-        // ĐÃ SỬA: Dùng mkdirs() thay vì mkdir() để tạo cả thư mục cha nếu chưa có
-        if (!uploadDir.exists()) uploadDir.mkdirs();
+        if (!uploadDir.exists()) {
+            uploadDir.mkdirs(); // mkdirs() tự động tạo tất cả các cấp thư mục cha con nếu chưa tồn tại
+        }
 
         if ("add".equals(action)) {
             SanPham sp = new SanPham();
             sp.setTenSanPham(request.getParameter("tenSanPham"));
 
-            // XỬ LÝ LƯU FILE ẢNH
+            // Đọc dữ liệu file ảnh gửi lên từ form
             Part filePart = request.getPart("hinhAnhFile");
             String fileName = filePart.getSubmittedFileName();
             if (fileName != null && !fileName.isEmpty()) {
                 filePart.write(uploadPath + File.separator + fileName);
                 sp.setHinhAnh(fileName);
             } else {
-                sp.setHinhAnh("default.png"); // Nếu không chọn ảnh thì gán mặc định
+                sp.setHinhAnh("default.png");
             }
 
             DanhMuc dm = new DanhMuc();
@@ -112,14 +115,13 @@ public class SanPhamController extends HttpServlet {
             sp.setMaSP(request.getParameter("maSP"));
             sp.setTenSanPham(request.getParameter("tenSanPham"));
 
-            // XỬ LÝ FILE ẢNH (NẾU CHỌN FILE MỚI THÌ LƯU, KHÔNG THÌ GIỮ ẢNH CŨ)
             Part filePart = request.getPart("hinhAnhFile");
             String fileName = filePart.getSubmittedFileName();
             if (fileName != null && !fileName.isEmpty()) {
                 filePart.write(uploadPath + File.separator + fileName);
                 sp.setHinhAnh(fileName);
             } else {
-                // Lấy lại tên ảnh cũ từ thẻ input hidden
+                // Nhận lại tên file cũ thông qua trường ẩn nếu người dùng không thực hiện đổi ảnh mới
                 String oldHinhAnh = request.getParameter("oldHinhAnh");
                 sp.setHinhAnh(oldHinhAnh != null && !oldHinhAnh.isEmpty() ? oldHinhAnh : "default.png");
             }

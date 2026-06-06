@@ -42,14 +42,12 @@
     </c:if>
 
     <div class="row">
-        <!-- FORM THÊM SẢN PHẨM -->
         <div class="col-lg-3 mb-4">
             <div class="card shadow-sm border-0 rounded-3">
                 <div class="card-header bg-primary text-white py-3">
                     <h5 class="mb-0 fw-bold"><i class="bi bi-plus-circle"></i> Thêm Sản Phẩm</h5>
                 </div>
                 <div class="card-body bg-white p-3">
-                    <!-- THÊM enctype NÀY THÌ MỚI GỬI ĐƯỢC FILE ẢNH VỀ JAVA -->
                     <form action="${pageContext.request.contextPath}/san-pham" method="post" enctype="multipart/form-data">
                         <input type="hidden" name="action" value="add">
                         <div class="mb-3">
@@ -67,7 +65,6 @@
                         </div>
                         <div class="mb-4">
                             <label class="form-label fw-bold text-dark">Tải Hình Ảnh Lên</label>
-                            <!-- NÚT CHỌN FILE -->
                             <input type="file" class="form-control" name="hinhAnhFile" accept="image/*">
                         </div>
                         <button type="submit" class="btn btn-primary w-100 fw-bold py-2 shadow-sm"><i class="bi bi-save"></i> Lưu Sản Phẩm</button>
@@ -76,7 +73,6 @@
             </div>
         </div>
 
-        <!-- TÌM KIẾM VÀ DANH SÁCH -->
         <div class="col-lg-9 mb-4">
             <div class="card shadow-sm border-0 rounded-3 mb-3">
                 <div class="card-body bg-white py-2">
@@ -138,7 +134,7 @@
                                     <tr>
                                         <td class="text-center fw-bold">${status.index + 1}</td>
                                         <td class="text-center">
-                                            <img src="${pageContext.request.contextPath}/assets/img/${not empty sp.hinhAnh ? sp.hinhAnh : 'default.png'}"
+                                            <img src="${pageContext.request.contextPath}/image/${not empty sp.hinhAnh ? sp.hinhAnh : 'default.png'}"
                                                  class="product-img shadow-sm" onerror="this.src='https://placehold.co/100x100?text=No+Image'" alt="${fn:escapeXml(sp.tenSanPham)}">
                                         </td>
                                         <td class="fw-bold text-secondary">${sp.maSP}</td>
@@ -182,7 +178,6 @@
     </div>
 </div>
 
-<!-- MODAL SỬA SẢN PHẨM -->
 <div class="modal fade" id="editSpModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content border-0 shadow">
@@ -190,13 +185,10 @@
                 <h5 class="modal-title fw-bold text-dark"><i class="bi bi-pencil-square"></i> Cập Nhật Sản Phẩm</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <!-- Bật tính năng UPLOAD FILE cho form sửa -->
             <form action="${pageContext.request.contextPath}/san-pham" method="post" enctype="multipart/form-data">
                 <div class="modal-body bg-light p-4">
                     <input type="hidden" name="action" value="update">
                     <input type="hidden" name="maSP" id="edit_maSP">
-
-                    <!-- LƯU ẢNH CŨ LẠI ĐỂ TRƯỜNG HỢP KHÔNG TẢI ẢNH MỚI LÊN THÌ DÙNG LẠI -->
                     <input type="hidden" name="oldHinhAnh" id="edit_oldHinhAnh">
 
                     <div class="mb-3">
@@ -216,7 +208,7 @@
                         </select>
                     </div>
                     <div class="mb-2">
-                        <label class="form-label fw-bold text-dark">Thay Đổi Hình Ảnh (Để trống nếu không đổi)</label>
+                        <label class="form-label fw-bold text-dark">Thay Đổi Hình Ảnh (Để trống nếu giữ nguyên)</label>
                         <input type="file" class="form-control border-primary" name="hinhAnhFile" accept="image/*">
                         <div class="mt-2 text-center">
                             <img id="preview_hinhAnh" src="" alt="Ảnh hiện tại" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px; border: 1px solid #ccc;">
@@ -241,11 +233,9 @@
         document.getElementById('edit_maSP').value = maSP;
         document.getElementById('display_maSP').value = maSP;
         document.getElementById('edit_tenSanPham').value = tenSanPham;
-
-        // Gắn ảnh cũ vào input ẩn để Java lưu lại nếu khách không đổi ảnh
         document.getElementById('edit_oldHinhAnh').value = hinhAnh;
-        // Hiển thị ảnh xem trước
-        let imgUrl = hinhAnh ? ('${pageContext.request.contextPath}/assets/img/' + hinhAnh) : 'https://placehold.co/100x100?text=No+Image';
+
+        let imgUrl = hinhAnh ? ('${pageContext.request.contextPath}/image/' + hinhAnh) : 'https://placehold.co/100x100?text=No+Image';
         document.getElementById('preview_hinhAnh').src = imgUrl;
 
         document.getElementById('edit_maDanhMuc').value = maDanhMuc;
