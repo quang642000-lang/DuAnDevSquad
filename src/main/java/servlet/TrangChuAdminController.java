@@ -1,4 +1,4 @@
-package servlet;
+package controller;
 
 import service.ThongKeService;
 import model.ThongKe;
@@ -12,6 +12,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @WebServlet(name = "TrangChuAdminController", value = "/admin")
 public class TrangChuAdminController extends HttpServlet {
@@ -21,22 +23,32 @@ public class TrangChuAdminController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        // 1. Lấy ngày được chọn từ giao diện (Bộ lọc)
         String filterDate = request.getParameter("dateFilter");
 
-        // 2. Lấy 4 chỉ số tổng quan
         ThongKe tk = thongKeService.getThongKeTongQuan(filterDate);
         request.setAttribute("thongKe", tk);
 
-        // 3. Lấy Danh sách Đơn Hàng trong ngày
         List<DonHangDashboard> listDonHang = thongKeService.getDonHangTheoNgay(filterDate);
         request.setAttribute("listDonHang", listDonHang);
 
-        // 4. Lấy Top 5 Sản phẩm bán chạy
         List<TopSanPham> topSanPham = thongKeService.getTopSanPham(filterDate);
         request.setAttribute("topSanPham", topSanPham);
 
-        // 5. Trả ngày về lại JSP để đổ vào ô <input type="date">
+        // --- XỬ LÝ DỮ LIỆU BIỂU ĐỒ (CHART.JS) ---
+        Map<String, Integer> chartData = thongKeService.getDoanhThu7NgayQua(filterDate);
+        // Biến Map thành chuỗi JSON thô: ["01/06", "02/06"] và [150000, 200000]
+        String chartLabels = "[]";
+        String chartValues = "[]";
+
+        if (!chartData.isEmpty()) {
+            chartLabels = "[\"" + String.join("\",\"", chartData.keySet()) + "\"]";
+            chartValues = "[" + chartData.values().stream().map(String::valueOf).collect(Collectors.joining(",")) + "]";
+        }
+
+        request.setAttribute("chartLabels", chartLabels);
+        request.setAttribute("chartValues", chartValues);
+        // ----------------------------------------
+
         request.setAttribute("selectedDate", filterDate);
 
         request.getRequestDispatcher("/views/admin_dashboard.jsp").forward(request, response);

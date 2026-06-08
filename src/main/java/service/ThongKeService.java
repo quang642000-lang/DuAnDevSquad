@@ -7,12 +7,12 @@ import repository.ThongKeRepository;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class ThongKeService {
 
     private ThongKeRepository repo = new ThongKeRepository();
 
-    // Hàm lấy chuỗi ngày tháng chuẩn YYYY-MM-DD. Nếu trống thì tự lấy ngày hôm nay.
     private String getFormattedDate(String inputDate) {
         if (inputDate == null || inputDate.trim().isEmpty()) {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -31,5 +31,10 @@ public class ThongKeService {
 
     public List<TopSanPham> getTopSanPham(String dateString) {
         return repo.getTopSanPham(getFormattedDate(dateString));
+    }
+
+    // Hàm gọi dữ liệu vẽ biểu đồ
+    public Map<String, Integer> getDoanhThu7NgayQua(String dateString) {
+        return repo.getDoanhThu7NgayQua(getFormattedDate(dateString));
     }
 }
