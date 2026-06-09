@@ -18,10 +18,10 @@ public class AuthService {
         return authRepo.login(tenDangNhap, matKhauPlain, hashedMatKhau);
     }
 
-    // Xác minh SĐT để khôi phục mật khẩu
-    public boolean verifyPhone(String tenDangNhap, String sdt) {
-        if (tenDangNhap == null || sdt == null) return false;
-        return authRepo.verifyUserAndPhone(tenDangNhap, sdt);
+    // ĐÃ THAY ĐỔI: Kiểm tra email có tồn tại không và lấy ra Username
+    public String checkEmailAndGetUsername(String email) {
+        if (email == null || email.trim().isEmpty()) return null;
+        return authRepo.findUsernameByEmail(email);
     }
 
     // Xử lý đặt lại mật khẩu mới

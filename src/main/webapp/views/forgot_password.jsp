@@ -14,33 +14,27 @@
         <div class="col-md-4">
             <div class="card shadow-sm border-0 rounded-3">
                 <div class="card-header bg-warning text-dark text-center py-3">
-                    <h4 class="mb-0 fw-bold"><i class="bi bi-shield-lock"></i> KHÔI PHỤC MẬT KHẨU</h4>
+                    <h4 class="mb-0 fw-bold"><i class="bi bi-envelope-at-fill"></i> KHÔI PHỤC MẬT KHẨU</h4>
                 </div>
                 <div class="card-body p-4">
-                    <p class="text-muted text-center small mb-4">Vui lòng nhập tên đăng nhập và số điện thoại đã đăng ký để xác minh tài khoản.</p>
+                    <p class="text-muted text-center small mb-4">Vui lòng nhập địa chỉ Email đã liên kết với tài khoản của bạn để nhận mã xác thực OTP.</p>
 
                     <c:if test="${not empty requestScope.error}">
                         <div class="alert alert-danger shadow-sm"><i class="bi bi-exclamation-triangle-fill"></i> ${requestScope.error}</div>
                     </c:if>
 
                     <form action="${pageContext.request.contextPath}/auth" method="post">
-                        <input type="hidden" name="action" value="forgot">
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Tên Đăng Nhập</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-person"></i></span>
-                                <input type="text" class="form-control" name="username" placeholder="Nhập tài khoản..." required>
-                            </div>
-                        </div>
+                        <!-- Gửi hành động yêu cầu mã OTP qua Email -->
+                        <input type="hidden" name="action" value="send-otp">
                         <div class="mb-4">
-                            <label class="form-label fw-bold">Số Điện Thoại (SĐT)</label>
+                            <label class="form-label fw-bold">Địa Chỉ Email Tài Khoản</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-telephone"></i></span>
-                                <input type="text" class="form-control" name="sdt" placeholder="Nhập 10 chữ số..." required pattern="\d{10}">
+                                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                <input type="email" class="form-control" name="email" placeholder="Nhập địa chỉ email đăng ký..." required>
                             </div>
                         </div>
                         <button type="submit" class="btn btn-warning w-100 fw-bold mb-3 py-2 text-dark">
-                            Xác Nhận <i class="bi bi-arrow-right-circle"></i>
+                            Xác Nhận & Gửi OTP <i class="bi bi-send"></i>
                         </button>
                         <div class="text-center">
                             <a href="${pageContext.request.contextPath}/auth?action=login" class="text-decoration-none text-secondary fw-medium">

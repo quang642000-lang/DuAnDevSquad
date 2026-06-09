@@ -41,6 +41,7 @@ public class AuthRepository {
                         nv.setMatKhau(rs.getString("mat_khau"));
                         nv.setHoTen(rs.getString("ho_ten"));
                         nv.setSDT(rs.getString("so_dien_thoai"));
+                        nv.setEmail(rs.getString("email")); // THÊM EMAIL
                         nv.setTrangThai(rs.getInt("trang_thai"));
 
                         VaiTro vt = new VaiTro();
@@ -58,20 +59,21 @@ public class AuthRepository {
         return null;
     }
 
-    // Xác minh Số điện thoại và Tên đăng nhập
-    public boolean verifyUserAndPhone(String tenDangNhap, String sdt) {
-        String sql = "SELECT 1 FROM NHAN_VIEN WHERE ten_dang_nhap = ? AND so_dien_thoai = ? AND trang_thai = 1";
+    // ĐÃ THAY ĐỔI: Tìm Tên đăng nhập dựa trên Email
+    public String findUsernameByEmail(String email) {
+        String sql = "SELECT ten_dang_nhap FROM NHAN_VIEN WHERE email = ? AND trang_thai = 1";
         try (Connection con = DBConnect.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, tenDangNhap);
-            ps.setString(2, sdt);
+            ps.setString(1, email);
             try (ResultSet rs = ps.executeQuery()) {
-                return rs.next();
+                if (rs.next()) {
+                    return rs.getString("ten_dang_nhap");
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return false;
+        return null;
     }
 
     // Lưu mật khẩu mới vào DB

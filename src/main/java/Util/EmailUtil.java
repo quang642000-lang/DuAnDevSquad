@@ -1,0 +1,49 @@
+package Util;
+
+import java.util.Properties;
+import jakarta.mail.*;
+import jakarta.mail.internet.*;
+
+public class EmailUtil {
+
+    // HÀM GỬI EMAIL OTP
+    public static boolean sendOtpEmail(String toEmail, String otp) {
+        // CẤU HÌNH TÀI KHOẢN GỬI (LƯU Ý: Dùng Mật khẩu ứng dụng của Gmail)
+        final String fromEmail = "quang642000@gmail.com";
+        final String password = "jhji ifwc qcga ynpw";
+
+        Properties props = new Properties();
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.port", "587");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true"); // Bắt buộc đối với Gmail
+
+        Session session = Session.getInstance(props, new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(fromEmail, password);
+            }
+        });
+
+        try {
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(fromEmail));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
+            message.setSubject("Mã OTP Khôi Phục Mật Khẩu");
+
+            // Nội dung Email
+            String content = "<h3>Xin chào,</h3>"
+                    + "<p>Mã OTP để khôi phục mật khẩu của bạn là: <b style='color:red; font-size:20px'>" + otp + "</b></p>"
+                    + "<p>Mã này có hiệu lực trong thời gian ngắn. Vui lòng không chia sẻ cho bất kỳ ai.</p>"
+                    + "<br><p>Trân trọng,<br>Hệ thống Quản lý Trà Sữa</p>";
+
+            message.setContent(content, "text/html; charset=utf-8");
+
+            Transport.send(message);
+            return true;
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+}

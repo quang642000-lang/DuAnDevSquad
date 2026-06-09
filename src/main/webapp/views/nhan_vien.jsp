@@ -60,6 +60,12 @@
                             <input type="text" class="form-control" name="SDT" placeholder="Gồm 10 số..." pattern="\d{10}" required>
                         </div>
 
+                        <!-- ĐÃ THÊM TRƯỜNG EMAIL VÀO FORM THÊM MỚI -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-dark small">Địa Chỉ Email</label>
+                            <input type="email" class="form-control border-info" name="email" placeholder="VD: email@domain.com" required>
+                        </div>
+
                         <div class="mb-3">
                             <label class="form-label fw-bold text-dark small">Tên Đăng Nhập</label>
                             <input type="text" class="form-control border-primary" name="tenDangNhap" required>
@@ -101,7 +107,7 @@
                         <tr>
                             <th width="10%">Mã NV</th>
                             <th class="text-start">Họ Tên</th>
-                            <th>SĐT</th>
+                            <th>Liên Hệ</th>
                             <th>Tài Khoản</th>
                             <th>Quyền Hạn</th>
                             <th>Trạng Thái</th>
@@ -114,8 +120,14 @@
                                 <c:forEach var="nv" items="${requestScope.danhSach}">
                                     <tr>
                                         <td class="fw-bold text-secondary">${nv.maNV}</td>
-                                        <td class="text-start fw-bold text-dark">${nv.hoTen}</td>
-                                        <td>${nv.SDT}</td>
+                                        <td class="text-start fw-bold text-dark">
+                                                ${nv.hoTen}
+                                        </td>
+                                        <td>
+                                            <!-- ĐÃ BỔ SUNG HIỂN THỊ EMAIL Ở BẢNG -->
+                                            <div class="small"><i class="bi bi-telephone"></i> ${nv.SDT}</div>
+                                            <div class="small text-muted"><i class="bi bi-envelope"></i> ${nv.email}</div>
+                                        </td>
                                         <td class="fst-italic text-primary">${nv.tenDangNhap}</td>
                                         <td>
                                             <c:choose>
@@ -155,13 +167,13 @@
                                                 </c:otherwise>
                                             </c:choose>
 
-                                            <!-- Sửa thông tin -->
+                                            <!-- Sửa thông tin (Đã sửa hàm truyền thêm email) -->
                                             <button class="btn btn-sm btn-warning ms-1 text-dark" data-bs-toggle="modal" data-bs-target="#editModal" title="Sửa thông tin"
-                                                    onclick="fillEditModal('${nv.maNV}', '${fn:escapeXml(nv.hoTen)}', '${nv.SDT}', '${nv.tenDangNhap}', '${nv.vaiTro.maVaiTro}')">
+                                                    onclick="fillEditModal('${nv.maNV}', '${fn:escapeXml(nv.hoTen)}', '${nv.SDT}', '${nv.email}', '${nv.tenDangNhap}', '${nv.vaiTro.maVaiTro}')">
                                                 <i class="bi bi-pencil-square"></i>
                                             </button>
 
-                                            <!-- Nút đổi mật khẩu mới (Reset Password) -->
+                                            <!-- Nút đổi mật khẩu mới -->
                                             <button class="btn btn-sm btn-info ms-1 text-white" data-bs-toggle="modal" data-bs-target="#resetPasswordModal" title="Cấp lại mật khẩu"
                                                     onclick="fillResetPasswordModal('${nv.maNV}', '${nv.tenDangNhap}')">
                                                 <i class="bi bi-key-fill"></i>
@@ -217,6 +229,12 @@
                     <div class="mb-3">
                         <label class="form-label fw-bold text-dark small">Số Điện Thoại</label>
                         <input type="text" class="form-control border-primary" name="SDT" id="edit_SDT" required pattern="\d{10}">
+                    </div>
+
+                    <!-- ĐÃ THÊM INPUT SỬA EMAIL -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-dark small">Địa Chỉ Email</label>
+                        <input type="email" class="form-control border-info" name="email" id="edit_email" required>
                     </div>
 
                     <div class="mb-3">
@@ -275,12 +293,13 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Điền form Cập nhật thông tin (Không truyền matKhau)
-    function fillEditModal(maNV, hoTen, SDT, tenDN, maVaiTro) {
+    // ĐÃ SỬA HÀM TRUYỀN THÊM EMAIL
+    function fillEditModal(maNV, hoTen, SDT, email, tenDN, maVaiTro) {
         document.getElementById('edit_maNV').value = maNV;
         document.getElementById('display_maNV').value = maNV;
         document.getElementById('edit_hoTen').value = hoTen;
         document.getElementById('edit_SDT').value = SDT;
+        document.getElementById('edit_email').value = email;
         document.getElementById('edit_tenDangNhap').value = tenDN;
         document.getElementById('edit_maVaiTro').value = maVaiTro;
     }

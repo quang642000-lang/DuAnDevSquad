@@ -16,7 +16,8 @@ public class NhanVienService {
     public List<NhanVien> getAll() { return nhanVienRepo.getAll(); }
 
     public String add(NhanVien nv) {
-        if (nv.getTenDangNhap() == null || nv.getMatKhau() == null || nv.getHoTen() == null) {
+        // ĐÃ CẬP NHẬT KIỂM TRA RỖNG CHO EMAIL
+        if (nv.getTenDangNhap() == null || nv.getMatKhau() == null || nv.getHoTen() == null || nv.getEmail() == null) {
             return "Lỗi: Dữ liệu không được để trống!";
         }
 

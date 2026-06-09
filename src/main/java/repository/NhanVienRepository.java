@@ -29,6 +29,7 @@ public class NhanVienRepository {
                     nv.setMatKhau(rs.getString("mat_khau"));
                     nv.setHoTen(rs.getString("ho_ten"));
                     nv.setSDT(rs.getString("so_dien_thoai"));
+                    nv.setEmail(rs.getString("email")); // ĐÃ THÊM LẤY EMAIL
                     nv.setTrangThai(rs.getInt("trang_thai"));
 
                     VaiTro vt = new VaiTro();
@@ -61,6 +62,7 @@ public class NhanVienRepository {
                 nv.setMatKhau(rs.getString("mat_khau"));
                 nv.setHoTen(rs.getString("ho_ten"));
                 nv.setSDT(rs.getString("so_dien_thoai"));
+                nv.setEmail(rs.getString("email")); // ĐÃ THÊM LẤY EMAIL
                 nv.setTrangThai(rs.getInt("trang_thai"));
 
                 VaiTro vt = new VaiTro();
@@ -98,9 +100,9 @@ public class NhanVienRepository {
         return "NV" + String.format("%02d", maxId + 1);
     }
 
-    // 4. Thêm nhân viên mới
+    // 4. Thêm nhân viên mới (ĐÃ CẬP NHẬT TRƯỜNG EMAIL)
     public boolean add(NhanVien nv) {
-        String sql = "INSERT INTO NHAN_VIEN (ten_dang_nhap, mat_khau, ho_ten, so_dien_thoai, trang_thai, ma_vai_tro) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO NHAN_VIEN (ten_dang_nhap, mat_khau, ho_ten, so_dien_thoai, email, trang_thai, ma_vai_tro) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection con = DBConnect.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
@@ -108,8 +110,9 @@ public class NhanVienRepository {
             ps.setString(2, nv.getMatKhau());
             ps.setString(3, nv.getHoTen());
             ps.setString(4, nv.getSDT());
-            ps.setInt(5, nv.getTrangThai());
-            ps.setInt(6, nv.getVaiTro().getMaVaiTro());
+            ps.setString(5, nv.getEmail()); // ĐÃ THÊM PARAM EMAIL
+            ps.setInt(6, nv.getTrangThai());
+            ps.setInt(7, nv.getVaiTro().getMaVaiTro());
 
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
@@ -118,17 +121,18 @@ public class NhanVienRepository {
         return false;
     }
 
-    // 5. Cập nhật thông tin
+    // 5. Cập nhật thông tin (ĐÃ CẬP NHẬT TRƯỜNG EMAIL)
     public boolean update(NhanVien nv) {
-        String sql = "UPDATE NHAN_VIEN SET ten_dang_nhap = ?, ho_ten = ?, so_dien_thoai = ?, ma_vai_tro = ? WHERE ma_nv = ?";
+        String sql = "UPDATE NHAN_VIEN SET ten_dang_nhap = ?, ho_ten = ?, so_dien_thoai = ?, email = ?, ma_vai_tro = ? WHERE ma_nv = ?";
         try (Connection con = DBConnect.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, nv.getTenDangNhap());
             ps.setString(2, nv.getHoTen());
             ps.setString(3, nv.getSDT());
-            ps.setInt(4, nv.getVaiTro().getMaVaiTro());
-            ps.setString(5, nv.getMaNV());
+            ps.setString(4, nv.getEmail()); // ĐÃ THÊM PARAM EMAIL
+            ps.setInt(5, nv.getVaiTro().getMaVaiTro());
+            ps.setString(6, nv.getMaNV());
 
             return ps.executeUpdate() > 0;
         } catch (Exception e) {

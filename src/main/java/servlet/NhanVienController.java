@@ -54,6 +54,7 @@ public class NhanVienController extends HttpServlet {
             nv.setTenDangNhap(request.getParameter("tenDangNhap"));
             nv.setMatKhau(request.getParameter("matKhau"));
             nv.setSDT(request.getParameter("SDT"));
+            nv.setEmail(request.getParameter("email")); // ĐÃ THÊM LẤY EMAIL
 
             VaiTro vt = new VaiTro();
             vt.setMaVaiTro(Integer.parseInt(request.getParameter("maVaiTro")));
@@ -67,6 +68,7 @@ public class NhanVienController extends HttpServlet {
             nv.setHoTen(request.getParameter("hoTen"));
             nv.setTenDangNhap(request.getParameter("tenDangNhap"));
             nv.setSDT(request.getParameter("SDT"));
+            nv.setEmail(request.getParameter("email")); // ĐÃ THÊM LẤY EMAIL
 
             VaiTro vt = new VaiTro();
             vt.setMaVaiTro(Integer.parseInt(request.getParameter("maVaiTro")));

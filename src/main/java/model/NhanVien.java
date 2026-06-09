@@ -6,18 +6,21 @@ public class NhanVien {
     private String matKhau;
     private String hoTen;
     private String SDT;
+    private String email; // ĐÃ THÊM EMAIL
     private int trangThai;
     private VaiTro vaiTro;
 
     public NhanVien() {
     }
 
-    public NhanVien(String maNV, String tenDangNhap, String matKhau, String hoTen, String SDT, int trangThai, VaiTro vaiTro) {
+    // ĐÃ CẬP NHẬT CONSTRUCTOR CHỨA EMAIL
+    public NhanVien(String maNV, String tenDangNhap, String matKhau, String hoTen, String SDT, String email, int trangThai, VaiTro vaiTro) {
         this.maNV = maNV;
         this.tenDangNhap = tenDangNhap;
         this.matKhau = matKhau;
         this.hoTen = hoTen;
         this.SDT = SDT;
+        this.email = email;
         this.trangThai = trangThai;
         this.vaiTro = vaiTro;
     }
@@ -60,6 +63,14 @@ public class NhanVien {
 
     public void setSDT(String SDT) {
         this.SDT = SDT;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public int getTrangThai() {

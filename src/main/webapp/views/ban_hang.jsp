@@ -34,11 +34,6 @@
         .thermal-receipt hr { border-top: 1px dashed #000; opacity: 1; margin: 8px 0; background: none; }
         .thermal-receipt .fw-bold { font-weight: 700 !important; }
         .thermal-receipt .small-text { font-size: 0.85rem; }
-        @media print {
-            body * { visibility: hidden; }
-            #receiptModal .modal-body, #receiptModal .modal-body * { visibility: visible; }
-            #receiptModal .modal-body { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 0; }
-        }
     </style>
 </head>
 <body>
@@ -78,7 +73,6 @@
     </c:if>
 
     <div class="row">
-        <!-- CỘT TRÁI: DANH SÁCH MÓN -->
         <div class="col-lg-7 col-xl-8 mb-4">
             <div class="d-flex mb-3 overflow-auto pb-2" style="white-space: nowrap;">
                 <a href="${pageContext.request.contextPath}/ban-hang" class="btn btn-${empty param.maDanhMuc ? 'primary shadow-sm' : 'outline-primary'} rounded-pill me-2 fw-bold px-4">
@@ -118,7 +112,6 @@
             </div>
         </div>
 
-        <!-- CỘT PHẢI: GIỎ HÀNG -->
         <div class="col-lg-5 col-xl-4">
             <div class="card shadow-sm border-0 cart-container rounded-3">
                 <div class="card-header bg-white border-bottom border-2 border-primary py-3">
@@ -133,7 +126,6 @@
                 </div>
 
                 <div class="card-footer bg-white border-top shadow-lg p-3">
-                    <!-- THAY ĐỔI: onsubmit nhận event để chặn submit mặc định -->
                     <form action="${pageContext.request.contextPath}/ban-hang" method="post" id="checkout-form" onsubmit="return validateCheckout(event)">
                         <input type="hidden" name="action" value="checkout">
                         <div id="hidden-cart-inputs"></div>
@@ -143,7 +135,6 @@
                         <input type="hidden" name="tongPhaiTra" id="input_tongPhaiTra" value="0">
                         <input type="hidden" name="maKM" id="input_maKM" value="">
 
-                        <!-- KHÁCH HÀNG & ĐIỂM -->
                         <div class="row g-2 mb-1">
                             <div class="col-5">
                                 <input type="text" class="form-control form-control-sm" name="sdtKhachHang" id="sdtKhachHang" placeholder="SĐT Khách" maxlength="10" oninput="checkCustomerPhone()">
@@ -171,18 +162,14 @@
                             <input type="hidden" name="diemSuDung" id="input_diemSuDung" value="0">
                         </div>
                         <div id="newCustomerPanel" class="text-primary small fw-bold mb-2 ps-1" style="display: none;">
-                            <i class="bi bi-info-circle"></i> Khách mới. Hệ thống tự tạo thẻ thành viên sau thanh toán!
+                            <i class="bi bi-info-circle"></i> Khách mới. Tự tạo thẻ sau thanh toán!
                         </div>
 
-                        <!-- KHUYẾN MÃI -->
                         <div class="d-flex justify-content-between align-items-center mb-2 bg-light p-2 rounded border">
                             <span class="fw-bold small text-muted"><i class="bi bi-ticket-perforated"></i> Mã KM: <span id="voucherLabel" class="text-muted fw-normal">Trống</span></span>
-                            <button type="button" class="btn btn-sm btn-outline-success fw-bold" data-bs-toggle="modal" data-bs-target="#voucherModal">
-                                Chọn Mã
-                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-success fw-bold" data-bs-toggle="modal" data-bs-target="#voucherModal">Chọn Mã</button>
                         </div>
 
-                        <!-- TỔNG KẾT -->
                         <div class="border rounded p-2 mb-2 bg-light text-end small">
                             <div class="d-flex justify-content-between">
                                 <span class="text-muted fw-bold">Tổng tiền hàng:</span>
@@ -203,7 +190,6 @@
                             </div>
                         </div>
 
-                        <!-- THANH TOÁN (Thay đổi sự kiện onchange) -->
                         <div class="row g-2 align-items-center mb-3">
                             <div class="col-5">
                                 <select class="form-select form-select-sm fw-bold border-secondary" name="maPTTT" id="select_pttt" required onchange="handlePaymentMethodChange()">
@@ -226,14 +212,10 @@
 
                         <div class="row g-2">
                             <div class="col-4">
-                                <button type="button" class="btn btn-outline-danger w-100 fw-bold py-2" onclick="clearCart()">
-                                    Hủy Đơn
-                                </button>
+                                <button type="button" class="btn btn-outline-danger w-100 fw-bold py-2" onclick="clearCart()">Hủy Đơn</button>
                             </div>
                             <div class="col-8">
-                                <button type="submit" class="btn btn-primary w-100 fw-bold fs-5 shadow-sm py-2" id="btn-checkout" disabled>
-                                    THANH TOÁN
-                                </button>
+                                <button type="submit" class="btn btn-primary w-100 fw-bold fs-5 shadow-sm py-2" id="btn-checkout" disabled>THANH TOÁN</button>
                             </div>
                         </div>
                     </form>
@@ -243,45 +225,49 @@
     </div>
 </div>
 
-<!-- ============================================= -->
-<!-- CÁC HỘP THOẠI MODAL -->
-<!-- ============================================= -->
-
-<!-- 1. Modal Quét Mã QR (THÊM MỚI) -->
-<div class="modal fade" id="qrModal" tabindex="-1" data-bs-backdrop="static">
+<div class="modal fade" id="qrModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header bg-primary text-white border-0">
-                <h5 class="modal-title fw-bold"><i class="bi bi-qr-code-scan"></i> Thanh Toán Chuyển Khoản</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            <div class="modal-header bg-primary text-white border-0 py-2">
+                <h6 class="modal-title fw-bold m-0"><i class="bi bi-qr-code-scan"></i> Quét Mã Thanh Toán</h6>
             </div>
             <div class="modal-body text-center bg-light">
-                <p class="mb-1 text-muted fw-bold">Số tiền cần thanh toán:</p>
-                <h3 class="text-danger fw-bold mb-3" id="qrAmount">0 đ</h3>
+                <h4 class="text-danger fw-bold mb-1" id="qrAmount">0 ₫</h4>
+                <p class="text-muted small mb-3">Nội dung CK: <span class="fw-bold text-dark" id="qrCodeDisplay"></span></p>
 
-                <div class="bg-white p-2 rounded shadow-sm d-inline-block mb-3">
+                <div class="bg-white p-2 rounded shadow-sm d-inline-block mb-3 position-relative">
                     <img id="qrImage" src="" alt="Mã QR Thanh Toán" style="width: 220px; height: 220px; object-fit: contain;">
+                    <div id="qrSuccessOverlay" class="position-absolute top-0 start-0 w-100 h-100 bg-white d-flex flex-column justify-content-center align-items-center rounded" style="display: none !important; z-index: 10;">
+                        <i class='bi bi-check-circle-fill text-success' style='font-size: 3.5rem;'></i>
+                        <h5 class='text-success mt-2 fw-bold'>Thanh toán thành công!</h5>
+                    </div>
                 </div>
 
-                <p class="small text-muted mb-0"><i class="bi bi-info-circle"></i> Đưa mã này cho khách quét bằng ứng dụng Ngân hàng hoặc MoMo.</p>
+                <div id="qrLoadingStatus" class="text-primary fw-bold small mb-3 d-flex align-items-center justify-content-center">
+                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                    <span>Đang chờ tiền vào...</span>
+                </div>
+
+                <div class="alert alert-info py-2 small mb-0">
+                    <i class="bi bi-info-circle-fill"></i> Hệ thống đang tự động kiểm tra giao dịch.
+                </div>
             </div>
-            <div class="modal-footer border-0 bg-white d-flex justify-content-between">
-                <button type="button" class="btn btn-outline-secondary fw-bold" data-bs-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-success fw-bold" onclick="submitCheckoutForm()">
-                    <i class="bi bi-check-circle-fill"></i> Đã Nhận Tiền
+            <div class="modal-footer border-0 p-2 bg-white d-flex justify-content-between">
+                <button type="button" class="btn btn-sm btn-outline-danger fw-bold" onclick="cancelQRPayment()">Hủy Giao Dịch</button>
+                <button type="button" class="btn btn-sm btn-success fw-bold" onclick="forceSubmitCheckout()">
+                    <i class="bi bi-check-circle-fill"></i> Bỏ Qua (Đã Nhận)
                 </button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- 2. Modal Tùy chọn món -->
 <div class="modal fade" id="optionModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header bg-primary text-white border-0">
                 <h5 class="modal-title fw-bold" id="modalProductName">Tên Sản Phẩm</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body bg-light">
                 <div class="mb-3 border-bottom pb-2">
@@ -308,7 +294,7 @@
                     </div>
                 </div>
 
-                <label class="fw-bold small text-muted mb-2">4. CHỌN THÊM TOPPING VÀO MÓN</label>
+                <label class="fw-bold small text-muted mb-2">4. CHỌN THÊM TOPPING</label>
                 <div class="max-height-200 overflow-auto bg-white border rounded p-2">
                     <c:forEach var="tp" items="${requestScope.danhSachTopping}">
                         <c:if test="${tp.trangThai == 1}">
@@ -335,7 +321,7 @@
                 </div>
             </div>
             <div class="modal-footer border-0 p-3 bg-white">
-                <button type="button" class="btn btn-primary w-100 fw-bold fs-5 shadow-sm" onclick="confirmAddToCart()">
+                <button type="button" id="btn-confirm-modal" class="btn btn-primary w-100 fw-bold fs-5 shadow-sm" onclick="confirmAddToCart()">
                     <i class="bi bi-cart-plus"></i> XÁC NHẬN THÊM MÓN
                 </button>
             </div>
@@ -343,13 +329,12 @@
     </div>
 </div>
 
-<!-- 3. Modal Voucher -->
 <div class="modal fade" id="voucherModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-success text-white">
                 <h5 class="modal-title fw-bold"><i class="bi bi-ticket-perforated"></i> Áp Dụng Mã Khuyến Mãi</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-2 bg-light">
                 <button class="btn btn-outline-danger w-100 mb-3 fw-bold" onclick="removeVoucher()">Không sử dụng mã giảm giá</button>
@@ -377,104 +362,97 @@
     </div>
 </div>
 
-<!-- 4. Modal In Hóa Đơn -->
 <c:if test="${not empty sessionScope.recentOrder}">
     <div class="modal fade" id="receiptModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content border-0 bg-transparent shadow-none">
-                <div class="modal-body thermal-receipt">
-                    <div class="text-center mb-3">
-                        <h4 class="fw-bold mb-0 text-uppercase">TEA POS RECEIPT</h4>
-                        <div class="small-text fw-semibold">ĐC: FPT Polytechnic</div>
-                        <div class="small-text">SĐT Hệ Thống: 0988.888.888</div>
-                        <hr>
-                        <h5 class="fw-bold mt-2">HÓA ĐƠN THANH TOÁN</h5>
+                <div class="modal-body thermal-receipt" id="printable-receipt-content" style="background:#fff; margin:0 auto; padding:15px; width:300px;">
+                    <div style="text-align:center; margin-bottom:10px;">
+                        <h4 style="font-weight:bold; margin:0;">TEA POS RECEIPT</h4>
+                        <div style="font-size:12px; font-weight:600;">ĐC: FPT Polytechnic</div>
+                        <div style="font-size:12px;">SĐT Hệ Thống: 0988.888.888</div>
+                        <hr style="border-top:1px dashed #000;">
+                        <h5 style="font-weight:bold; margin-top:5px;">HÓA ĐƠN THANH TOÁN</h5>
                     </div>
 
-                    <div class="small-text mb-2">
-                        <div><span class="fw-bold">Số phiếu:</span> ${sessionScope.recentOrder.maDH}</div>
-                        <div><span class="fw-bold">Thời gian nhập:</span> <fmt:formatDate value="${sessionScope.recentOrder.thoiGianTao}" pattern="dd/MM/yyyy HH:mm:ss"/></div>
-                        <div><span class="fw-bold">Thu ngân:</span> ${sessionScope.nhanVienDangNhap.hoTen}</div>
+                    <div style="font-size:12px; margin-bottom:10px;">
+                        <div><span style="font-weight:bold;">Số phiếu:</span> ${sessionScope.recentOrder.maDH}</div>
+                        <div><span style="font-weight:bold;">Thời gian nhập:</span> <fmt:formatDate value="${sessionScope.recentOrder.thoiGianTao}" pattern="dd/MM/yyyy HH:mm:ss"/></div>
+                        <div><span style="font-weight:bold;">Thu ngân:</span> ${sessionScope.nhanVienDangNhap.hoTen}</div>
                         <c:if test="${not empty sessionScope.recentOrder.khachHang}">
-                            <div><span class="fw-bold">Khách hàng:</span> ${sessionScope.recentOrder.khachHang.tenKH} (${sessionScope.recentOrder.khachHang.SDT})</div>
+                            <div><span style="font-weight:bold;">Khách hàng:</span> ${sessionScope.recentOrder.khachHang.tenKH}</div>
                         </c:if>
-                        <!-- BỔ SUNG DÒNG NÀY ĐỂ HIỂN THỊ PHƯƠNG THỨC THANH TOÁN LÊN BILL -->
-                        <div><span class="fw-bold">Thanh toán:</span> ${sessionScope.recentOrder.phuongThucThanhToan.tenPhuongThuc}</div>
+                        <div><span style="font-weight:bold;">Thanh toán:</span> ${sessionScope.recentOrder.phuongThucThanhToan.tenPhuongThuc}</div>
                     </div>
-                    <hr>
+                    <hr style="border-top:1px dashed #000;">
 
-                    <div class="small-text">
-                        <table class="mb-2">
+                    <div style="font-size:12px;">
+                        <table style="width:100%; border-collapse:collapse;">
                             <c:forEach var="ct" items="${sessionScope.recentOrder.danhSachChiTiet}">
                                 <tr>
-                                    <td colspan="2" class="fw-bold">${ct.soLuong}x ${ct.bienThe.sanPham.tenSanPham}</td>
+                                    <td colspan="2" style="font-weight:bold;">${ct.soLuong}x ${ct.bienThe.sanPham.tenSanPham}</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="2" class="ps-2 text-muted" style="font-size:0.75rem;">- Tùy biến: ${ct.mucDa} Đá | ${ct.mucDuong} Đường</td>
+                                    <td colspan="2" style="padding-left:10px; color:#555; font-size:10px;">- Tùy biến: ${ct.mucDa} Đá | ${ct.mucDuong} Đường</td>
                                 </tr>
                                 <c:forEach var="tpItem" items="${ct.danhSachTopping}">
                                     <tr>
-                                        <td class="ps-3 text-muted" style="font-size:0.75rem;">+ ${tpItem.soLuongTopping}x Topping: ${tpItem.topping.tenTopping}</td>
+                                        <td style="padding-left:15px; color:#555; font-size:10px;">+ ${tpItem.soLuongTopping}x Topping: ${tpItem.topping.tenTopping}</td>
                                         <td></td>
                                     </tr>
                                 </c:forEach>
                                 <tr>
                                     <td></td>
-                                    <td class="text-end fw-semibold">
+                                    <td style="text-align:right; font-weight:600;">
                                         <fmt:formatNumber value="${ct.giaChot * ct.soLuong}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
                                     </td>
                                 </tr>
                             </c:forEach>
                         </table>
                     </div>
-                    <hr>
+                    <hr style="border-top:1px dashed #000;">
 
-                    <div class="small-text">
-                        <div class="d-flex justify-content-between mb-1">
+                    <div style="font-size:12px;">
+                        <div style="display:flex; justify-content:space-between;">
                             <span>Tổng tiền hàng:</span>
                             <span><fmt:formatNumber value="${sessionScope.recentOrder.tongTienHang}" type="currency" currencySymbol="đ" maxFractionDigits="0"/></span>
                         </div>
-
                         <c:if test="${sessionScope.recentOrder.tienGiamGia > 0}">
-                            <div class="d-flex justify-content-between mb-1 text-danger">
+                            <div style="display:flex; justify-content:space-between; color:red;">
                                 <span>Giảm Voucher:</span>
                                 <c:set var="giamVoucherBill" value="${sessionScope.recentOrder.tienGiamGia - (not empty sessionScope.diemSuDungBill ? sessionScope.diemSuDungBill * 1000 : 0)}"/>
                                 <span>-<fmt:formatNumber value="${giamVoucherBill > 0 ? giamVoucherBill : 0}" type="currency" currencySymbol="đ" maxFractionDigits="0"/></span>
                             </div>
                         </c:if>
-
                         <c:if test="${not empty sessionScope.diemSuDungBill && sessionScope.diemSuDungBill > 0}">
-                            <div class="d-flex justify-content-between mb-1 text-danger">
+                            <div style="display:flex; justify-content:space-between; color:red;">
                                 <span>Khấu trừ điểm (${sessionScope.diemSuDungBill}đ):</span>
                                 <span>-<fmt:formatNumber value="${sessionScope.diemSuDungBill * 1000}" type="currency" currencySymbol="đ" maxFractionDigits="0"/></span>
                             </div>
                         </c:if>
-
-                        <hr>
-                        <div class="d-flex justify-content-between fw-bold fs-6 mt-2">
+                        <hr style="border-top:1px dashed #000;">
+                        <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:14px; margin-top:5px;">
                             <span>TỔNG PHẢI TRẢ:</span>
                             <span><fmt:formatNumber value="${sessionScope.recentOrder.tongTienTra}" type="currency" currencySymbol="đ" maxFractionDigits="0"/></span>
                         </div>
-
-                        <div class="d-flex justify-content-between mb-1 mt-2">
+                        <div style="display:flex; justify-content:space-between; margin-top:5px;">
                             <span>Tiền khách đưa:</span>
                             <span><fmt:formatNumber value="${sessionScope.recentOrder.soTienKhachDua}" type="currency" currencySymbol="đ" maxFractionDigits="0"/></span>
                         </div>
-                        <div class="d-flex justify-content-between mb-1">
+                        <div style="display:flex; justify-content:space-between;">
                             <span>Tiền thối lại:</span>
                             <span><fmt:formatNumber value="${sessionScope.recentOrder.soTienKhachDua - sessionScope.recentOrder.tongTienTra}" type="currency" currencySymbol="đ" maxFractionDigits="0"/></span>
                         </div>
                     </div>
-
-                    <hr>
-                    <div class="text-center small-text mt-3">
-                        <p class="fw-bold mb-0">CẢM ƠN QUÝ KHÁCH & HẸN GẶP LẠI!</p>
+                    <hr style="border-top:1px dashed #000;">
+                    <div style="text-align:center; font-size:12px; margin-top:10px;">
+                        <p style="font-weight:bold; margin:0;">CẢM ƠN QUÝ KHÁCH & HẸN GẶP LẠI!</p>
                     </div>
+                </div>
 
-                    <div class="mt-4 d-print-none text-center">
-                        <button type="button" class="btn btn-outline-secondary btn-sm fw-bold me-2" data-bs-dismiss="modal">Đóng</button>
-                        <button type="button" class="btn btn-primary btn-sm fw-bold" onclick="window.print()"><i class="bi bi-printer"></i> In Hóa Đơn</button>
-                    </div>
+                <div class="mt-4 text-center pb-3">
+                    <button type="button" class="btn btn-secondary fw-bold me-2" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary fw-bold" onclick="printReceipt()"><i class="bi bi-printer"></i> In Lại Hóa Đơn</button>
                 </div>
             </div>
         </div>
@@ -509,7 +487,7 @@
 
     let optionModal = new bootstrap.Modal(document.getElementById('optionModal'));
     let voucherModal = new bootstrap.Modal(document.getElementById('voucherModal'));
-    let qrModal = new bootstrap.Modal(document.getElementById('qrModal')); // Khởi tạo Modal QR
+    let qrModal = new bootstrap.Modal(document.getElementById('qrModal'));
 
     let currentVoucher = null;
     let currentProductVariants = [];
@@ -517,6 +495,8 @@
     let isUsingPoints = false;
     let customPointsToUse = 0;
 
+    let checkPaymentInterval = null;
+    let editingCartId = null;
     const appBasePath = document.getElementById('appContextPath').value;
 
     window.onload = function() {
@@ -524,32 +504,78 @@
         if(receiptElement) {
             let myModal = new bootstrap.Modal(receiptElement);
             myModal.show();
+            setTimeout(() => { printReceipt(); }, 500);
             fetch(appBasePath + '/ban-hang?action=clear-bill').catch(e => console.log(e));
         }
     };
 
-    // --- LOGIC XỬ LÝ THANH TOÁN (CẬP NHẬT MỚI: TỰ ĐIỀN TIỀN & MỞ QR MÔ PHỎNG) ---
+    function printReceipt() {
+        const receiptContent = document.getElementById('printable-receipt-content').innerHTML;
 
-    // 1. Theo dõi khi thu ngân đổi phương thức thanh toán
+        const iframe = document.createElement('iframe');
+        iframe.style.position = 'absolute';
+        iframe.style.top = '-9999px';
+        iframe.style.left = '-9999px';
+        document.body.appendChild(iframe);
+
+        const doc = iframe.contentWindow.document;
+        const style = `
+            <style>
+                @page { margin: 0; }
+                body { font-family: 'Courier New', Courier, monospace; margin: 0; padding: 5mm; width: 70mm; color: #000; }
+                table { width: 100%; border-collapse: collapse; }
+                hr { border-top: 1px dashed #000; opacity: 1; margin: 8px 0; background: none; }
+            </style>
+        `;
+
+        doc.open();
+        doc.write('<html><head>' + style + '</head><body>' + receiptContent + '</body></html>');
+        doc.close();
+
+        iframe.onload = function() {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+            setTimeout(() => { document.body.removeChild(iframe); }, 2000);
+        };
+    }
+
     function handlePaymentMethodChange() {
         let ptttSelect = document.getElementById('select_pttt');
         let ptttName = ptttSelect.options[ptttSelect.selectedIndex].text.toLowerCase();
         let tienKhachDuaInput = document.getElementById('tienKhachDua');
         let phaiTra = parseInt(document.getElementById('input_tongPhaiTra').value) || 0;
 
-        // Nếu là Tiền Mặt -> Cho phép gõ số tiền
         if (ptttName.includes("tiền mặt") || ptttName.includes("cash")) {
             tienKhachDuaInput.readOnly = false;
+            tienKhachDuaInput.classList.remove('bg-light');
             tienKhachDuaInput.value = '';
         } else {
-            // Nếu là MoMo, ZaloPay, Chuyển khoản -> Khóa ô và tự điền đúng số tiền
             tienKhachDuaInput.readOnly = true;
+            tienKhachDuaInput.classList.add('bg-light');
             tienKhachDuaInput.value = phaiTra;
         }
         calculateChange();
     }
 
-    // 2. Hàm gom dữ liệu Giỏ hàng Ẩn
+    function calculateChange() {
+        let khachDua = parseInt(document.getElementById('tienKhachDua').value) || 0;
+        let phaiTra = parseInt(document.getElementById('input_tongPhaiTra').value) || 0;
+        let ptttSelect = document.getElementById('select_pttt');
+        let ptttName = ptttSelect.options[ptttSelect.selectedIndex].text.toLowerCase();
+
+        let container = document.getElementById('tienThuaContainer');
+        if (ptttName.includes("tiền mặt") || ptttName.includes("cash")) {
+            if (khachDua >= phaiTra && phaiTra > 0) {
+                container.style.display = 'block';
+                document.getElementById('tienThuaLabel').innerText = formatCurrency(khachDua - phaiTra);
+            } else {
+                container.style.display = 'none';
+            }
+        } else {
+            container.style.display = 'none';
+        }
+    }
+
     function generateHiddenCartInputs() {
         const h = document.getElementById('hidden-cart-inputs');
         h.innerHTML = '';
@@ -569,9 +595,8 @@
         });
     }
 
-    // 3. Đánh chặn nút THANH TOÁN
     function validateCheckout(event) {
-        event.preventDefault(); // CHẶN LẠI KHÔNG CHO GỬI FORM NGAY
+        event.preventDefault();
 
         let khachDua = parseInt(document.getElementById('tienKhachDua').value);
         let phaiTra = parseInt(document.getElementById('input_tongPhaiTra').value);
@@ -582,40 +607,79 @@
             return false;
         }
 
-        generateHiddenCartInputs(); // Gọi hàm tạo giỏ hàng ẩn
+        generateHiddenCartInputs();
 
         let ptttSelect = document.getElementById('select_pttt');
         let ptttName = ptttSelect.options[ptttSelect.selectedIndex].text.toLowerCase();
 
-        // Nếu là Tiền Mặt -> Xác nhận nhẹ rồi gửi đi luôn
         if (ptttName.includes("tiền mặt") || ptttName.includes("cash")) {
             if(confirm("Xác nhận thu đủ " + formatCurrency(khachDua) + " tiền mặt của khách?")) {
                 submitCheckoutForm();
             }
         } else {
-            // NẾU LÀ CHUYỂN KHOẢN HOẶC MOMO -> BẬT MODAL MÃ QR CÓ SẴN TIỀN
+            let myBankBin = "TPB";
+            let myAccountNum = "0346406405";
+
             document.getElementById('qrAmount').innerText = formatCurrency(phaiTra);
 
-            // API VietQR tự động nhúng số tiền (phaiTra) vào QR Code (Sử dụng STK Demo của MBBank, có thể sửa lại)
-            // Cú pháp: https://img.vietqr.io/image/<Mã_Ngân_Hàng>-<Số_Tài_Khoản>-<Định_Dạng>.png?amount=<Số_Tiền>&addInfo=<Lời_Nhắn>
-            let qrUrl = "https://img.vietqr.io/image/MB-0346406405-compact2.png?amount=" + phaiTra + "&addInfo=TEA POS Thanh Toan";
+            // ========================================================
+            // THUẬT TOÁN MỚI: TỰ ĐỘNG SINH MÃ RESET THEO NGÀY (YYMMDD + 4 số)
+            // ========================================================
+            let now = new Date();
+            let yy = now.getFullYear().toString().slice(-2); // VD: "26"
+            let mm = String(now.getMonth() + 1).padStart(2, '0'); // VD: "06"
+            let dd = String(now.getDate()).padStart(2, '0'); // VD: "09"
+            let dateStr = yy + mm + dd; // Ghép lại: "260609"
+
+            let randStr = Math.floor(1000 + Math.random() * 9000); // 4 số ngẫu nhiên: 1000 - 9999
+            let transactionCode = "TEA" + dateStr + randStr; // VD: TEA2606094825
+
+            document.getElementById('qrCodeDisplay').innerText = transactionCode;
+
+            let qrUrl = "https://img.vietqr.io/image/" + myBankBin + "-" + myAccountNum + "-compact2.png?amount=" + phaiTra + "&addInfo=" + transactionCode;
             document.getElementById('qrImage').src = qrUrl;
 
-            qrModal.show(); // Hiện mã QR lên màn hình thu ngân
+            document.getElementById('qrSuccessOverlay').style.setProperty('display', 'none', 'important');
+            document.getElementById('qrLoadingStatus').style.setProperty('display', 'flex', 'important');
+
+            if (checkPaymentInterval) clearInterval(checkPaymentInterval);
+            qrModal.show();
+
+            checkPaymentInterval = setInterval(function() {
+                fetch(appBasePath + '/api/check-payment?code=' + transactionCode)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            clearInterval(checkPaymentInterval);
+                            document.getElementById('qrLoadingStatus').style.setProperty('display', 'none', 'important');
+                            document.getElementById('qrSuccessOverlay').style.setProperty('display', 'flex', 'important');
+                            setTimeout(function() {
+                                qrModal.hide();
+                                document.getElementById('checkout-form').submit();
+                            }, 1500);
+                        } else if (data.status === 'error' && data.message.includes('401')) {
+                            clearInterval(checkPaymentInterval);
+                            alert("LỖI 401: Sai mã API Token của SePay. Vui lòng vào Cấu hình -> API Keys lấy đúng mã API.");
+                            qrModal.hide();
+                        }
+                    }).catch(err => console.error(err));
+            }, 3000);
         }
         return false;
     }
 
-    // 4. Hàm thực sự gửi Form đi (Sẽ được gọi khi ấn nút "Đã nhận tiền" trong Modal QR)
-    function submitCheckoutForm() {
-        // Tắt Modal nếu đang mở
+    function cancelQRPayment() {
+        if (checkPaymentInterval) clearInterval(checkPaymentInterval);
         qrModal.hide();
-        // Submit form thủ công
+    }
+
+    function forceSubmitCheckout() {
+        if (checkPaymentInterval) clearInterval(checkPaymentInterval);
+        qrModal.hide();
         document.getElementById('checkout-form').submit();
     }
 
-
-    // --- CÁC HÀM XỬ LÝ GIỎ HÀNG KHÁC (GIỮ NGUYÊN) ---
+    function submitCheckoutForm() { document.getElementById('checkout-form').submit(); }
 
     function checkCustomerPhone() {
         let phone = document.getElementById('sdtKhachHang').value;
@@ -649,8 +713,7 @@
                         newPanel.style.display = 'block';
                     }
                     renderCart();
-                })
-                .catch(err => console.error(err));
+                }).catch(err => console.error(err));
         } else {
             tenInput.readOnly = false;
             infoPanel.style.display = 'none';
@@ -675,30 +738,22 @@
     function getMaxAllowedPoints() {
         let tongHang = 0;
         cart.forEach(item => { tongHang += item.giaChot * item.soLuong; });
-
         let giamVoucher = 0;
         if (currentVoucher && tongHang >= currentVoucher.min) {
             if (currentVoucher.loai === 'Phần Trăm') giamVoucher = (tongHang * currentVoucher.giaTri) / 100;
             else giamVoucher = currentVoucher.giaTri;
             if(giamVoucher > tongHang) giamVoucher = tongHang;
         }
-
-        let tienSauVoucher = tongHang - giamVoucher;
-        let maxPointsForBill = Math.floor(tienSauVoucher / 1000);
+        let maxPointsForBill = Math.floor((tongHang - giamVoucher) / 1000);
         return (customerPoints > maxPointsForBill) ? maxPointsForBill : customerPoints;
     }
 
     function calculateCustomPoints() {
         let inputVal = parseInt(document.getElementById('input_nhapDiemTay').value) || 0;
         let maxAllowed = getMaxAllowedPoints();
-
-        if (inputVal > maxAllowed) {
-            inputVal = maxAllowed;
-            document.getElementById('input_nhapDiemTay').value = maxAllowed;
-        } else if (inputVal < 0) {
-            inputVal = 0;
-            document.getElementById('input_nhapDiemTay').value = 0;
-        }
+        if (inputVal > maxAllowed) inputVal = maxAllowed;
+        if (inputVal < 0) inputVal = 0;
+        document.getElementById('input_nhapDiemTay').value = inputVal;
         customPointsToUse = inputVal;
         renderCart();
     }
@@ -717,11 +772,13 @@
     }
 
     function openOptionsModal(maSP, tenSP) {
+        editingCartId = null;
+        document.getElementById('btn-confirm-modal').innerHTML = '<i class="bi bi-cart-plus"></i> XÁC NHẬN THÊM MÓN';
+
         let decodedTenSP = tenSP.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#034;/g, '"').replace(/&#039;/g, "'");
         document.getElementById('modalProductName').innerText = decodedTenSP;
 
         currentProductVariants = allVariants.filter(v => v.maSP === maSP);
-
         if (currentProductVariants.length === 0) {
             alert("Sản phẩm này hiện chưa được cấu hình kích cỡ (Size) nào!");
             return;
@@ -740,7 +797,39 @@
         document.querySelectorAll('input[id^="tp_qty_"]').forEach(function(inp) { inp.value = 0; });
         document.getElementById('modalDa').value = '100%';
         document.getElementById('modalDuong').value = '100%';
+        optionModal.show();
+    }
 
+    function editCartItem(cartId) {
+        let item = cart.find(i => i.cartId === cartId);
+        if(!item) return;
+
+        editingCartId = cartId;
+        document.getElementById('modalProductName').innerText = item.tenGoc;
+        document.getElementById('btn-confirm-modal').innerHTML = '<i class="bi bi-pencil-square"></i> CẬP NHẬT MÓN';
+
+        currentProductVariants = allVariants.filter(v => v.maSP === item.maSP);
+
+        let sizeHtml = '';
+        currentProductVariants.forEach(function(v) {
+            let checked = (v.maBT === item.maBT) ? "checked" : "";
+            sizeHtml += "<input type='radio' class='btn-check' name='modalSizeRadio' id='size_" + v.maBT + "' value='" + v.maBT + "' " + checked + ">" +
+                "<label class='btn btn-outline-primary fw-bold' for='size_" + v.maBT + "'>" +
+                "Size " + v.size + " <br> <small class='text-dark'>" + formatCurrency(v.price) + "</small>" +
+                "</label>";
+        });
+        document.getElementById('sizeContainer').innerHTML = sizeHtml;
+
+        document.getElementById('modalDa').value = item.da;
+        document.getElementById('modalDuong').value = item.duong;
+
+        document.querySelectorAll('input[id^="tp_qty_"]').forEach(function(inp) { inp.value = 0; });
+        if(item.toppings) {
+            item.toppings.forEach(function(tp) {
+                let input = document.getElementById('tp_qty_' + tp.id);
+                if (input) input.value = tp.qty;
+            });
+        }
         optionModal.show();
     }
 
@@ -751,7 +840,8 @@
         let maBT = selectedSizeRadio.value;
         let selectedVariant = currentProductVariants.find(v => v.maBT === maBT);
 
-        let ten = document.getElementById('modalProductName').innerText + " (Size " + selectedVariant.size + ")";
+        let tenGoc = document.getElementById('modalProductName').innerText;
+        let ten = tenGoc + " (Size " + selectedVariant.size + ")";
         let gia = selectedVariant.price;
         let da = document.getElementById('modalDa').value;
         let duong = document.getElementById('modalDuong').value;
@@ -775,11 +865,33 @@
             cartId += "_" + toppings.map(function(t) { return t.id + "-" + t.qty; }).join('_');
         }
 
+        let qtyToSet = 1;
+
+        if (editingCartId) {
+            let oldItemIndex = cart.findIndex(i => i.cartId === editingCartId);
+            if (oldItemIndex > -1) {
+                qtyToSet = cart[oldItemIndex].soLuong;
+                cart.splice(oldItemIndex, 1);
+            }
+            editingCartId = null;
+        }
+
         let existingItem = cart.find(item => item.cartId === cartId);
         if (existingItem) {
-            existingItem.soLuong++;
+            existingItem.soLuong += qtyToSet;
         } else {
-            cart.push({ cartId: cartId, maBT: maBT, ten: ten, giaChot: gia + extraToppingPrice, soLuong: 1, da: da, duong: duong, toppings: toppings });
+            cart.push({
+                cartId: cartId,
+                maSP: selectedVariant.maSP,
+                tenGoc: tenGoc,
+                maBT: maBT,
+                ten: ten,
+                giaChot: gia + extraToppingPrice,
+                soLuong: qtyToSet,
+                da: da,
+                duong: duong,
+                toppings: toppings
+            });
         }
 
         optionModal.hide();
@@ -798,11 +910,18 @@
     function clearCart() {
         if(confirm("Bạn có chắc chắn muốn hủy và xóa sạch giỏ hàng hiện tại không?")) {
             cart = [];
-            removeVoucher();
             document.getElementById('tienKhachDua').value = '';
             document.getElementById('sdtKhachHang').value = '';
             document.getElementById('tenKhachHang').value = '';
-            checkCustomerPhone();
+
+            document.getElementById('customerInfoPanel').style.display = 'none';
+            document.getElementById('newCustomerPanel').style.display = 'none';
+            customerPoints = 0;
+            isUsingPoints = false;
+            customPointsToUse = 0;
+            let toggleDiem = document.getElementById('toggleDiem');
+            if(toggleDiem) toggleDiem.checked = false;
+
             renderCart();
         }
     }
@@ -813,58 +932,85 @@
         if(isUsingPoints) { calculateCustomPoints(); } else { renderCart(); }
     }
 
-    function removeVoucher() {
+    function removeVoucher(skipRender = false) {
         currentVoucher = null;
         document.getElementById('input_maKM').value = '';
-        document.getElementById('voucherLabel').innerText = 'Không áp dụng';
-        document.getElementById('voucherLabel').className = 'text-muted';
+        let voucherLabel = document.getElementById('voucherLabel');
+        if(voucherLabel) {
+            voucherLabel.innerText = 'Không áp dụng';
+            voucherLabel.className = 'text-muted';
+        }
         if(voucherModal) voucherModal.hide();
-        if(isUsingPoints) { calculateCustomPoints(); } else { renderCart(); }
+
+        if(!skipRender) {
+            if(isUsingPoints) { calculateCustomPoints(); } else { renderCart(); }
+        }
     }
 
     function renderCart() {
         const container = document.getElementById('cart-items-container');
         container.innerHTML = '';
 
-        let tongTienHang = 0;
-        let tienGiamGia = 0;
-        let tienGiamDiem = 0;
-        let diemThucTeSuDung = 0;
-
         if (cart.length === 0) {
             container.innerHTML = "<div class='text-center text-muted mt-5' id='empty-cart-msg'>" +
                 "<i class='bi bi-cart-x text-secondary' style='font-size: 4rem;'></i>" +
                 "<p class='mt-2 fw-medium'>Chưa chọn món nào</p></div>";
             document.getElementById('btn-checkout').disabled = true;
-            removeVoucher();
-        } else {
-            document.getElementById('btn-checkout').disabled = false;
 
-            cart.forEach(function(item, index) {
-                tongTienHang += item.giaChot * item.soLuong;
+            removeVoucher(true);
 
-                let tpStr = "";
-                if (item.toppings && item.toppings.length > 0) {
-                    tpStr = item.toppings.map(function(t) {
-                        return "<span class='badge bg-info text-dark me-1'>+" + t.name + " (x" + t.qty + ")</span>";
-                    }).join('');
-                }
+            document.getElementById('display_tongTienHang').innerText = "0 ₫";
+            document.getElementById('display_tienGiamGia').innerText = "- 0 ₫";
+            document.getElementById('display_tongPhaiTra').innerText = "0 ₫";
 
-                let itemHtml = "<div class='p-3 border-bottom bg-white shadow-sm mb-1'>" +
-                    "<div class='d-flex justify-content-between align-items-start'>" +
-                    "<div class='flex-grow-1'><h6 class='mb-1 fw-bold text-dark'>" + item.ten + "</h6><div class='small text-secondary mb-1'>Đá: " + item.da + " | Đường: " + item.duong + "</div><div>" + tpStr + "</div></div>" +
-                    "<div class='text-end ms-2'><h6 class='mb-1 fw-bold text-danger'>" + formatCurrency(item.giaChot * item.soLuong) + "</h6><small class='text-muted'>" + formatCurrency(item.giaChot) + "/ly</small></div>" +
-                    "</div>" +
-                    "<div class='d-flex justify-content-between align-items-center mt-2'>" +
-                    "<a href='javascript:void(0)' class='text-danger small text-decoration-none' onclick=\"updateQty('" + item.cartId + "', -999)\"><i class='bi bi-trash'></i> Xóa</a>" +
-                    "<div class='btn-group btn-group-sm shadow-sm'>" +
-                    "<button type='button' class='btn btn-light border' onclick=\"updateQty('" + item.cartId + "', -1)\"><i class='bi bi-dash-lg'></i></button>" +
-                    "<span class='btn btn-light border fw-bold text-primary px-3' style='pointer-events: none;'>" + item.soLuong + "</span>" +
-                    "<button type='button' class='btn btn-light border' onclick=\"updateQty('" + item.cartId + "', 1)\"><i class='bi bi-plus-lg'></i></button>" +
-                    "</div></div></div>";
-                container.insertAdjacentHTML('beforeend', itemHtml);
-            });
+            document.getElementById('input_tongTienHang').value = 0;
+            document.getElementById('input_tienGiamGia').value = 0;
+            document.getElementById('input_tongPhaiTra').value = 0;
+            document.getElementById('input_diemSuDung').value = 0;
+
+            document.getElementById('row_giamDiem').style.setProperty('display', 'none', 'important');
+            isUsingPoints = false;
+            customPointsToUse = 0;
+            let toggleBtn = document.getElementById('toggleDiem');
+            if(toggleBtn) toggleBtn.checked = false;
+
+            handlePaymentMethodChange();
+            return;
         }
+
+        document.getElementById('btn-checkout').disabled = false;
+        let tongTienHang = 0;
+        let tienGiamGia = 0;
+        let tienGiamDiem = 0;
+        let diemThucTeSuDung = 0;
+
+        cart.forEach(function(item, index) {
+            tongTienHang += item.giaChot * item.soLuong;
+
+            let tpStr = "";
+            if (item.toppings && item.toppings.length > 0) {
+                tpStr = item.toppings.map(function(t) {
+                    return "<span class='badge bg-info text-dark me-1'>+" + t.name + " (x" + t.qty + ")</span>";
+                }).join('');
+            }
+
+            let itemHtml = "<div class='p-3 border-bottom bg-white shadow-sm mb-1'>" +
+                "<div class='d-flex justify-content-between align-items-start'>" +
+                "<div class='flex-grow-1'><h6 class='mb-1 fw-bold text-dark'>" + item.ten + "</h6><div class='small text-secondary mb-1'>Đá: " + item.da + " | Đường: " + item.duong + "</div><div>" + tpStr + "</div></div>" +
+                "<div class='text-end ms-2'><h6 class='mb-1 fw-bold text-danger'>" + formatCurrency(item.giaChot * item.soLuong) + "</h6><small class='text-muted'>" + formatCurrency(item.giaChot) + "/ly</small></div>" +
+                "</div>" +
+                "<div class='d-flex justify-content-between align-items-center mt-2'>" +
+                "<div>" +
+                "<a href='javascript:void(0)' class='text-primary small text-decoration-none me-3 fw-bold' onclick=\"editCartItem('" + item.cartId + "')\"><i class='bi bi-pencil-square'></i> Sửa</a>" +
+                "<a href='javascript:void(0)' class='text-danger small text-decoration-none fw-bold' onclick=\"updateQty('" + item.cartId + "', -999)\"><i class='bi bi-trash'></i> Xóa</a>" +
+                "</div>" +
+                "<div class='btn-group btn-group-sm shadow-sm'>" +
+                "<button type='button' class='btn btn-light border' onclick=\"updateQty('" + item.cartId + "', -1)\"><i class='bi bi-dash-lg'></i></button>" +
+                "<span class='btn btn-light border fw-bold text-primary px-3' style='pointer-events: none;'>" + item.soLuong + "</span>" +
+                "<button type='button' class='btn btn-light border' onclick=\"updateQty('" + item.cartId + "', 1)\"><i class='bi bi-plus-lg'></i></button>" +
+                "</div></div></div>";
+            container.insertAdjacentHTML('beforeend', itemHtml);
+        });
 
         if (currentVoucher) {
             if (tongTienHang >= currentVoucher.min) {
@@ -880,7 +1026,7 @@
                 document.getElementById('voucherLabel').className = 'text-success fw-bold';
             } else {
                 alert("Đơn hàng chưa đạt mức tối thiểu " + formatCurrency(currentVoucher.min) + " để áp mã " + currentVoucher.code + "!");
-                removeVoucher();
+                removeVoucher(false);
             }
         }
 
@@ -908,7 +1054,6 @@
         document.getElementById('input_diemSuDung').value = diemThucTeSuDung;
         document.getElementById('input_tongPhaiTra').value = tongPhaiTra;
 
-        // Gọi hàm handlePaymentMethodChange thay vì calculateChange để tự động xử lý điền tiền nếu đang chọn MoMo
         handlePaymentMethodChange();
     }
 </script>
