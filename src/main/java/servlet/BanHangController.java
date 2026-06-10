@@ -1,7 +1,8 @@
-package controller;
+package servlet;
 
 import model.*;
 import service.*;
+import Util.SecurityUtil;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -24,6 +25,7 @@ public class BanHangController extends HttpServlet {
     private KhuyenMaiService khuyenMaiService = new KhuyenMaiService();
     private DonHangService donHangService = new DonHangService();
     private KhachHangService khachHangService = new KhachHangService();
+    private NhanVienService nhanVienService = new NhanVienService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -79,10 +81,45 @@ public class BanHangController extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action");
 
+        if ("update-profile".equals(action)) {
+            NhanVien nvSession = (NhanVien) request.getSession().getAttribute("nhanVienDangNhap");
+
+            String oldPass = request.getParameter("oldPass");
+            String newPass = request.getParameter("newPass");
+            String hoTen = request.getParameter("hoTen");
+            String sdt = request.getParameter("sdt");
+            String email = request.getParameter("email");
+
+            String hashedOldPass = SecurityUtil.hashPassword(oldPass);
+
+            if (hashedOldPass.equals(nvSession.getMatKhau())) {
+                nvSession.setHoTen(hoTen);
+                nvSession.setSDT(sdt);
+                nvSession.setEmail(email);
+
+                if (newPass != null && !newPass.trim().isEmpty()) {
+                    nvSession.setMatKhau(SecurityUtil.hashPassword(newPass));
+                }
+
+                boolean isUpdated = nhanVienService.update(nvSession).contains("thành công");
+
+                if(isUpdated) {
+                    request.getSession().setAttribute("nhanVienDangNhap", nvSession);
+                    request.getSession().setAttribute("message", "Cập nhật thông tin cá nhân thành công!");
+                } else {
+                    request.getSession().setAttribute("message", "Lỗi: Không thể cập nhật vào cơ sở dữ liệu!");
+                }
+            } else {
+                request.getSession().setAttribute("message", "Lỗi: Mật khẩu hiện tại không chính xác. Đã hủy thay đổi!");
+            }
+
+            response.sendRedirect(request.getContextPath() + "/ban-hang");
+            return;
+        }
+
         if ("checkout".equals(action)) {
             try {
                 DonHang dh = new DonHang();
-
                 NhanVien nv = (NhanVien) request.getSession().getAttribute("nhanVienDangNhap");
                 dh.setNhanVien(nv);
 
@@ -99,7 +136,6 @@ public class BanHangController extends HttpServlet {
                 PhuongThucThanhToan pttt = new PhuongThucThanhToan();
                 pttt.setMaPTTT(maPTTT);
 
-                // --- BỔ SUNG: Tìm Tên phương thức thanh toán để in ra Bill ---
                 for (PhuongThucThanhToan pt : ptttService.getAll()) {
                     if (pt.getMaPTTT().equals(maPTTT)) {
                         pttt.setTenPhuongThuc(pt.getTenPhuongThuc());
@@ -125,7 +161,6 @@ public class BanHangController extends HttpServlet {
                         bt.setMaBienThe(request.getParameter("maBT_" + idx));
 
                         SanPham sp = new SanPham();
-                        // ĐÃ SỬA LỖI BUILD: Gọi đúng hàm setTenSanPham
                         sp.setTenSanPham(request.getParameter("tenMon_" + idx));
                         bt.setSanPham(sp);
 

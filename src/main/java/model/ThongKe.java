@@ -1,30 +1,52 @@
 package model;
 
 public class ThongKe {
-    private long doanhThuHomNay;
+    private int doanhThuHomNay;
     private int donHangMoi;
     private int tongSanPham;
     private int tongKhachHang;
+    private int doanhThuThangNay;
 
     public ThongKe() {
     }
 
-    public ThongKe(long doanhThuHomNay, int donHangMoi, int tongSanPham, int tongKhachHang) {
+    public int getDoanhThuHomNay() {
+        return doanhThuHomNay;
+    }
+
+    public void setDoanhThuHomNay(int doanhThuHomNay) {
         this.doanhThuHomNay = doanhThuHomNay;
+    }
+
+    public int getDonHangMoi() {
+        return donHangMoi;
+    }
+
+    public void setDonHangMoi(int donHangMoi) {
         this.donHangMoi = donHangMoi;
+    }
+
+    public int getTongSanPham() {
+        return tongSanPham;
+    }
+
+    public void setTongSanPham(int tongSanPham) {
         this.tongSanPham = tongSanPham;
+    }
+
+    public int getTongKhachHang() {
+        return tongKhachHang;
+    }
+
+    public void setTongKhachHang(int tongKhachHang) {
         this.tongKhachHang = tongKhachHang;
     }
 
-    public long getDoanhThuHomNay() { return doanhThuHomNay; }
-    public void setDoanhThuHomNay(long doanhThuHomNay) { this.doanhThuHomNay = doanhThuHomNay; }
+    public int getDoanhThuThangNay() {
+        return doanhThuThangNay;
+    }
 
-    public int getDonHangMoi() { return donHangMoi; }
-    public void setDonHangMoi(int donHangMoi) { this.donHangMoi = donHangMoi; }
-
-    public int getTongSanPham() { return tongSanPham; }
-    public void setTongSanPham(int tongSanPham) { this.tongSanPham = tongSanPham; }
-
-    public int getTongKhachHang() { return tongKhachHang; }
-    public void setTongKhachHang(int tongKhachHang) { this.tongKhachHang = tongKhachHang; }
+    public void setDoanhThuThangNay(int doanhThuThangNay) {
+        this.doanhThuThangNay = doanhThuThangNay;
+    }
 }

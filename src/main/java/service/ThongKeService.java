@@ -4,8 +4,7 @@ import model.ThongKe;
 import model.DonHangDashboard;
 import model.TopSanPham;
 import repository.ThongKeRepository;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+
 import java.util.List;
 import java.util.Map;
 
@@ -13,28 +12,23 @@ public class ThongKeService {
 
     private ThongKeRepository repo = new ThongKeRepository();
 
-    private String getFormattedDate(String inputDate) {
-        if (inputDate == null || inputDate.trim().isEmpty()) {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            return sdf.format(new Date());
-        }
-        return inputDate;
+    public ThongKe getThongKeTongQuan(String tuNgay, String denNgay, String maNV) {
+        return repo.getThongKeTongQuan(tuNgay, denNgay, maNV);
     }
 
-    public ThongKe getThongKeTongQuan(String dateString) {
-        return repo.getThongKeTongQuan(getFormattedDate(dateString));
+    public List<DonHangDashboard> getDonHangTheoNgay(String tuNgay, String denNgay, String maNV) {
+        return repo.getDonHangTheoNgay(tuNgay, denNgay, maNV);
     }
 
-    public List<DonHangDashboard> getDonHangTheoNgay(String dateString) {
-        return repo.getDonHangTheoNgay(getFormattedDate(dateString));
+    public List<TopSanPham> getTopSanPham(String tuNgay, String denNgay, String maNV) {
+        return repo.getTopSanPham(tuNgay, denNgay, maNV);
     }
 
-    public List<TopSanPham> getTopSanPham(String dateString) {
-        return repo.getTopSanPham(getFormattedDate(dateString));
+    public Map<String, Integer> getDoanhThu7NgayQua(String tuNgay, String denNgay, String maNV) {
+        return repo.getDoanhThu7NgayQua(tuNgay, denNgay, maNV);
     }
 
-    // Hàm gọi dữ liệu vẽ biểu đồ
-    public Map<String, Integer> getDoanhThu7NgayQua(String dateString) {
-        return repo.getDoanhThu7NgayQua(getFormattedDate(dateString));
+    public String getReceiptJson(String maDH) {
+        return repo.getReceiptJson(maDH);
     }
 }

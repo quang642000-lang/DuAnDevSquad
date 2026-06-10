@@ -22,6 +22,7 @@ public class ToppingService {
 
         tp.setTrangThai(1); // Mặc định Đang bán khi thêm mới
 
+        // Không cần tự sinh mã ở đây nữa, DB sẽ lo việc đó
         boolean success = toppingRepo.add(tp);
         return success ? "Thêm Topping thành công!" : "Thêm thất bại. Vui lòng kiểm tra lại!";
     }

@@ -1,9 +1,11 @@
-package controller;
+package servlet;
 
 import service.ThongKeService;
+import service.NhanVienService;
 import model.ThongKe;
 import model.DonHangDashboard;
 import model.TopSanPham;
+import model.NhanVien;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -19,24 +21,37 @@ import java.util.stream.Collectors;
 public class TrangChuAdminController extends HttpServlet {
 
     private ThongKeService thongKeService = new ThongKeService();
+    private NhanVienService nhanVienService = new NhanVienService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String action = request.getParameter("action");
 
-        String filterDate = request.getParameter("dateFilter");
+        if ("get-receipt".equals(action)) {
+            String maDH = request.getParameter("maDH");
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write(thongKeService.getReceiptJson(maDH));
+            return;
+        }
 
-        ThongKe tk = thongKeService.getThongKeTongQuan(filterDate);
+        String tuNgay = request.getParameter("tuNgay");
+        String denNgay = request.getParameter("denNgay");
+        String maNV = request.getParameter("maNV");
+
+        ThongKe tk = thongKeService.getThongKeTongQuan(tuNgay, denNgay, maNV);
         request.setAttribute("thongKe", tk);
 
-        List<DonHangDashboard> listDonHang = thongKeService.getDonHangTheoNgay(filterDate);
+        List<DonHangDashboard> listDonHang = thongKeService.getDonHangTheoNgay(tuNgay, denNgay, maNV);
         request.setAttribute("listDonHang", listDonHang);
 
-        List<TopSanPham> topSanPham = thongKeService.getTopSanPham(filterDate);
+        List<TopSanPham> topSanPham = thongKeService.getTopSanPham(tuNgay, denNgay, maNV);
         request.setAttribute("topSanPham", topSanPham);
 
-        // --- XỬ LÝ DỮ LIỆU BIỂU ĐỒ (CHART.JS) ---
-        Map<String, Integer> chartData = thongKeService.getDoanhThu7NgayQua(filterDate);
-        // Biến Map thành chuỗi JSON thô: ["01/06", "02/06"] và [150000, 200000]
+        List<NhanVien> danhSachNhanVien = nhanVienService.getAll();
+        request.setAttribute("danhSachNhanVien", danhSachNhanVien);
+
+        Map<String, Integer> chartData = thongKeService.getDoanhThu7NgayQua(tuNgay, denNgay, maNV);
         String chartLabels = "[]";
         String chartValues = "[]";
 
@@ -47,9 +62,10 @@ public class TrangChuAdminController extends HttpServlet {
 
         request.setAttribute("chartLabels", chartLabels);
         request.setAttribute("chartValues", chartValues);
-        // ----------------------------------------
 
-        request.setAttribute("selectedDate", filterDate);
+        request.setAttribute("tuNgay", tuNgay);
+        request.setAttribute("denNgay", denNgay);
+        request.setAttribute("selectedNV", maNV);
 
         request.getRequestDispatcher("/views/admin_dashboard.jsp").forward(request, response);
     }

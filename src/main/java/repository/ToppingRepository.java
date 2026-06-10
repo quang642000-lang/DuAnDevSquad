@@ -31,7 +31,7 @@ public class ToppingRepository {
         return list;
     }
 
-    // 2. Thêm Topping mới (SQL Tự Động Sinh Mã)
+    // 2. Thêm Topping mới (Để SQL Server tự động sinh mã qua DEFAULT constraint)
     public boolean add(Topping tp) {
         String sql = "INSERT INTO TOPPING (ten_topping, gia_ban, hinh_anh, trang_thai) VALUES (?, ?, ?, ?)";
         try (Connection con = DBConnect.getConnection();

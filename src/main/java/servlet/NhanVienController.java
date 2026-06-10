@@ -29,7 +29,7 @@ public class NhanVienController extends HttpServlet {
                 response.sendRedirect(request.getContextPath() + "/nhan-vien?action=list");
                 break;
 
-            case "delete": // XỬ LÝ XÓA NHÂN VIÊN
+            case "delete":
                 String idDel = request.getParameter("id");
                 request.getSession().setAttribute("message", nhanVienService.delete(idDel));
                 response.sendRedirect(request.getContextPath() + "/nhan-vien?action=list");
@@ -48,39 +48,20 @@ public class NhanVienController extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action");
 
+        // Admin chỉ còn được Thêm mới nhân viên, không còn action Update và Reset
         if ("add".equals(action)) {
             NhanVien nv = new NhanVien();
             nv.setHoTen(request.getParameter("hoTen"));
             nv.setTenDangNhap(request.getParameter("tenDangNhap"));
             nv.setMatKhau(request.getParameter("matKhau"));
             nv.setSDT(request.getParameter("SDT"));
-            nv.setEmail(request.getParameter("email")); // ĐÃ THÊM LẤY EMAIL
+            nv.setEmail(request.getParameter("email"));
 
             VaiTro vt = new VaiTro();
             vt.setMaVaiTro(Integer.parseInt(request.getParameter("maVaiTro")));
             nv.setVaiTro(vt);
 
             request.getSession().setAttribute("message", nhanVienService.add(nv));
-
-        } else if ("update".equals(action)) {
-            NhanVien nv = new NhanVien();
-            nv.setMaNV(request.getParameter("maNV"));
-            nv.setHoTen(request.getParameter("hoTen"));
-            nv.setTenDangNhap(request.getParameter("tenDangNhap"));
-            nv.setSDT(request.getParameter("SDT"));
-            nv.setEmail(request.getParameter("email")); // ĐÃ THÊM LẤY EMAIL
-
-            VaiTro vt = new VaiTro();
-            vt.setMaVaiTro(Integer.parseInt(request.getParameter("maVaiTro")));
-            nv.setVaiTro(vt);
-
-            request.getSession().setAttribute("message", nhanVienService.update(nv));
-
-        } else if ("reset-password".equals(action)) {
-            // XỬ LÝ KHÔI PHỤC MẬT KHẨU
-            String maNV = request.getParameter("maNV");
-            String matKhauMoi = request.getParameter("matKhauMoi");
-            request.getSession().setAttribute("message", nhanVienService.resetPassword(maNV, matKhauMoi));
         }
 
         response.sendRedirect(request.getContextPath() + "/nhan-vien?action=list");
