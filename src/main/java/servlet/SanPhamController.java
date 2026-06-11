@@ -83,7 +83,7 @@ public class SanPhamController extends HttpServlet {
         String action = request.getParameter("action");
 
         // Thiết lập đường dẫn kho lưu trữ cố định trên ổ đĩa C
-        String uploadPath = "C:" + File.separator + "tea_pos_images";
+        String uploadPath = Util.ConfigUtil.getUploadDir();
         File uploadDir = new File(uploadPath);
         if (!uploadDir.exists()) {
             uploadDir.mkdirs(); // mkdirs() tự động tạo tất cả các cấp thư mục cha con nếu chưa tồn tại

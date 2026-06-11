@@ -18,7 +18,7 @@ public class CheckPaymentController extends HttpServlet {
 
     // CHÚ Ý: LẤY TỪ TRANG CÀI ĐẶT CỦA SEPAY (Mục "Tích hợp" -> "API")
     // Thay chuỗi bên dưới bằng Token API của bạn
-    private static final String SEPAY_TOKEN = "U4RXVN1VBGSWAZR68VQ3SMYHUPFFC6AGOYBKXY8PQBTXAT3YULOBQZI4KDPZ2WSE";
+    private static final String SEPAY_TOKEN = Util.ConfigUtil.getProperty("sepay.token");
     private static final String SEPAY_API_URL = "https://my.sepay.vn/userapi/transactions/list";
 
     @Override

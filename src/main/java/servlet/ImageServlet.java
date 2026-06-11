@@ -16,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 public class ImageServlet extends HttpServlet {
 
     // Đường dẫn kho lưu trữ ảnh cố định trên máy tính
-    private static final String BASE_PATH = "C:" + File.separator + "tea_pos_images";
+    private static final String BASE_PATH = Util.ConfigUtil.getUploadDir();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

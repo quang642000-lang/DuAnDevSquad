@@ -78,28 +78,6 @@ public class NhanVienRepository {
         return list;
     }
 
-    // 3. Tự sinh mã nhân viên
-    public String generateNextMaNV() {
-        String sql = "SELECT ma_nv FROM NHAN_VIEN";
-        int maxId = 0;
-        try (Connection con = DBConnect.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                String ma = rs.getString("ma_nv");
-                if (ma != null && ma.startsWith("NV") && !ma.contains("-")) {
-                    try {
-                        int currentNum = Integer.parseInt(ma.substring(2));
-                        if (currentNum > maxId) maxId = currentNum;
-                    } catch (NumberFormatException e) { }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "NV" + String.format("%02d", maxId + 1);
-    }
-
     // 4. Thêm nhân viên mới (ĐÃ CẬP NHẬT TRƯỜNG EMAIL)
     public boolean add(NhanVien nv) {
         String sql = "INSERT INTO NHAN_VIEN (ten_dang_nhap, mat_khau, ho_ten, so_dien_thoai, email, trang_thai, ma_vai_tro) VALUES (?, ?, ?, ?, ?, ?, ?)";

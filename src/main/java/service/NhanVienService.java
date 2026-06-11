@@ -21,10 +21,6 @@ public class NhanVienService {
             return "Lỗi: Dữ liệu không được để trống!";
         }
 
-        if (nv.getMaNV() == null || nv.getMaNV().isEmpty()) {
-            nv.setMaNV(nhanVienRepo.generateNextMaNV());
-        }
-
         // Băm (Hash) mật khẩu ngay lúc thêm mới trước khi lưu xuống DB
         String hashedMatKhau = SecurityUtil.hashPassword(nv.getMatKhau());
         nv.setMatKhau(hashedMatKhau);

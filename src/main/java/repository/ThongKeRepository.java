@@ -3,6 +3,7 @@ package repository;
 import model.ThongKe;
 import model.DonHangDashboard;
 import model.TopSanPham;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,27 +15,23 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ThongKeRepository {
-
     private String[] getDefaultDates(String tuNgay, String denNgay) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String today = sdf.format(new Date());
-
         if ((tuNgay == null || tuNgay.isEmpty()) && (denNgay == null || denNgay.isEmpty())) {
             tuNgay = today;
             denNgay = today;
         }
         if (tuNgay == null || tuNgay.isEmpty()) tuNgay = "2000-01-01";
         if (denNgay == null || denNgay.isEmpty()) denNgay = "2099-12-31";
-
         return new String[]{tuNgay, denNgay};
     }
 
     public ThongKe getThongKeTongQuan(String tuNgay, String denNgay, String maNV) {
         ThongKe tk = new ThongKe();
         String[] dates = getDefaultDates(tuNgay, denNgay);
-        tuNgay = dates[0];
-        denNgay = dates[1];
-
+        tuNgay = dates[ 0 ];
+        denNgay = dates[ 1 ];
         String nvCondition = (maNV != null && !maNV.isEmpty()) ? " AND ma_nv = ? " : "";
 
         String sql = "SELECT " +
@@ -46,16 +43,13 @@ public class ThongKeRepository {
 
         try (Connection con = DBConnect.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
-
             int paramIndex = 1;
             ps.setString(paramIndex++, tuNgay);
             ps.setString(paramIndex++, denNgay);
             if (maNV != null && !maNV.isEmpty()) ps.setString(paramIndex++, maNV);
-
             ps.setString(paramIndex++, tuNgay);
             ps.setString(paramIndex++, denNgay);
             if (maNV != null && !maNV.isEmpty()) ps.setString(paramIndex++, maNV);
-
             if (maNV != null && !maNV.isEmpty()) ps.setString(paramIndex++, maNV);
 
             try (ResultSet rs = ps.executeQuery()) {
@@ -74,9 +68,8 @@ public class ThongKeRepository {
     public List<DonHangDashboard> getDonHangTheoNgay(String tuNgay, String denNgay, String maNV) {
         List<DonHangDashboard> list = new ArrayList<>();
         String[] dates = getDefaultDates(tuNgay, denNgay);
-        tuNgay = dates[0];
-        denNgay = dates[1];
-
+        tuNgay = dates[ 0 ];
+        denNgay = dates[ 1 ];
         String nvCondition = (maNV != null && !maNV.isEmpty()) ? " AND dh.ma_nv = ? " : "";
 
         String sql = "SELECT dh.ma_dh, dh.thoi_gian_tao, dh.tong_phai_tra, dh.trang_thai_don, nv.ho_ten " +
@@ -110,9 +103,8 @@ public class ThongKeRepository {
     public List<TopSanPham> getTopSanPham(String tuNgay, String denNgay, String maNV) {
         List<TopSanPham> list = new ArrayList<>();
         String[] dates = getDefaultDates(tuNgay, denNgay);
-        tuNgay = dates[0];
-        denNgay = dates[1];
-
+        tuNgay = dates[ 0 ];
+        denNgay = dates[ 1 ];
         String nvCondition = (maNV != null && !maNV.isEmpty()) ? " AND dh.ma_nv = ? " : "";
 
         String sql = "SELECT TOP 5 sp.ten_san_pham, SUM(ct.so_luong) as tong_so_luong " +
@@ -146,9 +138,8 @@ public class ThongKeRepository {
     public Map<String, Integer> getDoanhThu7NgayQua(String tuNgay, String denNgay, String maNV) {
         Map<String, Integer> chartData = new LinkedHashMap<>();
         String[] dates = getDefaultDates(tuNgay, denNgay);
-        tuNgay = dates[0];
-        denNgay = dates[1];
-
+        tuNgay = dates[ 0 ];
+        denNgay = dates[ 1 ];
         String nvCondition = (maNV != null && !maNV.isEmpty()) ? " AND ma_nv = ? " : "";
 
         String sql = "SELECT TOP 14 FORMAT(thoi_gian_tao, 'dd/MM') as ngay, SUM(tong_phai_tra) as tong_doanh_thu " +
@@ -174,11 +165,9 @@ public class ThongKeRepository {
     }
 
     // =========================================================================
-    // HÀM MỚI TỐI ƯU HÓA: Chống lỗi MARS của SQL Server và Lỗi JSON Parse
+    // HÀM ĐÃ TỐI ƯU: Sử dụng GSON chống lỗi JSON và tránh lỗi MARS
     // =========================================================================
     public String getReceiptJson(String maDH) {
-        StringBuilder json = new StringBuilder("{");
-
         String sqlDH = "SELECT dh.ma_dh, dh.thoi_gian_tao, dh.tong_tien_hang, dh.tien_giam_gia, dh.tong_phai_tra, dh.so_tien_khach_dua, " +
                 "nv.ho_ten AS ten_nv, kh.ten_khach_hang AS ten_kh, pt.ten_phuong_thuc " +
                 "FROM DON_HANG dh " +
@@ -193,79 +182,72 @@ public class ThongKeRepository {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-                    json.append("\"maDH\":\"").append(escapeJson(rs.getString("ma_dh"))).append("\",");
-                    json.append("\"ngay\":\"").append(sdf.format(rs.getTimestamp("thoi_gian_tao"))).append("\",");
-                    json.append("\"nhanVien\":\"").append(escapeJson(rs.getString("ten_nv"))).append("\",");
-                    json.append("\"khachHang\":\"").append(escapeJson(rs.getString("ten_kh") != null ? rs.getString("ten_kh") : "Khách vãng lai")).append("\",");
-                    json.append("\"phuongThuc\":\"").append(escapeJson(rs.getString("ten_phuong_thuc") != null ? rs.getString("ten_phuong_thuc") : "Tiền mặt")).append("\",");
-                    json.append("\"tongTienHang\":").append(rs.getInt("tong_tien_hang")).append(",");
-                    json.append("\"tienGiamGia\":").append(rs.getInt("tien_giam_gia")).append(",");
-                    json.append("\"tongPhaiTra\":").append(rs.getInt("tong_phai_tra")).append(",");
-                    json.append("\"tienKhachDua\":").append(rs.getInt("so_tien_khach_dua")).append(",");
+                    com.google.gson.JsonObject receipt = new com.google.gson.JsonObject();
 
-                    json.append("\"items\":[");
+                    receipt.addProperty("maDH", rs.getString("ma_dh"));
+                    receipt.addProperty("ngay", sdf.format(rs.getTimestamp("thoi_gian_tao")));
+                    receipt.addProperty("nhanVien", rs.getString("ten_nv"));
+                    receipt.addProperty("khachHang", rs.getString("ten_kh") != null ? rs.getString("ten_kh") : "Khách vãng lai");
+                    receipt.addProperty("phuongThuc", rs.getString("ten_phuong_thuc") != null ? rs.getString("ten_phuong_thuc") : "Tiền mặt");
+                    receipt.addProperty("tongTienHang", rs.getInt("tong_tien_hang"));
+                    receipt.addProperty("tienGiamGia", rs.getInt("tien_giam_gia"));
+                    receipt.addProperty("tongPhaiTra", rs.getInt("tong_phai_tra"));
+                    receipt.addProperty("tienKhachDua", rs.getInt("so_tien_khach_dua"));
 
-                    // 1. Tạo mảng trung gian để tránh lỗi MultipleActiveResultSets
-                    List<String[]> listItems = new ArrayList<>();
+                    com.google.gson.JsonArray items = new com.google.gson.JsonArray();
+
+                    // 1. Lưu danh sách món vào bộ nhớ tạm để tránh lỗi MultipleActiveResultSets (MARS)
+                    List<com.google.gson.JsonObject> tempItems = new ArrayList<>();
 
                     String sqlCT = "SELECT ct.ma_chi_tiet, ct.so_luong, ct.gia_chot_mon, ct.muc_da, ct.muc_duong, sp.ten_san_pham, bt.kich_co " +
                             "FROM CHI_TIET_DON_HANG ct " +
                             "JOIN BIEN_THE_SAN_PHAM bt ON ct.ma_bien_the = bt.ma_bien_the " +
                             "JOIN SAN_PHAM sp ON bt.ma_sp = sp.ma_sp " +
                             "WHERE ct.ma_dh = ?";
+
                     try (PreparedStatement psCT = con.prepareStatement(sqlCT)) {
                         psCT.setString(1, maDH);
                         try (ResultSet rsCT = psCT.executeQuery()) {
                             while (rsCT.next()) {
-                                listItems.add(new String[]{
-                                        rsCT.getString("ma_chi_tiet"),
-                                        rsCT.getString("ten_san_pham"),
-                                        rsCT.getString("kich_co"),
-                                        rsCT.getString("muc_da") != null ? rsCT.getString("muc_da") : "100%",
-                                        rsCT.getString("muc_duong") != null ? rsCT.getString("muc_duong") : "100%",
-                                        String.valueOf(rsCT.getInt("so_luong")),
-                                        String.valueOf(rsCT.getInt("gia_chot_mon"))
-                                });
+                                com.google.gson.JsonObject item = new com.google.gson.JsonObject();
+                                item.addProperty("maChiTiet", rsCT.getString("ma_chi_tiet")); // Khóa ẩn tạm thời
+                                item.addProperty("tenMon", rsCT.getString("ten_san_pham"));
+                                item.addProperty("size", rsCT.getString("kich_co"));
+                                item.addProperty("da", rsCT.getString("muc_da") != null ? rsCT.getString("muc_da") : "100%");
+                                item.addProperty("duong", rsCT.getString("muc_duong") != null ? rsCT.getString("muc_duong") : "100%");
+                                item.addProperty("soLuong", rsCT.getInt("so_luong"));
+                                item.addProperty("giaChot", rsCT.getInt("gia_chot_mon"));
+                                tempItems.add(item);
                             }
                         }
-                    } // rsCT và psCT được đóng tại đây
-
-                    // 2. Vòng lặp lấy Topping từ List an toàn
-                    boolean firstItem = true;
-                    for (String[] it : listItems) {
-                        if (!firstItem) json.append(",");
-                        json.append("{");
-                        json.append("\"tenMon\":\"").append(escapeJson(it[1])).append("\",");
-                        json.append("\"size\":\"").append(escapeJson(it[2])).append("\",");
-                        json.append("\"da\":\"").append(escapeJson(it[3])).append("\",");
-                        json.append("\"duong\":\"").append(escapeJson(it[4])).append("\",");
-                        json.append("\"soLuong\":").append(it[5]).append(",");
-                        json.append("\"giaChot\":").append(it[6]).append(",");
-
-                        json.append("\"toppings\":[");
-                        String sqlTP = "SELECT tp.ten_topping, ctt.so_luong_topping " +
-                                "FROM CHI_TIET_TOPPING ctt " +
-                                "JOIN TOPPING tp ON ctt.ma_topping = tp.ma_topping " +
-                                "WHERE ctt.ma_chi_tiet = ?";
-                        try (PreparedStatement psTP = con.prepareStatement(sqlTP)) {
-                            psTP.setString(1, it[0]);
-                            try (ResultSet rsTP = psTP.executeQuery()) {
-                                boolean firstTp = true;
-                                while(rsTP.next()){
-                                    if (!firstTp) json.append(",");
-                                    json.append("{\"ten\":\"").append(escapeJson(rsTP.getString("ten_topping"))).append("\",");
-                                    json.append("\"sl\":").append(rsTP.getInt("so_luong_topping")).append("}");
-                                    firstTp = false;
-                                }
-                            }
-                        } catch (Exception ignored) { }
-                        json.append("]"); // đóng mảng toppings
-
-                        json.append("}"); // đóng object item
-                        firstItem = false;
                     }
 
-                    json.append("]"); // đóng mảng items
+                    // 2. Duyệt mảng tạm để truy vấn Topping, đóng mở connection riêng biệt an toàn
+                    String sqlTP = "SELECT tp.ten_topping, ctt.so_luong_topping " +
+                            "FROM CHI_TIET_TOPPING ctt " +
+                            "JOIN TOPPING tp ON ctt.ma_topping = tp.ma_topping " +
+                            "WHERE ctt.ma_chi_tiet = ?";
+
+                    try (PreparedStatement psTP = con.prepareStatement(sqlTP)) {
+                        for (com.google.gson.JsonObject item : tempItems) {
+                            com.google.gson.JsonArray toppings = new com.google.gson.JsonArray();
+                            psTP.setString(1, item.get("maChiTiet").getAsString());
+                            try (ResultSet rsTP = psTP.executeQuery()) {
+                                while (rsTP.next()) {
+                                    com.google.gson.JsonObject topping = new com.google.gson.JsonObject();
+                                    topping.addProperty("ten", rsTP.getString("ten_topping"));
+                                    topping.addProperty("sl", rsTP.getInt("so_luong_topping"));
+                                    toppings.add(topping);
+                                }
+                            }
+                            item.remove("maChiTiet"); // Xóa khóa ẩn sau khi truy xuất xong
+                            item.add("toppings", toppings);
+                            items.add(item);
+                        }
+                    }
+
+                    receipt.add("items", items);
+                    return new com.google.gson.Gson().toJson(receipt);
                 } else {
                     return "{\"error\":\"Không tìm thấy đơn hàng trong Database.\"}";
                 }
@@ -273,21 +255,9 @@ public class ThongKeRepository {
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Lỗi SQL khi lấy JSON: " + e.getMessage());
-            return "{\"error\":\"Lỗi SQL: " + escapeJson(e.getMessage()) + "\"}";
+            com.google.gson.JsonObject err = new com.google.gson.JsonObject();
+            err.addProperty("error", "Lỗi SQL: " + e.getMessage());
+            return new com.google.gson.Gson().toJson(err);
         }
-        json.append("}");
-        return json.toString();
-    }
-
-    // Hàm hỗ trợ lọc chuỗi giúp trình duyệt không bị sập hàm JSON.parse()
-    private String escapeJson(String data) {
-        if (data == null) return "";
-        return data.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\b", "\\b")
-                .replace("\f", "\\f")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\t", "\\t");
     }
 }

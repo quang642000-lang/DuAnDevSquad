@@ -62,7 +62,7 @@ public class ToppingController extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action");
 
-        String uploadPath = "C:" + File.separator + "tea_pos_images";
+        String uploadPath = Util.ConfigUtil.getUploadDir();
         File uploadDir = new File(uploadPath);
         if (!uploadDir.exists()) {
             uploadDir.mkdirs();
