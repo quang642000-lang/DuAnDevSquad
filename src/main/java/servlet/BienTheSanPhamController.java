@@ -1,4 +1,4 @@
-package controller;
+package servlet;
 
 import model.BienTheSanPham;
 import model.SanPham;
