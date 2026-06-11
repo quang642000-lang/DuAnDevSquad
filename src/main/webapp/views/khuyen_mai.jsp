@@ -34,7 +34,7 @@
                         <input type="hidden" name="action" value="add">
                         <div class="mb-3">
                             <label class="form-label fw-semibold small text-muted text-uppercase">Tên Chương Trình</label>
-                            <input type="text" name="tenKM" class="form-control" required placeholder="VD: Khuyến mãi Tết">
+                            <input type="text" name="tenKm" class="form-control" required placeholder="VD: Khuyến mãi Tết">
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-bold small text-brand text-uppercase">Mã Code Nhập</label>

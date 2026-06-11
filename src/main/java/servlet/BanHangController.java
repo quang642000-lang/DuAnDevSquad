@@ -9,6 +9,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
@@ -41,11 +42,9 @@ public class BanHangController extends HttpServlet {
         if ("check-phone".equals(action)) {
             String phone = request.getParameter("phone");
             KhachHang kh = khachHangService.timKiemTheoSdt(phone);
-
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
             PrintWriter out = response.getWriter();
-
             if (kh != null) {
                 out.print("{\"found\":true, \"tenKH\":\"" + kh.getTenKH() + "\", \"diem\":" + kh.getDiemTichLuy() + "}");
             } else {
@@ -64,6 +63,7 @@ public class BanHangController extends HttpServlet {
                     .filter(sp -> sp.getDanhMuc() != null && sp.getDanhMuc().getMaDanhMuc().equals(filterDanhMuc))
                     .collect(Collectors.toList());
         }
+
         request.setAttribute("danhSachSanPham", dsSanPham);
         request.setAttribute("danhSachBienThe", bienTheService.getAll());
         request.setAttribute("danhSachTopping", toppingService.getAll());
@@ -83,7 +83,6 @@ public class BanHangController extends HttpServlet {
 
         if ("update-profile".equals(action)) {
             NhanVien nvSession = (NhanVien) request.getSession().getAttribute("nhanVienDangNhap");
-
             String oldPass = request.getParameter("oldPass");
             String newPass = request.getParameter("newPass");
             String hoTen = request.getParameter("hoTen");
@@ -102,7 +101,6 @@ public class BanHangController extends HttpServlet {
                 }
 
                 boolean isUpdated = nhanVienService.update(nvSession).contains("thành công");
-
                 if(isUpdated) {
                     request.getSession().setAttribute("nhanVienDangNhap", nvSession);
                     request.getSession().setAttribute("message", "Cập nhật thông tin cá nhân thành công!");
@@ -112,7 +110,6 @@ public class BanHangController extends HttpServlet {
             } else {
                 request.getSession().setAttribute("message", "Lỗi: Mật khẩu hiện tại không chính xác. Đã hủy thay đổi!");
             }
-
             response.sendRedirect(request.getContextPath() + "/ban-hang");
             return;
         }
@@ -126,16 +123,32 @@ public class BanHangController extends HttpServlet {
                 String sdtKhach = request.getParameter("sdtKhachHang");
                 String tenKhach = request.getParameter("tenKhachHang");
 
+                // ĐÃ FIX: Chống NumberFormatException gây sập trang khi parse dữ liệu rỗng
                 int diemSuDung = 0;
-                try { diemSuDung = Integer.parseInt(request.getParameter("diemSuDung")); } catch (Exception ignored){}
+                int tongTienHang = 0;
+                int soTienKhachDua = 0;
+                try {
+                    if(request.getParameter("diemSuDung") != null && !request.getParameter("diemSuDung").isEmpty()) {
+                        diemSuDung = Integer.parseInt(request.getParameter("diemSuDung"));
+                    }
+                    if(request.getParameter("tongTienHang") != null && !request.getParameter("tongTienHang").isEmpty()) {
+                        tongTienHang = Integer.parseInt(request.getParameter("tongTienHang"));
+                    }
+                    if(request.getParameter("tienKhachDua") != null && !request.getParameter("tienKhachDua").isEmpty()) {
+                        soTienKhachDua = Integer.parseInt(request.getParameter("tienKhachDua"));
+                    }
+                } catch (NumberFormatException e) {
+                    request.getSession().setAttribute("message", "Lỗi: Dữ liệu tiền hoặc điểm nhập vào không hợp lệ!");
+                    response.sendRedirect(request.getContextPath() + "/ban-hang");
+                    return;
+                }
 
-                dh.setTongTienHang(Integer.parseInt(request.getParameter("tongTienHang")));
-                dh.setSoTienKhachDua(Integer.parseInt(request.getParameter("tienKhachDua")));
+                dh.setTongTienHang(tongTienHang);
+                dh.setSoTienKhachDua(soTienKhachDua);
 
                 String maPTTT = request.getParameter("maPTTT");
                 PhuongThucThanhToan pttt = new PhuongThucThanhToan();
                 pttt.setMaPTTT(maPTTT);
-
                 for (PhuongThucThanhToan pt : ptttService.getAll()) {
                     if (pt.getMaPTTT().equals(maPTTT)) {
                         pttt.setTenPhuongThuc(pt.getTenPhuongThuc());
@@ -152,7 +165,6 @@ public class BanHangController extends HttpServlet {
                 }
 
                 String[] indexArr = request.getParameterValues("itemIndex[]");
-
                 if (indexArr != null) {
                     for (String idx : indexArr) {
                         ChiTietDonHang ct = new ChiTietDonHang();
@@ -163,7 +175,6 @@ public class BanHangController extends HttpServlet {
                         SanPham sp = new SanPham();
                         sp.setTenSanPham(request.getParameter("tenMon_" + idx));
                         bt.setSanPham(sp);
-
                         ct.setBienThe(bt);
 
                         ct.setSoLuong(Integer.parseInt(request.getParameter("soLuong_" + idx)));
@@ -179,9 +190,7 @@ public class BanHangController extends HttpServlet {
                                 ChiTietTopping ctt = new ChiTietTopping();
                                 Topping t = new Topping();
                                 t.setMaTopping(parts[0]);
-
                                 if (parts.length > 3) t.setTenTopping(parts[3]);
-
                                 ctt.setTopping(t);
 
                                 int qtyTopping = Integer.parseInt(parts[1]);
@@ -197,12 +206,10 @@ public class BanHangController extends HttpServlet {
                 }
 
                 String tb = donHangService.taoDonHangThanhToan(dh, sdtKhach, tenKhach, diemSuDung);
-
                 if (tb.contains("thành công")) {
                     request.getSession().setAttribute("recentOrder", dh);
                     request.getSession().setAttribute("diemSuDungBill", diemSuDung);
                 }
-
                 request.getSession().setAttribute("message", tb);
 
             } catch (Exception e) {

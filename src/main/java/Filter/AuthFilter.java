@@ -37,6 +37,7 @@ public class AuthFilter implements Filter {
         int role = nv.getVaiTro().getMaVaiTro();
 
         boolean isManagementPage = path.startsWith("/nhan-vien") ||
+                path.startsWith("/admin") ||
                 path.startsWith("/san-pham") ||
                 path.startsWith("/danh-muc") ||
                 path.startsWith("/bien-the") ||

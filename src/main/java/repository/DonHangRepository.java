@@ -3,25 +3,23 @@ package repository;
 import model.ChiTietDonHang;
 import model.ChiTietTopping;
 import model.DonHang;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 public class DonHangRepository {
-
     public boolean taoDonHang(DonHang dh) {
         Connection con = null;
         try {
             con = DBConnect.getConnection();
             con.setAutoCommit(false); // Bật Transaction (Nếu lỗi sẽ Rollback hoàn tác)
-
             String maDHMoi = "";
 
             // 1. LƯU BẢNG ĐƠN HÀNG (Lấy mã vừa sinh ra)
             String sqlDH = "INSERT INTO DON_HANG (thoi_gian_tao, tong_tien_hang, tien_giam_gia, trang_thai_don, tong_phai_tra, thoi_gian_thanh_toan, so_tien_khach_dua, ma_nv, ma_kh, ma_km, ma_pttt) " +
                     "OUTPUT INSERTED.ma_dh " +
                     "VALUES (GETDATE(), ?, ?, N'Hoàn thành', ?, GETDATE(), ?, ?, ?, ?, ?)";
-
             try (PreparedStatement psDH = con.prepareStatement(sqlDH)) {
                 psDH.setInt(1, dh.getTongTienHang());
                 psDH.setInt(2, dh.getTienGiamGia());
@@ -38,7 +36,6 @@ public class DonHangRepository {
                 } else {
                     psDH.setNull(7, java.sql.Types.VARCHAR);
                 }
-
                 psDH.setString(8, dh.getPhuongThucThanhToan().getMaPTTT());
 
                 try (ResultSet rsDH = psDH.executeQuery()) {
@@ -48,7 +45,6 @@ public class DonHangRepository {
                     }
                 }
             }
-
             if (maDHMoi == null || maDHMoi.isEmpty()) throw new Exception("SQL Server không tạo được mã đơn hàng!");
 
             // 2. LƯU BẢNG CHI TIẾT
@@ -92,7 +88,12 @@ public class DonHangRepository {
             e.printStackTrace();
             try { if (con != null) con.rollback(); } catch (Exception re) { re.printStackTrace(); }
         } finally {
-            try { if (con != null) con.setAutoCommit(true); } catch (Exception ex) { ex.printStackTrace(); }
+            try {
+                if (con != null) {
+                    con.setAutoCommit(true);
+                    con.close(); // ĐÃ FIX LỖI MEMORY LEAK: Bắt buộc phải đóng Connection
+                }
+            } catch (Exception ex) { ex.printStackTrace(); }
         }
         return false;
     }
