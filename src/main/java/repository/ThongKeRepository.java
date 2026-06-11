@@ -15,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ThongKeRepository {
+
     private String[] getDefaultDates(String tuNgay, String denNgay) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String today = sdf.format(new Date());
@@ -30,8 +31,10 @@ public class ThongKeRepository {
     public ThongKe getThongKeTongQuan(String tuNgay, String denNgay, String maNV) {
         ThongKe tk = new ThongKe();
         String[] dates = getDefaultDates(tuNgay, denNgay);
-        tuNgay = dates[ 0 ];
-        denNgay = dates[ 1 ];
+
+        tuNgay = dates[0];
+        denNgay = dates[1];
+
         String nvCondition = (maNV != null && !maNV.isEmpty()) ? " AND ma_nv = ? " : "";
 
         String sql = "SELECT " +
@@ -43,13 +46,16 @@ public class ThongKeRepository {
 
         try (Connection con = DBConnect.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
+
             int paramIndex = 1;
             ps.setString(paramIndex++, tuNgay);
             ps.setString(paramIndex++, denNgay);
             if (maNV != null && !maNV.isEmpty()) ps.setString(paramIndex++, maNV);
+
             ps.setString(paramIndex++, tuNgay);
             ps.setString(paramIndex++, denNgay);
             if (maNV != null && !maNV.isEmpty()) ps.setString(paramIndex++, maNV);
+
             if (maNV != null && !maNV.isEmpty()) ps.setString(paramIndex++, maNV);
 
             try (ResultSet rs = ps.executeQuery()) {
@@ -68,8 +74,10 @@ public class ThongKeRepository {
     public List<DonHangDashboard> getDonHangTheoNgay(String tuNgay, String denNgay, String maNV) {
         List<DonHangDashboard> list = new ArrayList<>();
         String[] dates = getDefaultDates(tuNgay, denNgay);
-        tuNgay = dates[ 0 ];
-        denNgay = dates[ 1 ];
+
+        tuNgay = dates[0];
+        denNgay = dates[1];
+
         String nvCondition = (maNV != null && !maNV.isEmpty()) ? " AND dh.ma_nv = ? " : "";
 
         String sql = "SELECT dh.ma_dh, dh.thoi_gian_tao, dh.tong_phai_tra, dh.trang_thai_don, nv.ho_ten " +
@@ -80,6 +88,7 @@ public class ThongKeRepository {
 
         try (Connection con = DBConnect.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
+
             int paramIndex = 1;
             ps.setString(paramIndex++, tuNgay);
             ps.setString(paramIndex++, denNgay);
@@ -103,8 +112,10 @@ public class ThongKeRepository {
     public List<TopSanPham> getTopSanPham(String tuNgay, String denNgay, String maNV) {
         List<TopSanPham> list = new ArrayList<>();
         String[] dates = getDefaultDates(tuNgay, denNgay);
-        tuNgay = dates[ 0 ];
-        denNgay = dates[ 1 ];
+
+        tuNgay = dates[0];
+        denNgay = dates[1];
+
         String nvCondition = (maNV != null && !maNV.isEmpty()) ? " AND dh.ma_nv = ? " : "";
 
         String sql = "SELECT TOP 5 sp.ten_san_pham, SUM(ct.so_luong) as tong_so_luong " +
@@ -118,6 +129,7 @@ public class ThongKeRepository {
 
         try (Connection con = DBConnect.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
+
             int paramIndex = 1;
             ps.setString(paramIndex++, tuNgay);
             ps.setString(paramIndex++, denNgay);
@@ -138,8 +150,10 @@ public class ThongKeRepository {
     public Map<String, Integer> getDoanhThu7NgayQua(String tuNgay, String denNgay, String maNV) {
         Map<String, Integer> chartData = new LinkedHashMap<>();
         String[] dates = getDefaultDates(tuNgay, denNgay);
-        tuNgay = dates[ 0 ];
-        denNgay = dates[ 1 ];
+
+        tuNgay = dates[0];
+        denNgay = dates[1];
+
         String nvCondition = (maNV != null && !maNV.isEmpty()) ? " AND ma_nv = ? " : "";
 
         String sql = "SELECT TOP 14 FORMAT(thoi_gian_tao, 'dd/MM') as ngay, SUM(tong_phai_tra) as tong_doanh_thu " +
@@ -150,6 +164,7 @@ public class ThongKeRepository {
 
         try (Connection con = DBConnect.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
+
             int paramIndex = 1;
             ps.setString(paramIndex++, tuNgay);
             ps.setString(paramIndex++, denNgay);
@@ -165,7 +180,7 @@ public class ThongKeRepository {
     }
 
     // =========================================================================
-    // HÀM ĐÃ TỐI ƯU: Sử dụng GSON chống lỗi JSON và tránh lỗi MARS
+    // HÀM ĐÃ TỐI ƯU: Sử dụng GSON chống lỗi JSON và chuẩn hóa cú pháp SQL
     // =========================================================================
     public String getReceiptJson(String maDH) {
         String sqlDH = "SELECT dh.ma_dh, dh.thoi_gian_tao, dh.tong_tien_hang, dh.tien_giam_gia, dh.tong_phai_tra, dh.so_tien_khach_dua, " +
@@ -178,6 +193,7 @@ public class ThongKeRepository {
 
         try (Connection con = DBConnect.getConnection();
              PreparedStatement ps = con.prepareStatement(sqlDH)) {
+
             ps.setString(1, maDH);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -197,11 +213,12 @@ public class ThongKeRepository {
                     com.google.gson.JsonArray items = new com.google.gson.JsonArray();
 
                     // 1. Lưu danh sách món vào bộ nhớ tạm để tránh lỗi MultipleActiveResultSets (MARS)
-                    List<com.google.gson.JsonObject> tempItems = new ArrayList<>();
+                    List<com.google.gson.JsonObject> tempItems = new java.util.ArrayList<>();
 
+                    // ĐÃ SỬA LỖI SQL: Đảm bảo có dấu phẩy ngăn cách rõ ràng giữa sp.ten_san_pham và bt.kich_co
                     String sqlCT = "SELECT ct.ma_chi_tiet, ct.so_luong, ct.gia_chot_mon, ct.muc_da, ct.muc_duong, sp.ten_san_pham, bt.kich_co " +
                             "FROM CHI_TIET_DON_HANG ct " +
-                            "JOIN BIEN  _THE_SAN_PHAM bt ON ct.ma_bien_the = bt.ma_bien_the " +
+                            "JOIN BIEN_THE_SAN_PHAM bt ON ct.ma_bien_the = bt.ma_bien_the " +
                             "JOIN SAN_PHAM sp ON bt.ma_sp = sp.ma_sp " +
                             "WHERE ct.ma_dh = ?";
 
@@ -222,7 +239,7 @@ public class ThongKeRepository {
                         }
                     }
 
-                    // 2. Duyệt mảng tạm để truy vấn Topping, đóng mở connection riêng biệt an toàn
+                    // 2. Duyệt mảng tạm để truy vấn Topping an toàn
                     String sqlTP = "SELECT tp.ten_topping, ctt.so_luong_topping " +
                             "FROM CHI_TIET_TOPPING ctt " +
                             "JOIN TOPPING tp ON ctt.ma_topping = tp.ma_topping " +
