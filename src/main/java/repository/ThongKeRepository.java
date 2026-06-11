@@ -201,7 +201,7 @@ public class ThongKeRepository {
 
                     String sqlCT = "SELECT ct.ma_chi_tiet, ct.so_luong, ct.gia_chot_mon, ct.muc_da, ct.muc_duong, sp.ten_san_pham, bt.kich_co " +
                             "FROM CHI_TIET_DON_HANG ct " +
-                            "JOIN BIEN_THE_SAN_PHAM bt ON ct.ma_bien_the = bt.ma_bien_the " +
+                            "JOIN BIEN  _THE_SAN_PHAM bt ON ct.ma_bien_the = bt.ma_bien_the " +
                             "JOIN SAN_PHAM sp ON bt.ma_sp = sp.ma_sp " +
                             "WHERE ct.ma_dh = ?";
 
