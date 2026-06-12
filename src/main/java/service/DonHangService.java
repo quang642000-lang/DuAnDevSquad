@@ -7,19 +7,15 @@ import model.KhachHang;
 import model.KhuyenMai;
 import model.BienTheSanPham;
 import model.Topping;
-import repository.DBConnect;
 import repository.DonHangRepository;
 import repository.KhachHangRepository;
 import repository.KhuyenMaiRepository;
 import repository.BienTheSanPhamRepository;
 import repository.ToppingRepository;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Date;
 
 public class DonHangService {
-
     private DonHangRepository donHangRepo = new DonHangRepository();
     private KhachHangRepository khachHangRepo = new KhachHangRepository();
     private KhuyenMaiRepository khuyenMaiRepo = new KhuyenMaiRepository();
@@ -34,7 +30,6 @@ public class DonHangService {
                 if (btDb == null) return "Lỗi: Có món ăn không tồn tại trong hệ thống!";
                 int giaLy = btDb.getGiaBan();
                 ct.setGiaChot(giaLy);
-
                 int tongTienTopping = 0;
                 for (ChiTietTopping ctt : ct.getDanhSachTopping()) {
                     Topping tpDb = toppingRepo.findById(ctt.getTopping().getMaTopping());
@@ -42,22 +37,18 @@ public class DonHangService {
                     ctt.setGiaChot(tpDb.getGiaBan());
                     tongTienTopping += tpDb.getGiaBan() * ctt.getSoLuongTopping();
                 }
-
                 tongTienHang += (giaLy * ct.getSoLuong()) + tongTienTopping;
             }
             dh.setTongTienHang(tongTienHang);
 
-            // =========================================================
-            // 2. KIỂM TRA LẠI KHUYẾN MÃI
-            // =========================================================
             int tienGiamVoucher = 0;
             if (dh.getKhuyenMai() != null && dh.getKhuyenMai().getMaKM() != null && !dh.getKhuyenMai().getMaKM().isEmpty()) {
                 KhuyenMai km = khuyenMaiRepo.getById(dh.getKhuyenMai().getMaKM());
                 if (km != null && tongTienHang >= km.getDieuKienToiThieu()) {
                     if ("Phần Trăm".equalsIgnoreCase(km.getLoaiGiamGia())) {
-                        tienGiamVoucher = (tongTienHang * km.getGiaTriGiam()) / 100; // ĐÃ SỬA
+                        tienGiamVoucher = (tongTienHang * km.getGiaTriGiam()) / 100;
                     } else {
-                        tienGiamVoucher = km.getGiaTriGiam(); // ĐÃ SỬA
+                        tienGiamVoucher = km.getGiaTriGiam();
                     }
                     if (tienGiamVoucher > tongTienHang) tienGiamVoucher = tongTienHang;
                 } else {
@@ -65,36 +56,32 @@ public class DonHangService {
                 }
             }
 
-            String sdt = (sdtKhachHang != null && !sdtKhachHang.trim().isEmpty()) ? sdtKhachHang.trim() : "0000000000";
-            String ten = (tenKhachHang != null && !tenKhachHang.trim().isEmpty()) ? tenKhachHang.trim() : "Khách vãng lai";
-
-            KhachHang kh = khachHangRepo.timKiemTheoSdt(sdt);
+            // Xử lý Khách Hàng (Tránh gán cứng 0000000000, hỗ trợ NULL ở Database)
+            KhachHang kh = null;
             int diemGiamGia = 0;
+            int diemCongThem = 0;
 
-            if (kh == null) {
-                kh = new KhachHang();
-                kh.setSDT(sdt);
-                kh.setTenKH(ten);
-                kh.setDiemTichLuy(0);
-                khachHangRepo.add(kh);
-                kh = khachHangRepo.timKiemTheoSdt(sdt);
-                diemSuDung = 0;
-            } else {
-                if (diemSuDung > kh.getDiemTichLuy()) diemSuDung = kh.getDiemTichLuy();
-
-                int tienSauVoucher = tongTienHang - tienGiamVoucher;
-                int diemToiDaChoPhep = tienSauVoucher / 1000;
-
-                if (diemSuDung > diemToiDaChoPhep) {
-                    diemSuDung = diemToiDaChoPhep;
+            if (sdtKhachHang != null && !sdtKhachHang.trim().isEmpty()) {
+                kh = khachHangRepo.timKiemTheoSdt(sdtKhachHang.trim());
+                if (kh == null) {
+                    kh = new KhachHang();
+                    kh.setSDT(sdtKhachHang.trim());
+                    kh.setTenKH(tenKhachHang != null && !tenKhachHang.isEmpty() ? tenKhachHang.trim() : "Khách hàng mới");
+                    kh.setDiemTichLuy(0);
+                    khachHangRepo.add(kh);
+                    kh = khachHangRepo.timKiemTheoSdt(sdtKhachHang.trim());
                 }
+                if (diemSuDung > kh.getDiemTichLuy()) diemSuDung = kh.getDiemTichLuy();
+                int tienSauVoucher = tongTienHang - tienGiamVoucher;
+                int diemToiDa = tienSauVoucher / 1000;
+                if (diemSuDung > diemToiDa) diemSuDung = diemToiDa;
                 diemGiamGia = diemSuDung * 1000;
+            } else {
+                diemSuDung = 0; // Khách vãng lai không dùng điểm
             }
             dh.setKhachHang(kh);
 
-            int tongPhaiTra = tongTienHang - tienGiamVoucher - diemGiamGia;
-            if (tongPhaiTra < 0) tongPhaiTra = 0;
-
+            int tongPhaiTra = Math.max(tongTienHang - tienGiamVoucher - diemGiamGia, 0);
             dh.setTienGiamGia(tienGiamVoucher + diemGiamGia);
             dh.setTongTienTra(tongPhaiTra);
             dh.setThoiGianTao(new Date());
@@ -102,24 +89,15 @@ public class DonHangService {
             if (dh.getSoTienKhachDua() < dh.getTongTienTra()) return "Lỗi: Số tiền khách đưa không đủ!";
             if (dh.getDanhSachChiTiet() == null || dh.getDanhSachChiTiet().isEmpty()) return "Lỗi: Giỏ hàng trống!";
 
-            boolean success = donHangRepo.taoDonHang(dh);
+            diemCongThem = tongPhaiTra / 10000;
 
-            if (success) {
-                int diemCongThem = tongPhaiTra / 10000;
-                if (!sdt.equals("0000000000")) {
-                    String sqlDiem = "UPDATE KHACH_HANG SET diem_tich_luy = diem_tich_luy - ? + ? WHERE ma_kh = ?";
-                    try (Connection con = DBConnect.getConnection();
-                         PreparedStatement ps = con.prepareStatement(sqlDiem)) {
-                        ps.setInt(1, diemSuDung);
-                        ps.setInt(2, diemCongThem);
-                        ps.setString(3, kh.getMaKH());
-                        ps.executeUpdate();
-                    } catch (Exception ignored) { }
-                }
-            }
+            // Đẩy tất cả thông số xuống Transaction ở Repository
+            donHangRepo.taoDonHang(dh, diemSuDung, diemCongThem);
+            return "Thanh toán thành công! Đã in hóa đơn.";
 
-            return success ? "Thanh toán thành công! Đã in hóa đơn." : "Lỗi SQL: Không thể lưu đơn hàng!";
-
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "Lỗi giao dịch: " + e.getMessage();
         } catch (Exception e) {
             e.printStackTrace();
             return "Lỗi hệ thống: " + e.getMessage();

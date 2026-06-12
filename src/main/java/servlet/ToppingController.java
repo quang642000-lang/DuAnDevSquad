@@ -2,7 +2,6 @@ package servlet;
 
 import model.Topping;
 import service.ToppingService;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -12,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 import java.io.File;
 import java.io.IOException;
+import java.util.UUID;
 
 @MultipartConfig(
         fileSizeThreshold = 1024 * 1024 * 2,
@@ -20,35 +20,27 @@ import java.io.IOException;
 )
 @WebServlet(name = "ToppingController", value = "/topping")
 public class ToppingController extends HttpServlet {
-
     private ToppingService toppingService = new ToppingService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
         if (action == null) action = "list";
-
         switch (action) {
             case "delete":
-                String idDel = request.getParameter("id");
-                request.getSession().setAttribute("message", toppingService.delete(idDel));
+                request.getSession().setAttribute("message", toppingService.delete(request.getParameter("id")));
                 response.sendRedirect(request.getContextPath() + "/topping?action=list");
                 break;
-
             case "toggle-status":
-                String idToggle = request.getParameter("id");
-                int status = Integer.parseInt(request.getParameter("status"));
-                request.getSession().setAttribute("message", toppingService.updateTrangThai(idToggle, status));
+                request.getSession().setAttribute("message", toppingService.updateTrangThai(request.getParameter("id"), Integer.parseInt(request.getParameter("status"))));
                 response.sendRedirect(request.getContextPath() + "/topping?action=list");
                 break;
-
             case "search":
                 String keyword = request.getParameter("keyword");
                 request.setAttribute("danhSach", toppingService.search(keyword));
                 request.setAttribute("selectedKeyword", keyword);
                 request.getRequestDispatcher("/views/topping.jsp").forward(request, response);
                 break;
-
             case "list":
             default:
                 request.setAttribute("danhSach", toppingService.getAll());
@@ -61,17 +53,13 @@ public class ToppingController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action");
-
         String uploadPath = Util.ConfigUtil.getUploadDir();
         File uploadDir = new File(uploadPath);
-        if (!uploadDir.exists()) {
-            uploadDir.mkdirs();
-        }
+        if (!uploadDir.exists()) uploadDir.mkdirs();
 
         if ("add".equals(action)) {
             Topping tp = new Topping();
             tp.setTenTopping(request.getParameter("tenTopping"));
-
             try {
                 tp.setGiaBan(Integer.parseInt(request.getParameter("giaBan")));
             } catch (Exception e) {
@@ -79,22 +67,21 @@ public class ToppingController extends HttpServlet {
             }
 
             Part filePart = request.getPart("hinhAnhFile");
-            String fileName = filePart.getSubmittedFileName();
-            if (fileName != null && !fileName.isEmpty()) {
-                filePart.write(uploadPath + File.separator + fileName);
-                tp.setHinhAnh(fileName);
+            String originalName = filePart.getSubmittedFileName();
+            if (originalName != null && !originalName.isEmpty()) {
+                String extension = originalName.substring(originalName.lastIndexOf("."));
+                String safeFileName = UUID.randomUUID().toString() + extension;
+                filePart.write(uploadPath + File.separator + safeFileName);
+                tp.setHinhAnh(safeFileName);
             } else {
                 tp.setHinhAnh("default.png");
             }
-
-            String tb = toppingService.add(tp);
-            request.getSession().setAttribute("message", tb);
+            request.getSession().setAttribute("message", toppingService.add(tp));
 
         } else if ("update".equals(action)) {
             Topping tp = new Topping();
             tp.setMaTopping(request.getParameter("maTopping"));
             tp.setTenTopping(request.getParameter("tenTopping"));
-
             try {
                 tp.setGiaBan(Integer.parseInt(request.getParameter("giaBan")));
             } catch (Exception e) {
@@ -102,19 +89,18 @@ public class ToppingController extends HttpServlet {
             }
 
             Part filePart = request.getPart("hinhAnhFile");
-            String fileName = filePart.getSubmittedFileName();
-            if (fileName != null && !fileName.isEmpty()) {
-                filePart.write(uploadPath + File.separator + fileName);
-                tp.setHinhAnh(fileName);
+            String originalName = filePart.getSubmittedFileName();
+            if (originalName != null && !originalName.isEmpty()) {
+                String extension = originalName.substring(originalName.lastIndexOf("."));
+                String safeFileName = UUID.randomUUID().toString() + extension;
+                filePart.write(uploadPath + File.separator + safeFileName);
+                tp.setHinhAnh(safeFileName);
             } else {
                 String oldHinhAnh = request.getParameter("oldHinhAnh");
                 tp.setHinhAnh(oldHinhAnh != null && !oldHinhAnh.isEmpty() ? oldHinhAnh : "default.png");
             }
-
-            String tb = toppingService.update(tp);
-            request.getSession().setAttribute("message", tb);
+            request.getSession().setAttribute("message", toppingService.update(tp));
         }
-
         response.sendRedirect(request.getContextPath() + "/topping?action=list");
     }
 }

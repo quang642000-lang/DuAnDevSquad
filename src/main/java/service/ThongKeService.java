@@ -4,12 +4,11 @@ import model.ThongKe;
 import model.DonHangDashboard;
 import model.TopSanPham;
 import repository.ThongKeRepository;
-
 import java.util.List;
 import java.util.Map;
+import com.google.gson.Gson;
 
 public class ThongKeService {
-
     private ThongKeRepository repo = new ThongKeRepository();
 
     public ThongKe getThongKeTongQuan(String tuNgay, String denNgay, String maNV) {
@@ -28,7 +27,12 @@ public class ThongKeService {
         return repo.getDoanhThu7NgayQua(tuNgay, denNgay, maNV);
     }
 
+    // Xử lý JSON ở tầng Service thay vì Repository
     public String getReceiptJson(String maDH) {
-        return repo.getReceiptJson(maDH);
+        Map<String, Object> data = repo.getReceiptData(maDH);
+        if (data == null || data.isEmpty()) {
+            return "{\"error\":\"Không tìm thấy đơn hàng trong Database.\"}";
+        }
+        return new Gson().toJson(data);
     }
 }
