@@ -36,14 +36,28 @@ public class KhachHangController extends HttpServlet {
                 // CHỨC NĂNG TÌM KIẾM
                 String sdt = request.getParameter("sdt");
                 KhachHang kh = khachHangService.timKiemTheoSdt(sdt);
-                request.setAttribute("khachHangTimDuoc", kh);
+                if (kh != null) {
+                    List<KhachHang> listSearch = new java.util.ArrayList<>();
+                    listSearch.add(kh);
+                    request.setAttribute("danhSach", listSearch);
+                }
+                request.setAttribute("currentPage", 1);
+                request.setAttribute("totalPages", 1); // Ẩn thanh phân trang khi đang tìm kiếm
                 request.getRequestDispatcher("/views/khach_hang.jsp").forward(request, response);
                 break;
+
             case "list":
             default:
-                // HIỂN THỊ DANH SÁCH
-                List<KhachHang> list = khachHangService.getAll();
-                request.setAttribute("danhSach", list);
+                // HIỂN THỊ DANH SÁCH CÓ PHÂN TRANG
+                int page = 1;
+                String pageParam = request.getParameter("page");
+                if (pageParam != null && !pageParam.isEmpty()) {
+                    try { page = Integer.parseInt(pageParam); } catch (Exception e) {}
+                }
+                request.setAttribute("danhSach", khachHangService.getAllByPage(page));
+                request.setAttribute("currentPage", page);
+                request.setAttribute("totalPages", khachHangService.getTotalPages());
+
                 request.getRequestDispatcher("/views/khach_hang.jsp").forward(request, response);
                 break;
         }

@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/global.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 </head>
 <body>
 <%@ include file="layout/toast.jsp" %>
@@ -24,87 +25,20 @@
         </a>
     </div>
     <div class="row">
-        <div class="col-lg-3 mb-4">
+        <div class="col-12 mb-4">
             <div class="card">
-                <div class="card-header border-bottom-0 pb-0 pt-4">
-                    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-gift-fill text-brand me-2"></i>Tạo Mã Mới</h5>
-                </div>
-                <div class="card-body p-4">
-                    <form action="${pageContext.request.contextPath}/khuyen-mai" method="post" onsubmit="showConfirmForm(event, this, 'Phát Hành Mã', 'Xác nhận tạo mới chương trình khuyến mãi này?');">
-                        <input type="hidden" name="action" value="add">
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold small text-muted text-uppercase">Tên Chương Trình</label>
-                            <input type="text" name="tenKm" class="form-control" required placeholder="VD: Khuyến mãi Tết">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold small text-brand text-uppercase">Mã Code Nhập</label>
-                            <input type="text" name="maCode" class="form-control text-uppercase fw-bold fs-5" style="border-color: var(--brand-primary);" required placeholder="VD: TET2026">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold small text-muted text-uppercase">Loại Giảm</label>
-                            <select name="loaiGiamGia" class="form-select">
-                                <option value="Trực Tiếp">Giảm Trực Tiếp (VNĐ)</option>
-                                <option value="Phần Trăm">Giảm Phần Trăm (%)</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold small text-muted text-uppercase">Mức Giảm</label>
-                            <input type="number" name="giaTriGiam" class="form-control fw-bold text-dark fs-5" min="1" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold small text-muted text-uppercase">Đơn Tối Thiểu</label>
-                            <input type="number" name="dieuKienToiThieu" class="form-control" value="0" min="0" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold small text-primary text-uppercase">Số Lượng Mã</label>
-                            <input type="number" name="soLuong" class="form-control fw-bold text-primary" value="100" min="1" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold small text-muted text-uppercase">Từ Ngày</label>
-                            <input type="date" name="ngayBatDau" class="form-control" required>
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold small text-muted text-uppercase">Đến Ngày</label>
-                            <input type="date" name="ngayKetThuc" class="form-control" required>
-                        </div>
-                        <button type="submit" class="btn btn-brand w-100 py-2"><i class="bi bi-check2-circle me-1"></i> Phát Hành</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-9 mb-4">
-            <div class="card mb-4">
-                <div class="card-body p-3">
-                    <form action="${pageContext.request.contextPath}/khuyen-mai" method="get">
-                        <input type="hidden" name="action" value="search">
-                        <div class="row g-3">
-                            <div class="col-md-10">
-                                <div class="input-group">
-                                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
-                                    <input type="text" class="form-control border-start-0 ps-0" name="keyword" placeholder="Tìm theo tên chương trình hoặc mã Code..." value="${requestScope.selectedKeyword}">
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <button type="submit" class="btn btn-dark w-100 fw-bold">Tìm Kiếm</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold text-dark">Danh Sách Mã Giảm Giá</h5>
+                <div class="card-header d-flex justify-content-between align-items-center py-3">
+                    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-ticket-perforated-fill text-brand me-2"></i>Danh Sách Mã Giảm Giá</h5>
                     <div>
-                        <c:if test="${not empty requestScope.selectedKeyword}">
-                            <a href="${pageContext.request.contextPath}/khuyen-mai?action=list" class="btn btn-sm btn-light text-danger fw-bold me-2"><i class="bi bi-x-circle"></i> Bỏ lọc</a>
-                        </c:if>
-                        <a href="${pageContext.request.contextPath}/khuyen-mai?action=list" class="btn btn-sm btn-light border"><i class="bi bi-arrow-clockwise"></i></a>
+                        <button type="button" class="btn btn-brand fw-bold shadow-sm me-2 rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#addModal">
+                            <i class="bi bi-plus-circle me-1"></i> Thêm Khuyến Mãi
+                        </button>
+                        <a href="${pageContext.request.contextPath}/khuyen-mai?action=list" class="btn btn-light border rounded-circle" style="width: 38px; height: 38px;"><i class="bi bi-arrow-clockwise"></i></a>
                     </div>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover table-custom mb-0 text-center">
+                        <table class="table table-hover table-custom mb-0 text-center" id="khuyenMaiTable">
                             <thead>
                             <tr>
                                 <th width="5%">STT</th>
@@ -182,6 +116,68 @@
 </div>
 
 <%@ include file="layout/confirm_modal.jsp" %>
+
+<!-- MODAL THÊM MỚI KHUYẾN MÃI -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content shadow-lg border-0" style="border-radius: 16px;">
+            <div class="modal-header border-0 py-3 bg-light">
+                <h5 class="modal-title fw-bold text-dark"><i class="bi bi-gift-fill text-brand me-2"></i>Phát Hành Mã Giảm Giá Mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="${pageContext.request.contextPath}/khuyen-mai" method="post" onsubmit="showConfirmForm(event, this, 'Phát Hành Mã', 'Xác nhận tạo mới chương trình khuyến mãi này?');">
+                <div class="modal-body p-4">
+                    <input type="hidden" name="action" value="add">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-muted text-uppercase">Tên Chương Trình</label>
+                        <input type="text" name="tenKm" class="form-control" required placeholder="VD: Khuyến mãi Tết">
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small text-brand text-uppercase">Mã Code Nhập</label>
+                            <input type="text" name="maCode" class="form-control text-uppercase fw-bold text-danger" style="border-color: var(--brand-primary);" required placeholder="VD: TET2026">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-muted text-uppercase">Loại Giảm</label>
+                            <select name="loaiGiamGia" class="form-select">
+                                <option value="Trực Tiếp">Giảm Trực Tiếp (VNĐ)</option>
+                                <option value="Phần Trăm">Giảm Phần Trăm (%)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small text-muted text-uppercase">Mức Giảm</label>
+                            <input type="number" name="giaTriGiam" class="form-control fw-bold text-dark" min="1" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small text-muted text-uppercase">Đơn Tối Thiểu</label>
+                            <input type="number" name="dieuKienToiThieu" class="form-control" value="0" min="0" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small text-primary text-uppercase">Số Lượng Mã</label>
+                            <input type="number" name="soLuong" class="form-control fw-bold text-primary" value="100" min="1" required>
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-muted text-uppercase">Từ Ngày</label>
+                            <input type="date" name="ngayBatDau" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-muted text-uppercase">Đến Ngày</label>
+                            <input type="date" name="ngayKetThuc" class="form-control" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0 d-flex justify-content-end p-3">
+                    <button type="button" class="btn btn-light fw-bold rounded-pill px-4 border me-2" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-brand fw-bold rounded-pill px-4 shadow-sm"><i class="bi bi-check2-circle me-1"></i> Phát Hành</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -287,6 +283,32 @@
         document.getElementById('edit_ngayBatDau').value = start;
         document.getElementById('edit_ngayKetThuc').value = end;
     }
+</script>
+<!-- Thư viện jQuery và DataTables -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#khuyenMaiTable').DataTable({
+            "pageLength": 5, // Cài đặt mặc định hiển thị 5 dòng/trang
+            "lengthMenu": [[5, 10, 20, -1], [5, 10, 20, "Tất cả"]], // Cho phép người dùng tự chọn số dòng
+            "language": {
+                "lengthMenu": "Hiển thị _MENU_ dòng",
+                "zeroRecords": "Không tìm thấy Mã Khuyến Mãi nào",
+                "info": "Đang hiển thị trang _PAGE_ / _PAGES_",
+                "infoEmpty": "Không có dữ liệu",
+                "search": "Tìm kiếm nhanh:",
+                "paginate": {
+                    "first": "Đầu",
+                    "last": "Cuối",
+                    "next": "Sau",
+                    "previous": "Trước"
+                }
+            }
+        });
+    });
 </script>
 </body>
 </html>

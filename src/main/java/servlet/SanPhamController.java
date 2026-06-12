@@ -53,7 +53,22 @@ public class SanPhamController extends HttpServlet {
                 break;
             case "list":
             default:
-                request.setAttribute("danhSachSp", sanPhamService.getAll());
+                // Lấy số trang hiện tại từ request (nếu không có thì mặc định là 1)
+                int page = 1;
+                String pageParam = request.getParameter("page");
+                if (pageParam != null && !pageParam.isEmpty()) {
+                    try { page = Integer.parseInt(pageParam); } catch (Exception e) {}
+                }
+
+                // Lấy danh sách sản phẩm theo trang và tổng số trang
+                List<SanPham> danhSachSp = sanPhamService.getAllByPage(page);
+                int totalPages = sanPhamService.getTotalPages();
+
+                // Gửi dữ liệu sang JSP
+                request.setAttribute("danhSachSp", danhSachSp);
+                request.setAttribute("currentPage", page);
+                request.setAttribute("totalPages", totalPages);
+
                 request.setAttribute("danhSachDm", danhMucService.getAll());
                 request.getRequestDispatcher("/views/san_pham.jsp").forward(request, response);
                 break;

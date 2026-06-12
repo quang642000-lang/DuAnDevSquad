@@ -26,67 +26,49 @@
         </a>
     </div>
     <div class="row">
-        <div class="col-lg-4 mb-4">
-            <!-- TÌM KIẾM KHÁCH HÀNG -->
-            <div class="card mb-4">
-                <div class="card-header border-bottom-0 pb-0 pt-4">
-                    <h5 class="mb-0 fw-bold text-success"><i class="bi bi-search me-2"></i>Tra Cứu Khách Hàng</h5>
-                </div>
-                <div class="card-body p-4">
-                    <form action="${pageContext.request.contextPath}/khach-hang" method="get">
-                        <input type="hidden" name="action" value="search">
-                        <label class="form-label fw-semibold text-muted small text-uppercase">Số Điện Thoại</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" name="sdt" placeholder="Nhập 10 số..." value="${param.sdt}" required>
-                            <button class="btn btn-success fw-bold px-4" type="submit">Tìm</button>
-                        </div>
-                    </form>
-                    <c:if test="${not empty requestScope.khachHangTimDuoc}">
-                        <div class="mt-4 p-3 rounded-4 bg-success bg-opacity-10 border border-success border-opacity-25">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h6 class="fw-bold mb-0 text-success"><i class="bi bi-person-check-fill me-1"></i> Đã tìm thấy</h6>
-                                <span class="badge points-badge px-3 py-2"><i class="bi bi-coin me-1"></i> ${khachHangTimDuoc.diemTichLuy} điểm</span>
-                            </div>
-                            <div>
-                                <div class="fw-bold text-dark fs-5">${khachHangTimDuoc.tenKH}</div>
-                                <div class="text-muted small">${khachHangTimDuoc.SDT} &bull; Mã: ${khachHangTimDuoc.maKH}</div>
-                            </div>
-                        </div>
-                    </c:if>
-                    <c:if test="${param.action == 'search' and empty requestScope.khachHangTimDuoc}">
-                        <div class="alert alert-danger mt-3 shadow-sm small rounded-3 border-0"><i class="bi bi-info-circle-fill"></i> Không tìm thấy khách hàng.</div>
-                    </c:if>
-                </div>
-            </div>
-
-            <!-- THÊM KHÁCH HÀNG -->
-            <div class="card">
-                <div class="card-header border-bottom-0 pb-0 pt-4">
-                    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-person-plus-fill text-brand me-2"></i>Mở Thẻ Thành Viên</h5>
-                </div>
-                <div class="card-body p-4">
-                    <form action="${pageContext.request.contextPath}/khach-hang" method="post" onsubmit="showConfirmForm(event, this, 'Mở Thẻ Mới', 'Xác nhận tạo thẻ thành viên cho khách hàng này?');">
-                        <input type="hidden" name="action" value="add">
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold text-muted small text-uppercase">Họ và Tên</label>
-                            <input type="text" class="form-control" name="tenKhachHang" placeholder="Nhập tên khách..." required>
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold text-muted small text-uppercase">Số Điện Thoại</label>
-                            <input type="text" class="form-control" name="soDienThoai" placeholder="VD: 0988..." required pattern="\d{10,11}">
-                        </div>
-                        <button type="submit" class="btn btn-brand w-100 py-2"><i class="bi bi-check2 me-1"></i> Đăng Ký Thẻ</button>
-                    </form>
-                </div>
-            </div>
-        </div>
 
         <!-- DANH SÁCH KHÁCH HÀNG -->
-        <div class="col-lg-8 mb-4">
+        <div class="col-12 mb-4">
             <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold text-dark">Danh Sách Thành Viên</h5>
-                    <a href="${pageContext.request.contextPath}/khach-hang?action=list" class="btn btn-sm btn-light border"><i class="bi bi-arrow-clockwise"></i> Làm mới toàn bộ</a>
+                <div class="card-header d-flex flex-wrap justify-content-between align-items-center py-3 gap-2">
+                    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-people-fill text-brand me-2"></i>Danh Sách Thành Viên</h5>
+                    <div class="d-flex align-items-center gap-2">
+                        <!-- Form Tìm Kiếm Gọn Nhẹ -->
+                        <form action="${pageContext.request.contextPath}/khach-hang" method="get" class="d-flex m-0">
+                            <input type="hidden" name="action" value="search">
+                            <div class="input-group shadow-sm" style="width: 250px;">
+                                <input type="text" class="form-control" name="sdt" placeholder="Tìm số điện thoại..." value="${param.sdt}" required pattern="\d{10,11}">
+                                <button class="btn btn-dark fw-bold" type="submit"><i class="bi bi-search"></i></button>
+                            </div>
+                        </form>
+                        <c:if test="${not empty param.sdt}">
+                            <a href="${pageContext.request.contextPath}/khach-hang?action=list" class="btn btn-light text-danger fw-bold shadow-sm"><i class="bi bi-x-circle"></i></a>
+                        </c:if>
+
+                        <button type="button" class="btn btn-brand fw-bold shadow-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#addModal">
+                            <i class="bi bi-plus-circle me-1"></i> Mở Thẻ Mới
+                        </button>
+                    </div>
+                    <c:if test="${totalPages > 1}">
+                        <div class="d-flex justify-content-center mt-4 mb-3">
+                            <nav>
+                                <ul class="pagination pagination-sm shadow-sm">
+                                    <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
+                                        <a class="page-link text-brand fw-bold" href="${pageContext.request.contextPath}/khach-hang?action=list&page=${currentPage - 1}">Trước</a>
+                                    </li>
+                                    <c:forEach begin="1" end="${totalPages}" var="i">
+                                        <li class="page-item ${currentPage == i ? 'active' : ''}">
+                                            <a class="page-link ${currentPage == i ? 'bg-brand border-brand text-white' : 'text-dark'}"
+                                               href="${pageContext.request.contextPath}/khach-hang?action=list&page=${i}">${i}</a>
+                                        </li>
+                                    </c:forEach>
+                                    <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
+                                        <a class="page-link text-brand fw-bold" href="${pageContext.request.contextPath}/khach-hang?action=list&page=${currentPage + 1}">Sau</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </c:if>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -106,7 +88,7 @@
                                 <c:when test="${not empty requestScope.danhSach}">
                                     <c:forEach var="kh" items="${requestScope.danhSach}" varStatus="status">
                                         <tr>
-                                            <td class="fw-semibold text-muted">${status.index + 1}</td>
+                                            <td class="fw-semibold text-muted">${(currentPage - 1) * 5 + status.index + 1}</td>
                                             <td class="fw-semibold text-muted">${kh.maKH}</td>
                                             <td class="text-start fw-bold text-dark">${kh.tenKH}</td>
                                             <td class="fw-medium">${kh.SDT}</td>
@@ -139,6 +121,35 @@
 
 <!-- NHÚNG COMPONENT CONFIRM MODAL CHUNG -->
 <%@ include file="layout/confirm_modal.jsp" %>
+
+<!-- MODAL THÊM KHÁCH HÀNG -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0" style="border-radius: 16px;">
+            <div class="modal-header border-0 py-3 bg-light">
+                <h5 class="modal-title fw-bold text-dark"><i class="bi bi-person-plus-fill text-brand me-2"></i>Mở Thẻ Thành Viên</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="${pageContext.request.contextPath}/khach-hang" method="post" onsubmit="showConfirmForm(event, this, 'Mở Thẻ Mới', 'Xác nhận tạo thẻ thành viên?');">
+                <div class="modal-body p-4">
+                    <input type="hidden" name="action" value="add">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-muted text-uppercase">Họ và Tên</label>
+                        <input type="text" class="form-control fw-bold" name="tenKhachHang" placeholder="Nhập tên khách..." required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold small text-muted text-uppercase">Số Điện Thoại</label>
+                        <input type="text" class="form-control" name="soDienThoai" placeholder="Gồm 10 số..." required pattern="\d{10,11}">
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0 p-3">
+                    <button type="button" class="btn btn-light fw-bold rounded-pill px-4 border me-2" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-brand fw-bold rounded-pill px-4 shadow-sm"><i class="bi bi-check2 me-1"></i> Đăng Ký Thẻ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <!-- MODAL CẬP NHẬT -->
 <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">

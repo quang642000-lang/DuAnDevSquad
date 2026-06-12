@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/global.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 </head>
 <body>
 <%@ include file="layout/toast.jsp" %>
@@ -23,59 +24,21 @@
         </a>
     </div>
     <div class="row">
-        <div class="col-lg-4 mb-4">
-            <div class="card">
-                <div class="card-header border-bottom-0 pb-0 pt-4">
-                    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-plus-circle-fill text-brand me-2"></i>Phương Thức Mới</h5>
-                </div>
-                <div class="card-body p-4">
-                    <form action="${pageContext.request.contextPath}/phuong-thuc" method="post" onsubmit="showConfirmForm(event, this, 'Thêm Phương Thức', 'Xác nhận tạo cổng thanh toán mới?');">
-                        <input type="hidden" name="action" value="add">
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold text-muted small text-uppercase">Tên hình thức thanh toán</label>
-                            <input type="text" class="form-control" name="tenPhuongThuc" placeholder="VD: Tiền mặt, VNPay..." required>
-                        </div>
-                        <div class="alert alert-light py-2 px-3 small border mb-4 rounded-3 text-muted">
-                            <i class="bi bi-info-circle-fill text-primary"></i> Sẽ được <strong>Kích hoạt</strong> tự động.
-                        </div>
-                        <button type="submit" class="btn btn-brand w-100 py-2"><i class="bi bi-check2 me-1"></i> Lưu Dữ Liệu</button>
-                    </form>
-                </div>
-            </div>
-        </div>
 
-        <div class="col-lg-8 mb-4">
-            <div class="card mb-4">
-                <div class="card-body p-3">
-                    <form action="${pageContext.request.contextPath}/phuong-thuc" method="get">
-                        <input type="hidden" name="action" value="search">
-                        <div class="row g-3">
-                            <div class="col-md-9">
-                                <div class="input-group">
-                                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
-                                    <input type="text" class="form-control border-start-0 ps-0" name="keyword" placeholder="Tìm theo tên hoặc mã phương thức..." value="${requestScope.selectedKeyword}">
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <button type="submit" class="btn btn-dark w-100 fw-bold">Tra Cứu</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
+        <div class="col-12 mb-4">
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold text-dark">Các Hình Thức Khả Dụng</h5>
+                <div class="card-header d-flex justify-content-between align-items-center py-3">
+                    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-wallet2 text-brand me-2"></i>Các Hình Thức Khả Dụng</h5>
                     <div>
-                        <c:if test="${not empty requestScope.selectedKeyword}">
-                            <a href="${pageContext.request.contextPath}/phuong-thuc?action=list" class="btn btn-sm btn-light text-danger fw-bold me-2"><i class="bi bi-x-circle"></i> Bỏ lọc</a>
-                        </c:if>
-                        <a href="${pageContext.request.contextPath}/phuong-thuc?action=list" class="btn btn-sm btn-light border"><i class="bi bi-arrow-clockwise"></i></a>
+                        <button type="button" class="btn btn-brand fw-bold shadow-sm me-2 rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#addModal">
+                            <i class="bi bi-plus-circle me-1"></i> Thêm Phương Thức
+                        </button>
+                        <a href="${pageContext.request.contextPath}/phuong-thuc?action=list" class="btn btn-light border rounded-circle" style="width: 38px; height: 38px;"><i class="bi bi-arrow-clockwise"></i></a>
                     </div>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover table-custom mb-0 text-center">
+                        <table class="table table-hover table-custom mb-0 text-center" id="ptttTable">
                             <thead>
                             <tr>
                                 <th width="10%">STT</th>
@@ -135,6 +98,34 @@
 
 <%@ include file="layout/confirm_modal.jsp" %>
 
+<!-- MODAL THÊM MỚI PHƯƠNG THỨC THANH TOÁN -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0" style="border-radius: 16px;">
+            <div class="modal-header border-0 py-3 bg-light">
+                <h5 class="modal-title fw-bold text-dark"><i class="bi bi-wallet-fill text-brand me-2"></i>Thêm Cổng Thanh Toán</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="${pageContext.request.contextPath}/phuong-thuc" method="post" onsubmit="showConfirmForm(event, this, 'Thêm Phương Thức', 'Xác nhận tạo cổng thanh toán mới?');">
+                <div class="modal-body p-4">
+                    <input type="hidden" name="action" value="add">
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold text-muted small text-uppercase">Tên hình thức thanh toán</label>
+                        <input type="text" class="form-control fw-bold" name="tenPhuongThuc" placeholder="VD: Tiền mặt, VNPay, MoMo..." required>
+                    </div>
+                    <div class="alert alert-light py-2 px-3 small border mb-0 rounded-3 text-muted">
+                        <i class="bi bi-info-circle-fill text-primary"></i> Sẽ được <strong>Kích hoạt</strong> tự động sau khi lưu.
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0 d-flex justify-content-end p-3">
+                    <button type="button" class="btn btn-light fw-bold rounded-pill px-4 border me-2" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-brand fw-bold rounded-pill px-4 shadow-sm"><i class="bi bi-check2-circle me-1"></i> Lưu Dữ Liệu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content shadow-lg">
@@ -173,6 +164,32 @@
         document.getElementById('display_maPTTT').value = maPT;
         document.getElementById('edit_tenPhuongThuc').value = tenPT;
     }
+</script>
+<!-- Thư viện jQuery và DataTables -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#ptttTable').DataTable({
+            "pageLength": 5,
+            "lengthMenu": [[5, 10, 20, -1], [5, 10, 20, "Tất cả"]],
+            "language": {
+                "lengthMenu": "Hiển thị _MENU_ dòng",
+                "zeroRecords": "Không tìm thấy Phương Thức Thanh Toán nào",
+                "info": "Đang hiển thị trang _PAGE_ / _PAGES_",
+                "infoEmpty": "Không có dữ liệu",
+                "search": "Tìm kiếm nhanh:",
+                "paginate": {
+                    "first": "Đầu",
+                    "last": "Cuối",
+                    "next": "Sau",
+                    "previous": "Trước"
+                }
+            }
+        });
+    });
 </script>
 </body>
 </html>

@@ -50,7 +50,8 @@ public class NhanVienRepository {
     public List<NhanVien> getAll() {
         List<NhanVien> list = new ArrayList<>();
         String sql = "SELECT nv.*, vt.ten_vai_tro FROM NHAN_VIEN nv " +
-                "LEFT JOIN VAI_TRO vt ON nv.ma_vai_tro = vt.ma_vai_tro";
+                "LEFT JOIN VAI_TRO vt ON nv.ma_vai_tro = vt.ma_vai_tro " +
+                "ORDER BY nv.ma_nv DESC";
         try (Connection con = DBConnect.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {

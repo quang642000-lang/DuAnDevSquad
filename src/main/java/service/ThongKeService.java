@@ -11,6 +11,17 @@ import com.google.gson.Gson;
 public class ThongKeService {
     private ThongKeRepository repo = new ThongKeRepository();
 
+    private final int LIMIT = 10; // Hiển thị 10 đơn hàng trên 1 trang cho thoải mái
+
+    public int getTotalDonHang(String tuNgay, String denNgay, String maNV) {
+        return repo.getTotalDonHang(tuNgay, denNgay, maNV);
+    }
+
+    public List<DonHangDashboard> getDonHangTheoNgayByPage(String tuNgay, String denNgay, String maNV, int page) {
+        int offset = (page - 1) * LIMIT;
+        return repo.getDonHangTheoNgay(tuNgay, denNgay, maNV, offset, LIMIT);
+    }
+
     public ThongKe getThongKeTongQuan(String tuNgay, String denNgay, String maNV) {
         return repo.getThongKeTongQuan(tuNgay, denNgay, maNV);
     }

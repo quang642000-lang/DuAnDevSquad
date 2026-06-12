@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/global.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 </head>
 <body>
 <%@ include file="layout/toast.jsp" %>
@@ -24,64 +25,45 @@
         </a>
     </div>
     <div class="row">
-        <div class="col-lg-3 mb-4">
-            <div class="card">
-                <div class="card-header border-bottom-0 pb-0 pt-4">
-                    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-plus-circle-fill text-brand me-2"></i>Thêm Món Thêm</h5>
-                </div>
-                <div class="card-body p-4">
-                    <form action="${pageContext.request.contextPath}/topping" method="post" enctype="multipart/form-data" onsubmit="showConfirmForm(event, this, 'Xác Nhận Thêm', 'Bạn có chắc chắn muốn thêm Topping mới này?');">
-                        <input type="hidden" name="action" value="add">
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold text-muted small text-uppercase">Tên Topping</label>
-                            <input type="text" class="form-control" name="tenTopping" placeholder="VD: Trân châu trắng..." required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold text-muted small text-uppercase">Giá Bán (VNĐ)</label>
-                            <input type="number" class="form-control text-danger fw-bold fs-5" name="giaBan" min="0" placeholder="5000" required>
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold text-muted small text-uppercase">Tải Ảnh Lên</label>
-                            <input type="file" class="form-control" name="hinhAnhFile" accept="image/*" required>
-                        </div>
-                        <button type="submit" class="btn btn-brand w-100 py-2"><i class="bi bi-check2 me-1"></i> Lưu Topping</button>
-                    </form>
-                </div>
-            </div>
-        </div>
 
-        <div class="col-lg-9 mb-4">
+
+        <div class="col-12 mb-4">
             <div class="card mb-4">
                 <div class="card-body p-3">
-                    <form action="${pageContext.request.contextPath}/topping" method="get">
-                        <input type="hidden" name="action" value="search">
-                        <div class="row g-3">
-                            <div class="col-md-10">
-                                <div class="input-group">
-                                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
-                                    <input type="text" class="form-control border-start-0 ps-0" name="keyword" placeholder="Nhập tên hoặc mã topping..." value="${requestScope.selectedKeyword}">
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <button type="submit" class="btn btn-dark w-100 fw-bold">Tìm Kiếm</button>
-                            </div>
-                        </div>
-                    </form>
+<%--                    <form action="${pageContext.request.contextPath}/topping" method="get">--%>
+<%--                        <input type="hidden" name="action" value="search">--%>
+<%--                        <div class="row g-3">--%>
+<%--                            <div class="col-md-10">--%>
+<%--                                <div class="input-group">--%>
+<%--                                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>--%>
+<%--                                    <input type="text" class="form-control border-start-0 ps-0" name="keyword" placeholder="Nhập tên hoặc mã topping..." value="${requestScope.selectedKeyword}">--%>
+<%--                                </div>--%>
+<%--                            </div>--%>
+<%--                            <div class="col-md-2">--%>
+<%--                                <button type="submit" class="btn btn-dark w-100 fw-bold">Tìm Kiếm</button>--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
+<%--                    </form>--%>
                 </div>
             </div>
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold text-dark">Danh Sách Tùy Chọn Món</h5>
+                <div class="card-header d-flex justify-content-between align-items-center py-3">
+                    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-list-check text-brand me-2"></i>Danh Sách Tùy Chọn Món</h5>
                     <div>
+                        <!-- Nút Thêm Mới Gọi Modal -->
+                        <button type="button" class="btn btn-brand fw-bold shadow-sm me-2 rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#addModal">
+                            <i class="bi bi-plus-circle me-1"></i> Thêm Topping
+                        </button>
+
                         <c:if test="${not empty requestScope.selectedKeyword}">
-                            <a href="${pageContext.request.contextPath}/topping?action=list" class="btn btn-sm btn-light text-danger fw-bold me-2"><i class="bi bi-x-circle"></i> Bỏ lọc</a>
+                            <a href="${pageContext.request.contextPath}/topping?action=list" class="btn btn-light text-danger fw-bold me-2 rounded-pill px-3"><i class="bi bi-x-circle"></i> Bỏ lọc</a>
                         </c:if>
-                        <a href="${pageContext.request.contextPath}/topping?action=list" class="btn btn-sm btn-light border"><i class="bi bi-arrow-clockwise"></i></a>
+                        <a href="${pageContext.request.contextPath}/topping?action=list" class="btn btn-light border rounded-circle" style="width: 38px; height: 38px;"><i class="bi bi-arrow-clockwise"></i></a>
                     </div>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover table-custom mb-0 text-center">
+                        <table class="table table-hover table-custom mb-0 text-center" id="toppingTable">
                             <thead>
                             <tr>
                                 <th width="5%">STT</th>
@@ -147,42 +129,33 @@
 
 <%@ include file="layout/confirm_modal.jsp" %>
 
-<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+<!-- MODAL THÊM MỚI TOPPING -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content shadow-lg border-0" style="border-radius: 16px;">
             <div class="modal-header border-0 py-3 bg-light">
-                <h5 class="modal-title fw-bold text-dark"><i class="bi bi-pencil-square text-primary me-2"></i>Cập Nhật Món Thêm</h5>
+                <h5 class="modal-title fw-bold text-dark"><i class="bi bi-plus-circle-fill text-brand me-2"></i>Thêm Món Thêm Mới</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form action="${pageContext.request.contextPath}/topping" method="post" enctype="multipart/form-data" onsubmit="showConfirmForm(event, this, 'Lưu Thay Đổi', 'Bạn chắc chắn muốn lưu thông tin vừa sửa của Topping này?');">
+            <form action="${pageContext.request.contextPath}/topping" method="post" enctype="multipart/form-data" onsubmit="showConfirmForm(event, this, 'Xác Nhận Thêm', 'Bạn có chắc chắn muốn thêm Topping mới này?');">
                 <div class="modal-body p-4">
-                    <input type="hidden" name="action" value="update">
-                    <input type="hidden" name="maTopping" id="edit_maTopping">
-                    <input type="hidden" name="oldHinhAnh" id="edit_oldHinhAnh">
+                    <input type="hidden" name="action" value="add">
                     <div class="mb-3">
-                        <label class="form-label text-muted fw-bold small text-uppercase">Mã Topping</label>
-                        <input type="text" class="form-control bg-light fw-bold text-muted border-0" id="display_maTopping" disabled>
+                        <label class="form-label fw-semibold text-muted small text-uppercase">Tên Topping</label>
+                        <input type="text" class="form-control" name="tenTopping" placeholder="VD: Trân châu trắng..." required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold text-dark small text-uppercase">Tên Topping</label>
-                        <input type="text" class="form-control" name="tenTopping" id="edit_tenTopping" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold text-dark small text-uppercase">Giá Bán (VNĐ)</label>
-                        <input type="number" class="form-control text-danger fw-bold fs-5" name="giaBan" id="edit_giaBan" min="0" required>
+                        <label class="form-label fw-semibold text-muted small text-uppercase">Giá Bán (VNĐ)</label>
+                        <input type="number" class="form-control text-danger fw-bold fs-5" name="giaBan" min="0" placeholder="5000" required>
                     </div>
                     <div class="mb-2">
-                        <label class="form-label fw-bold text-dark small text-uppercase">Thay Ảnh Mới (Trống để giữ nguyên)</label>
-                        <input type="file" class="form-control mb-2" name="hinhAnhFile" accept="image/*">
-                        <div class="text-center p-2 rounded-4" style="background: #F8FAFC; border: 1px dashed #CBD5E1;">
-                            <span class="small text-muted fw-semibold d-block mb-2">Ảnh hiện tại</span>
-                            <img id="preview_hinhAnh" src="" alt="Ảnh hiện tại" style="width: 80px; height: 80px; object-fit: cover; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                        </div>
+                        <label class="form-label fw-semibold text-muted small text-uppercase">Tải Ảnh Lên</label>
+                        <input type="file" class="form-control" name="hinhAnhFile" accept="image/*" required>
                     </div>
                 </div>
                 <div class="modal-footer bg-light border-0 d-flex justify-content-end p-3">
                     <button type="button" class="btn btn-light fw-bold rounded-pill px-4 border me-2" data-bs-dismiss="modal">Hủy</button>
-                    <button type="submit" class="btn btn-primary fw-bold rounded-pill px-4 shadow-sm"><i class="bi bi-check-lg me-1"></i> Lưu Lại</button>
+                    <button type="submit" class="btn btn-brand fw-bold rounded-pill px-4 shadow-sm"><i class="bi bi-check-lg me-1"></i> Lưu Topping</button>
                 </div>
             </form>
         </div>
@@ -202,6 +175,33 @@
         let imgUrl = hinhAnh ? ('${pageContext.request.contextPath}/image/' + hinhAnh) : 'https://placehold.co/100x100?text=No+Image';
         document.getElementById('preview_hinhAnh').src = imgUrl;
     }
+</script>
+<!-- Thư viện jQuery và DataTables -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<!-- Script khởi tạo phân trang -->
+<script>
+    $(document).ready(function() {
+        $('#toppingTable').DataTable({
+            "pageLength": 5, // Cài đặt mặc định hiển thị 5 dòng/trang
+            "lengthMenu": [[5, 10, 20, -1], [5, 10, 20, "Tất cả"]], // Cho phép người dùng tự chọn số dòng
+            "language": {
+                "lengthMenu": "Hiển thị _MENU_ dòng",
+                "zeroRecords": "Không tìm thấy Topping nào",
+                "info": "Đang hiển thị trang _PAGE_ / _PAGES_",
+                "infoEmpty": "Không có dữ liệu",
+                "search": "Tìm kiếm nhanh:",
+                "paginate": {
+                    "first": "Đầu",
+                    "last": "Cuối",
+                    "next": "Sau",
+                    "previous": "Trước"
+                }
+            }
+        });
+    });
 </script>
 </body>
 </html>

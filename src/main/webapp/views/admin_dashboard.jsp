@@ -257,7 +257,7 @@
                     <div class="card card-box mb-4">
                         <div class="card-header-box d-flex justify-content-between align-items-center">
                             <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-receipt text-success me-2"></i>Lịch Sử Giao Dịch Đã Lọc</h6>
-                            <span class="badge bg-dark text-white rounded-pill px-3 py-2 shadow-sm">${fn:length(requestScope.listDonHang)} đơn hàng</span>
+                            <span class="badge bg-dark text-white rounded-pill px-3 py-2 shadow-sm">${requestScope.totalRecords} đơn hàng</span>
                         </div>
                         <div class="card-body p-0">
                             <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
@@ -330,6 +330,27 @@
                                     </tbody>
                                 </table>
                             </div>
+                            <c:if test="${totalPages > 1}">
+                                <div class="d-flex justify-content-center mt-0 p-3 bg-white border-top border-light">
+                                    <nav>
+                                        <ul class="pagination pagination-sm shadow-sm mb-0">
+                                            <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
+                                                <!-- Rất quan trọng: Phải nối đủ tham số tuNgay, denNgay, maNV để không bị mất kết quả lọc khi chuyển trang -->
+                                                <a class="page-link text-brand fw-bold" href="${pageContext.request.contextPath}/admin?tuNgay=${requestScope.tuNgay}&denNgay=${requestScope.denNgay}&maNV=${requestScope.selectedNV}&page=${currentPage - 1}">Trước</a>
+                                            </li>
+                                            <c:forEach begin="1" end="${totalPages}" var="i">
+                                                <li class="page-item ${currentPage == i ? 'active' : ''}">
+                                                    <a class="page-link ${currentPage == i ? 'bg-brand border-brand text-white' : 'text-dark'}"
+                                                       href="${pageContext.request.contextPath}/admin?tuNgay=${requestScope.tuNgay}&denNgay=${requestScope.denNgay}&maNV=${requestScope.selectedNV}&page=${i}">${i}</a>
+                                                </li>
+                                            </c:forEach>
+                                            <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
+                                                <a class="page-link text-brand fw-bold" href="${pageContext.request.contextPath}/admin?tuNgay=${requestScope.tuNgay}&denNgay=${requestScope.denNgay}&maNV=${requestScope.selectedNV}&page=${currentPage + 1}">Sau</a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </c:if>
                         </div>
                     </div>
                 </div>

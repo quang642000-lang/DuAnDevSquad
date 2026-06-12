@@ -35,6 +35,46 @@ public class SanPhamRepository {
         return list;
     }
 
+    public List<SanPham> getAll(int offset, int limit) {
+        List<SanPham> list = new ArrayList<>();
+        String sql = "SELECT sp.ma_sp, sp.ten_san_pham, sp.trang_thai, sp.hinh_anh, sp.ma_danh_muc, dm.ten_danh_muc " +
+                "FROM SAN_PHAM sp LEFT JOIN DANH_MUC dm ON sp.ma_danh_muc = dm.ma_danh_muc " +
+                "ORDER BY sp.ma_sp DESC " +
+                "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        try (Connection con = DBConnect.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, offset);
+            ps.setInt(2, limit);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    SanPham sp = new SanPham();
+                    sp.setMaSP(rs.getString("ma_sp"));
+                    sp.setTenSanPham(rs.getString("ten_san_pham"));
+                    sp.setHinhAnh(rs.getString("hinh_anh"));
+                    sp.setTrangThai(rs.getInt("trang_thai"));
+                    DanhMuc dm = new DanhMuc();
+                    dm.setMaDanhMuc(rs.getString("ma_danh_muc"));
+                    dm.setTenDanhMuc(rs.getString("ten_danh_muc"));
+                    sp.setDanhMuc(dm);
+                    list.add(sp);
+                }
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return list;
+    }
+
+    public int getTotalCount() {
+        String sql = "SELECT COUNT(*) FROM SAN_PHAM";
+        try (Connection con = DBConnect.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
     // Ném lỗi lên trên để Service xử lý thay vì chỉ in ra console
     public boolean add(SanPham sp) {
         String sql = "INSERT INTO SAN_PHAM (ten_san_pham, trang_thai, hinh_anh, ma_danh_muc) VALUES (?, ?, ?, ?)";

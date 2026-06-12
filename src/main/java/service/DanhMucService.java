@@ -7,9 +7,20 @@ import java.util.List;
 public class DanhMucService {
 
     private DanhMucRepository danhMucRepo = new DanhMucRepository();
+    private final int LIMIT = 5; // Số dòng trên 1 trang
 
     public List<DanhMuc> getAll() {
         return danhMucRepo.getAll();
+    }
+
+    public List<DanhMuc> getAllByPage(int page) {
+        int offset = (page - 1) * LIMIT;
+        return danhMucRepo.getAll(offset, LIMIT);
+    }
+
+    public int getTotalPages() {
+        int totalRecords = danhMucRepo.getTotalCount();
+        return (int) Math.ceil((double) totalRecords / LIMIT);
     }
 
     public String add(DanhMuc dm) {

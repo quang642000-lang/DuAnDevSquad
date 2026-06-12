@@ -11,6 +11,7 @@ import java.util.List;
 
 public class BienTheSanPhamService {
     private BienTheSanPhamRepository bienTheRepo = new BienTheSanPhamRepository();
+    private final int LIMIT = 5;
 
     public List<BienTheSanPham> getAll() {
         return bienTheRepo.getAll();
@@ -30,6 +31,18 @@ public class BienTheSanPhamService {
         bt.setTrangThai(1); // Mặc định Đang bán
 
         return bienTheRepo.add(bt) ? "Thêm kích cỡ thành công!" : "Lỗi hệ thống khi thêm!";
+    }
+
+    // Lấy dữ liệu theo trang
+    public List<BienTheSanPham> getAllByPage(int page) {
+        int offset = (page - 1) * LIMIT;
+        return bienTheRepo.getAll(offset, LIMIT);
+    }
+
+    // Đếm tổng số trang
+    public int getTotalPages() {
+        int totalRecords = bienTheRepo.getTotalCount();
+        return (int) Math.ceil((double) totalRecords / LIMIT);
     }
 
     public String update(BienTheSanPham bt) {

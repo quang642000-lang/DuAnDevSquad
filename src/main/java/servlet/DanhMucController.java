@@ -33,9 +33,20 @@ public class DanhMucController extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/danh-muc?action=list");
 
         } else {
-            // Xử lý Hiển thị danh sách
-            List<DanhMuc> listDM = danhMucService.getAll();
+            // Xử lý Hiển thị danh sách có phân trang
+            int page = 1;
+            String pageParam = request.getParameter("page");
+            if (pageParam != null && !pageParam.isEmpty()) {
+                try { page = Integer.parseInt(pageParam); } catch (Exception e) {}
+            }
+
+            List<DanhMuc> listDM = danhMucService.getAllByPage(page);
+            int totalPages = danhMucService.getTotalPages();
+
             request.setAttribute("danhSach", listDM);
+            request.setAttribute("currentPage", page);
+            request.setAttribute("totalPages", totalPages);
+
             request.getRequestDispatcher("/views/danh_muc.jsp").forward(request, response);
         }
     }

@@ -119,7 +119,7 @@
                                 <c:when test="${not empty requestScope.danhSachSp}">
                                     <c:forEach var="sp" items="${requestScope.danhSachSp}" varStatus="status">
                                         <tr>
-                                            <td class="fw-semibold text-muted">${status.index + 1}</td>
+                                            <td class="fw-semibold text-muted">${(currentPage - 1) * 5 + status.index + 1}</td>
                                             <td>
                                                 <img src="${pageContext.request.contextPath}/image/${not empty sp.hinhAnh ? sp.hinhAnh : 'default.png'}" class="product-img shadow-sm" onerror="this.src='https://placehold.co/100x100?text=No+Image'" alt="${fn:escapeXml(sp.tenSanPham)}">
                                             </td>
@@ -159,6 +159,34 @@
                             </c:choose>
                             </tbody>
                         </table>
+                        <!-- KHU VỰC PHÂN TRANG -->
+                        <c:if test="${totalPages > 1}">
+                            <div class="d-flex justify-content-center mt-4">
+                                <nav aria-label="Page navigation">
+                                    <ul class="pagination pagination-sm shadow-sm">
+
+                                        <!-- Nút Previous -->
+                                        <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
+                                            <a class="page-link text-brand fw-bold" href="${pageContext.request.contextPath}/san-pham?action=list&page=${currentPage - 1}">Trước</a>
+                                        </li>
+
+                                        <!-- Hiển thị các số trang -->
+                                        <c:forEach begin="1" end="${totalPages}" var="i">
+                                            <li class="page-item ${currentPage == i ? 'active' : ''}">
+                                                <a class="page-link ${currentPage == i ? 'bg-brand border-brand text-white' : 'text-dark'}"
+                                                   href="${pageContext.request.contextPath}/san-pham?action=list&page=${i}">${i}</a>
+                                            </li>
+                                        </c:forEach>
+
+                                        <!-- Nút Next -->
+                                        <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
+                                            <a class="page-link text-brand fw-bold" href="${pageContext.request.contextPath}/san-pham?action=list&page=${currentPage + 1}">Sau</a>
+                                        </li>
+
+                                    </ul>
+                                </nav>
+                            </div>
+                        </c:if>
                     </div>
                 </div>
             </div>

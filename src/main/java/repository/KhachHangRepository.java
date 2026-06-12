@@ -29,6 +29,37 @@ public class KhachHangRepository {
         return list;
     }
 
+    // 2. Nạp chồng hàm getAll() để phân trang bằng SQL
+    public List<KhachHang> getAll(int offset, int limit) {
+        List<KhachHang> list = new ArrayList<>();
+        String sql = "SELECT * FROM KHACH_HANG ORDER BY ma_kh DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        try (Connection con = DBConnect.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, offset);
+            ps.setInt(2, limit);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    KhachHang kh = new KhachHang();
+                    kh.setMaKH(rs.getString("ma_kh"));
+                    kh.setTenKH(rs.getString("ten_khach_hang"));
+                    kh.setSDT(rs.getString("so_dien_thoai"));
+                    kh.setDiemTichLuy(rs.getInt("diem_tich_luy"));
+                    list.add(kh);
+                }
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return list;
+    }
+
+    public int getTotalCount() {
+        String sql = "SELECT COUNT(*) FROM KHACH_HANG";
+        try (Connection con = DBConnect.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
     public KhachHang timKiemTheoSdt(String sdt) {
         String sql = "SELECT * FROM KHACH_HANG WHERE so_dien_thoai = ?";
         try (Connection con = DBConnect.getConnection();

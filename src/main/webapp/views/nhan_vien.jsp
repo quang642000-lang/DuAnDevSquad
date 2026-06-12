@@ -13,6 +13,7 @@
 
     <!-- ÁP DỤNG CLEAN ARCHITECTURE -->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/global.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 </head>
 <body>
 <!-- NHÚNG COMPONENT THÔNG BÁO -->
@@ -26,58 +27,22 @@
         </a>
     </div>
     <div class="row">
-        <!-- FORM CẤP TÀI KHOẢN -->
-        <div class="col-lg-3 mb-4">
-            <div class="card">
-                <div class="card-header border-bottom-0 pb-0 pt-4">
-                    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-person-plus-fill text-brand me-2"></i>Cấp Tài Khoản Mới</h5>
-                </div>
-                <div class="card-body p-4">
-                    <form action="${pageContext.request.contextPath}/nhan-vien" method="post" onsubmit="showConfirmForm(event, this, 'Xác Nhận Tạo', 'Xác nhận tạo tài khoản mới cho nhân viên này?');">
-                        <input type="hidden" name="action" value="add">
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold small text-muted text-uppercase">Họ và Tên</label>
-                            <input type="text" class="form-control" name="hoTen" placeholder="VD: Nguyễn Văn A" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold small text-muted text-uppercase">Số Điện Thoại</label>
-                            <input type="text" class="form-control" name="SDT" placeholder="Gồm 10 số..." pattern="\d{10,11}" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold small text-muted text-uppercase">Địa Chỉ Email</label>
-                            <input type="email" class="form-control" name="email" placeholder="VD: mail@domain.com" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold small text-muted text-uppercase">Tên Đăng Nhập</label>
-                            <input type="text" class="form-control fw-bold" name="tenDangNhap" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold small text-muted text-uppercase">Mật Khẩu</label>
-                            <input type="password" class="form-control" name="matKhau" minlength="6" required>
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold small text-muted text-uppercase">Quyền Hạn</label>
-                            <select class="form-select" name="maVaiTro" required>
-                                <option value="1">Admin (Quản trị viên)</option>
-                                <option value="2" selected>Nhân Viên (Bán Hàng)</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-brand w-100 py-2"><i class="bi bi-person-check-fill me-1"></i> Khởi Tạo</button>
-                    </form>
-                </div>
-            </div>
-        </div>
 
         <!-- BẢNG DANH SÁCH -->
-        <div class="col-lg-9 mb-4">
+        <div class="col-12 mb-4">
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold text-dark">Danh Sách Nhân Sự</h5>
-                    <a href="${pageContext.request.contextPath}/nhan-vien?action=list" class="btn btn-sm btn-light border"><i class="bi bi-arrow-clockwise"></i> Làm mới</a>
+                <div class="card-header d-flex justify-content-between align-items-center py-3">
+                    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-person-lines-fill text-brand me-2"></i>Danh Sách Nhân Sự</h5>
+                    <div>
+                        <button type="button" class="btn btn-brand fw-bold shadow-sm me-2 rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#addModal">
+                            <i class="bi bi-plus-circle me-1"></i> Cấp Tài Khoản
+                        </button>
+                        <a href="${pageContext.request.contextPath}/nhan-vien?action=list" class="btn btn-light border rounded-circle" style="width: 38px; height: 38px;"><i class="bi bi-arrow-clockwise"></i></a>
+                    </div>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover table-custom mb-0 text-center">
+                        <table class="table table-hover table-custom mb-0 text-center" id="nhanVienTable">
                             <thead>
                             <tr>
                                 <th class="text-start ps-4">Họ Tên & Liên Hệ</th>
@@ -155,9 +120,90 @@
 <!-- NHÚNG COMPONENT CONFIRM MODAL CHUNG -->
 <%@ include file="layout/confirm_modal.jsp" %>
 
+<!-- MODAL THÊM MỚI NHÂN VIÊN -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content shadow-lg border-0" style="border-radius: 16px;">
+            <div class="modal-header border-0 py-3 bg-light">
+                <h5 class="modal-title fw-bold text-dark"><i class="bi bi-person-plus-fill text-brand me-2"></i>Cấp Tài Khoản Mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="${pageContext.request.contextPath}/nhan-vien" method="post" onsubmit="showConfirmForm(event, this, 'Xác Nhận Tạo', 'Xác nhận tạo tài khoản mới cho nhân viên này?');">
+                <div class="modal-body p-4">
+                    <input type="hidden" name="action" value="add">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-muted text-uppercase">Họ và Tên</label>
+                            <input type="text" class="form-control" name="hoTen" placeholder="VD: Nguyễn Văn A" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-muted text-uppercase">Số Điện Thoại</label>
+                            <input type="text" class="form-control" name="SDT" placeholder="Gồm 10 số..." pattern="\d{10,11}" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-muted text-uppercase">Địa Chỉ Email</label>
+                        <input type="email" class="form-control" name="email" placeholder="VD: mail@domain.com" required>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-muted text-uppercase">Tên Đăng Nhập</label>
+                            <input type="text" class="form-control fw-bold" name="tenDangNhap" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-muted text-uppercase">Mật Khẩu</label>
+                            <input type="password" class="form-control" name="matKhau" minlength="6" required>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold small text-muted text-uppercase">Quyền Hạn</label>
+                        <select class="form-select" name="maVaiTro" required>
+                            <option value="1">Admin (Quản trị viên)</option>
+                            <option value="2" selected>Nhân Viên (Bán Hàng)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0 p-3 d-flex justify-content-end">
+                    <button type="button" class="btn btn-light fw-bold rounded-pill px-4 border me-2" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-brand fw-bold rounded-pill px-4 shadow-sm"><i class="bi bi-person-check-fill me-1"></i> Khởi Tạo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- NHÚNG GLOBAL JS XỬ LÝ SỰ KIỆN CHUNG -->
 <script src="${pageContext.request.contextPath}/assets/js/global.js"></script>
+
+<!-- Thư viện jQuery và DataTables -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#nhanVienTable').DataTable({
+            "order": [], // THÊM DÒNG NÀY ĐỂ TẮT CHẾ ĐỘ TỰ ĐỘNG SẮP XẾP CỦA DATATABLES
+            "pageLength": 5,
+            "lengthMenu": [[5, 10, 20, -1], [5, 10, 20, "Tất cả"]],
+            "language": {
+                "lengthMenu": "Hiển thị _MENU_ dòng",
+                "zeroRecords": "Không tìm thấy Nhân Viên nào",
+                "info": "Đang hiển thị trang _PAGE_ / _PAGES_",
+                "infoEmpty": "Không có dữ liệu",
+                "search": "Tìm kiếm nhanh:",
+                "paginate": {
+                    "first": "Đầu",
+                    "last": "Cuối",
+                    "next": "Sau",
+                    "previous": "Trước"
+                }
+            }
+        });
+    });
+</script>
+
 </body>
 </html>

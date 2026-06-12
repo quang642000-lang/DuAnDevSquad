@@ -378,12 +378,16 @@
                         <div><span style="font-weight:bold;">Mã HD:</span> ${sessionScope.recentOrder.maDH}</div>
                         <div><span style="font-weight:bold;">Ngày:</span> <fmt:formatDate value="${sessionScope.recentOrder.thoiGianTao}" pattern="dd/MM/yyyy HH:mm"/></div>
                         <div><span style="font-weight:bold;">Thu ngân:</span> ${sessionScope.nhanVienDangNhap.hoTen}</div>
-                        <c:if test="${not empty sessionScope.recentOrder.khachHang}">
-                            <div><span style="font-weight:bold;">Khách:</span> ${sessionScope.recentOrder.khachHang.tenKH}</div>
-                        </c:if>
+                        <c:choose>
+                            <c:when test="${not empty sessionScope.recentOrder.khachHang}">
+                                <div><span style="font-weight:bold;">Khách:</span> ${sessionScope.recentOrder.khachHang.tenKH}</div>
+                            </c:when>
+                            <c:otherwise>
+                                <div><span style="font-weight:bold;">Khách:</span> Khách vãng lai</div>
+                            </c:otherwise>
+                        </c:choose>
                         <div><span style="font-weight:bold;">TT:</span> ${sessionScope.recentOrder.phuongThucThanhToan.tenPhuongThuc}</div>
                     </div>
-
                     <hr>
                     <div style="font-size:12px;">
                         <table style="width:100%; border-collapse:collapse;">

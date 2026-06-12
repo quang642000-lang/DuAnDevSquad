@@ -6,6 +6,17 @@ import java.util.List;
 
 public class KhachHangService {
     private KhachHangRepository khachHangRepo = new KhachHangRepository();
+    private final int LIMIT = 5; // Số dòng trên 1 trang
+
+    public List<KhachHang> getAllByPage(int page) {
+        int offset = (page - 1) * LIMIT;
+        return khachHangRepo.getAll(offset, LIMIT);
+    }
+
+    public int getTotalPages() {
+        int totalRecords = khachHangRepo.getTotalCount();
+        return (int) Math.ceil((double) totalRecords / LIMIT);
+    }
 
     public List<KhachHang> getAll() {
         return khachHangRepo.getAll();

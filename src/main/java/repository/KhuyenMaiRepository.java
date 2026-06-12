@@ -11,10 +11,13 @@ public class KhuyenMaiRepository {
 
     public List<KhuyenMai> getAll() {
         List<KhuyenMai> list = new ArrayList<>();
-        String sql = "SELECT * FROM CHUONG_TRINH_KHUYEN_MAI";
+        // ĐÃ SỬA: Lấy thêm ma_code và đếm số_lượng_đã_dùng từ bảng Đơn Hàng
+        String sql = "SELECT km.*, (SELECT COUNT(*) FROM DON_HANG dh WHERE dh.ma_km = km.ma_km) as so_luong_da_dung FROM CHUONG_TRINH_KHUYEN_MAI km";
+
         try (Connection con = DBConnect.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
+
             while (rs.next()) {
                 KhuyenMai km = new KhuyenMai();
                 km.setMaKM(rs.getString("ma_km"));
@@ -25,6 +28,11 @@ public class KhuyenMaiRepository {
                 km.setSoLuong(rs.getInt("so_luong"));
                 km.setNgayBatDau(rs.getDate("ngay_bat_dau"));
                 km.setNgayKetThuc(rs.getDate("ngay_ket_thuc"));
+
+                // ĐÃ BỔ SUNG: 2 trường quan trọng để POS nhận diện mã
+                km.setMaCode(rs.getString("ma_code"));
+                km.setSoLuongDaDung(rs.getInt("so_luong_da_dung"));
+
                 try { km.setTrangThai(rs.getInt("trang_thai")); } catch (Exception ignored) {}
                 list.add(km);
             }
@@ -35,7 +43,7 @@ public class KhuyenMaiRepository {
     }
 
     public KhuyenMai getById(String maKM) {
-        String sql = "SELECT * FROM CHUONG_TRINH_KHUYEN_MAI WHERE ma_km = ?";
+        String sql = "SELECT km.*, (SELECT COUNT(*) FROM DON_HANG dh WHERE dh.ma_km = km.ma_km) as so_luong_da_dung FROM CHUONG_TRINH_KHUYEN_MAI km WHERE km.ma_km = ?";
         try (Connection con = DBConnect.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, maKM);
@@ -50,6 +58,10 @@ public class KhuyenMaiRepository {
                     km.setSoLuong(rs.getInt("so_luong"));
                     km.setNgayBatDau(rs.getDate("ngay_bat_dau"));
                     km.setNgayKetThuc(rs.getDate("ngay_ket_thuc"));
+
+                    km.setMaCode(rs.getString("ma_code"));
+                    km.setSoLuongDaDung(rs.getInt("so_luong_da_dung"));
+
                     try { km.setTrangThai(rs.getInt("trang_thai")); } catch (Exception ignored) {}
                     return km;
                 }
@@ -61,7 +73,8 @@ public class KhuyenMaiRepository {
     }
 
     public boolean add(KhuyenMai km) {
-        String sql = "INSERT INTO CHUONG_TRINH_KHUYEN_MAI (ten_km, loai_giam_gia, gia_tri_giam, dieu_kien_toi_thieu, so_luong, ngay_bat_dau, ngay_ket_thuc) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        // ĐÃ SỬA: Thêm ma_code và mặc định trang_thai = 1 vào lệnh INSERT
+        String sql = "INSERT INTO CHUONG_TRINH_KHUYEN_MAI (ten_km, loai_giam_gia, gia_tri_giam, dieu_kien_toi_thieu, so_luong, ngay_bat_dau, ngay_ket_thuc, ma_code, trang_thai) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)";
         try (Connection con = DBConnect.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, km.getTenKM());
@@ -71,6 +84,10 @@ public class KhuyenMaiRepository {
             ps.setInt(5, km.getSoLuong());
             ps.setDate(6, new java.sql.Date(km.getNgayBatDau().getTime()));
             ps.setDate(7, new java.sql.Date(km.getNgayKetThuc().getTime()));
+
+            // Bổ sung param ma_code
+            ps.setString(8, km.getMaCode());
+
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
@@ -79,7 +96,8 @@ public class KhuyenMaiRepository {
     }
 
     public boolean update(KhuyenMai km) {
-        String sql = "UPDATE CHUONG_TRINH_KHUYEN_MAI SET ten_km = ?, loai_giam_gia = ?, gia_tri_giam = ?, dieu_kien_toi_thieu = ?, so_luong = ?, ngay_bat_dau = ?, ngay_ket_thuc = ? WHERE ma_km = ?";
+        // ĐÃ SỬA: Thêm ma_code vào lệnh UPDATE
+        String sql = "UPDATE CHUONG_TRINH_KHUYEN_MAI SET ten_km = ?, loai_giam_gia = ?, gia_tri_giam = ?, dieu_kien_toi_thieu = ?, so_luong = ?, ngay_bat_dau = ?, ngay_ket_thuc = ?, ma_code = ? WHERE ma_km = ?";
         try (Connection con = DBConnect.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, km.getTenKM());
@@ -89,7 +107,11 @@ public class KhuyenMaiRepository {
             ps.setInt(5, km.getSoLuong());
             ps.setDate(6, new java.sql.Date(km.getNgayBatDau().getTime()));
             ps.setDate(7, new java.sql.Date(km.getNgayKetThuc().getTime()));
-            ps.setString(8, km.getMaKM());
+
+            // Bổ sung param ma_code
+            ps.setString(8, km.getMaCode());
+            ps.setString(9, km.getMaKM());
+
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
@@ -109,16 +131,16 @@ public class KhuyenMaiRepository {
         return false;
     }
 
-    // --- CÁC HÀM ĐƯỢC KHÔI PHỤC LẠI ---
-
     public List<KhuyenMai> search(String keyword) {
         List<KhuyenMai> list = new ArrayList<>();
-        String sql = "SELECT * FROM CHUONG_TRINH_KHUYEN_MAI WHERE ten_km LIKE ? OR ma_km LIKE ?";
+        // ĐÃ SỬA: Lấy thêm ma_code và đếm số_lượng_đã_dùng
+        String sql = "SELECT km.*, (SELECT COUNT(*) FROM DON_HANG dh WHERE dh.ma_km = km.ma_km) as so_luong_da_dung FROM CHUONG_TRINH_KHUYEN_MAI km WHERE km.ten_km LIKE ? OR km.ma_code LIKE ?";
         try (Connection con = DBConnect.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             String searchPattern = "%" + keyword + "%";
             ps.setString(1, searchPattern);
             ps.setString(2, searchPattern);
+
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     KhuyenMai km = new KhuyenMai();
@@ -130,6 +152,10 @@ public class KhuyenMaiRepository {
                     km.setSoLuong(rs.getInt("so_luong"));
                     km.setNgayBatDau(rs.getDate("ngay_bat_dau"));
                     km.setNgayKetThuc(rs.getDate("ngay_ket_thuc"));
+
+                    km.setMaCode(rs.getString("ma_code"));
+                    km.setSoLuongDaDung(rs.getInt("so_luong_da_dung"));
+
                     try { km.setTrangThai(rs.getInt("trang_thai")); } catch (Exception ignored) {}
                     list.add(km);
                 }

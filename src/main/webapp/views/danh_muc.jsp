@@ -66,7 +66,7 @@
                                 <c:when test="${not empty requestScope.danhSach}">
                                     <c:forEach var="dm" items="${requestScope.danhSach}" varStatus="status">
                                         <tr>
-                                            <td class="text-center fw-semibold text-muted">${status.index + 1}</td>
+                                            <td class="fw-semibold text-muted">${(currentPage - 1) * 5 + status.index + 1}</td>
                                             <td class="text-center fw-semibold text-brand">${dm.maDanhMuc}</td>
                                             <td class="fw-bold text-dark fs-6">${dm.tenDanhMuc}</td>
                                             <td class="text-center">
@@ -91,6 +91,32 @@
                             </c:choose>
                             </tbody>
                         </table>
+                        <!-- KHU VỰC PHÂN TRANG -->
+                        <c:if test="${totalPages > 1}">
+                            <div class="d-flex justify-content-center mt-4 mb-3">
+                                <nav aria-label="Page navigation">
+                                    <ul class="pagination pagination-sm shadow-sm">
+                                        <!-- Nút Trước -->
+                                        <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
+                                            <a class="page-link text-brand fw-bold" href="${pageContext.request.contextPath}/danh-muc?action=list&page=${currentPage - 1}">Trước</a>
+                                        </li>
+
+                                        <!-- Hiển thị các số trang -->
+                                        <c:forEach begin="1" end="${totalPages}" var="i">
+                                            <li class="page-item ${currentPage == i ? 'active' : ''}">
+                                                <a class="page-link ${currentPage == i ? 'bg-brand border-brand text-white' : 'text-dark'}"
+                                                   href="${pageContext.request.contextPath}/danh-muc?action=list&page=${i}">${i}</a>
+                                            </li>
+                                        </c:forEach>
+
+                                        <!-- Nút Sau -->
+                                        <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
+                                            <a class="page-link text-brand fw-bold" href="${pageContext.request.contextPath}/danh-muc?action=list&page=${currentPage + 1}">Sau</a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </c:if>
                     </div>
                 </div>
             </div>

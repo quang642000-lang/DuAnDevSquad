@@ -30,7 +30,38 @@ public class DanhMucRepository {
         return list;
     }
 
+    public List<DanhMuc> getAll(int offset, int limit) {
+        List<DanhMuc> list = new ArrayList<>();
+        String sql = "SELECT ma_danh_muc, ten_danh_muc FROM DANH_MUC " +
+                "ORDER BY ma_danh_muc DESC " +
+                "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
+        try (Connection con = DBConnect.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, offset);
+            ps.setInt(2, limit);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    DanhMuc dm = new DanhMuc();
+                    dm.setMaDanhMuc(rs.getString("ma_danh_muc"));
+                    dm.setTenDanhMuc(rs.getString("ten_danh_muc"));
+                    list.add(dm);
+                }
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return list;
+    }
+    public int getTotalCount() {
+        String sql = "SELECT COUNT(*) FROM DANH_MUC";
+        try (Connection con = DBConnect.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
     // 3. Thêm danh mục mới
     public boolean add(DanhMuc dm) {
         String sql = "INSERT INTO DANH_MUC (ten_danh_muc) VALUES (?)";

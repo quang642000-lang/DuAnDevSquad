@@ -70,3 +70,72 @@ body {
 .modal-content { border-radius: 1.25rem; border: none; }
 .product-img { width: 56px; height: 56px; object-fit: cover; border-radius: 10px; border: 1px solid #E2E8F0; }
 .points-badge { background: linear-gradient(135deg, #F59E0B, #D97706); color: white; box-shadow: 0 2px 4px rgba(217,119,6,0.3); }
+
+.bg-brand { background-color: var(--brand-primary) !important; } .border-brand { border-color: var(--brand-primary) !important; }
+
+/* =========================================================
+   TÙY CHỈNH GIAO DIỆN THƯ VIỆN DATATABLES CHO ĐỒNG BỘ
+========================================================= */
+
+/* Căn lề cho ô Tìm kiếm và Chọn số dòng */
+.dataTables_wrapper .row:first-child {
+    padding: 1rem 1.5rem 0.5rem 1.5rem;
+    align-items: center;
+}
+
+/* Căn lề cho dòng Thông tin và Phân trang ở dưới cùng */
+.dataTables_wrapper .row:last-child {
+    padding: 0.5rem 1.5rem 1.5rem 1.5rem;
+    align-items: center;
+}
+
+/* Làm đẹp ô input Tìm kiếm và ô Select chọn dòng */
+.dataTables_wrapper .form-control,
+.dataTables_wrapper .form-select {
+    border-radius: 0.5rem;
+    border-color: #CBD5E1;
+    font-size: 0.9rem;
+    box-shadow: none;
+}
+
+/* Hiệu ứng viền cam khi click vào ô Tìm kiếm của DataTables */
+.dataTables_wrapper .form-control:focus,
+.dataTables_wrapper .form-select:focus {
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
+}
+
+/* Làm đẹp thanh Phân Trang */
+.dataTables_wrapper .pagination {
+    margin-bottom: 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border-radius: 0.5rem;
+}
+
+/* Chuyển màu nút Phân trang đang active sang màu Cam của hệ thống */
+.dataTables_wrapper .page-item.active .page-link {
+    background-color: var(--brand-primary) !important;
+    border-color: var(--brand-primary) !important;
+    color: white !important;
+    font-weight: bold;
+}
+
+/* Định dạng các nút phân trang bình thường */
+.dataTables_wrapper .page-link {
+    color: #475569;
+    font-weight: 500;
+    border: 1px solid #E2E8F0;
+}
+
+/* Đổi màu chữ khi hover vào nút phân trang */
+.dataTables_wrapper .page-link:hover {
+    color: var(--brand-primary);
+    background-color: #FFFBEB;
+}
+
+/* Chữ hiển thị "Đang hiển thị trang..." */
+.dataTables_info {
+    color: #64748B !important;
+    font-size: 0.85rem;
+    font-weight: 500;
+}

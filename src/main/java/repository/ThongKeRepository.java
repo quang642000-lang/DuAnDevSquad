@@ -26,6 +26,59 @@ public class ThongKeRepository {
         return new String[]{tuNgay, denNgay};
     }
 
+    public int getTotalDonHang(String tuNgay, String denNgay, String maNV) {
+        String[] dates = getDefaultDates(tuNgay, denNgay);
+        String nvCondition = (maNV != null && !maNV.isEmpty()) ? " AND ma_nv = ? " : "";
+        String sql = "SELECT COUNT(*) FROM DON_HANG WHERE CAST(thoi_gian_tao AS DATE) >= ? AND CAST(thoi_gian_tao AS DATE) <= ? " + nvCondition;
+        try (Connection con = DBConnect.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            int paramIndex = 1;
+            ps.setString(paramIndex++, dates[0]);
+            ps.setString(paramIndex++, dates[1]);
+            if (maNV != null && !maNV.isEmpty()) ps.setString(paramIndex++, maNV);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    public List<DonHangDashboard> getDonHangTheoNgay(String tuNgay, String denNgay, String maNV, int offset, int limit) {
+        List<DonHangDashboard> list = new ArrayList<>();
+        String[] dates = getDefaultDates(tuNgay, denNgay);
+        String nvCondition = (maNV != null && !maNV.isEmpty()) ? " AND dh.ma_nv = ? " : "";
+        String sql = "SELECT dh.ma_dh, dh.thoi_gian_tao, dh.tong_phai_tra, dh.trang_thai_don, nv.ho_ten " +
+                "FROM DON_HANG dh JOIN NHAN_VIEN nv ON dh.ma_nv = nv.ma_nv " +
+                "WHERE CAST(dh.thoi_gian_tao AS DATE) >= ? AND CAST(dh.thoi_gian_tao AS DATE) <= ? " + nvCondition +
+                "ORDER BY dh.thoi_gian_tao DESC " +
+                "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        try (Connection con = DBConnect.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            int paramIndex = 1;
+            ps.setString(paramIndex++, dates[0]);
+            ps.setString(paramIndex++, dates[1]);
+            if (maNV != null && !maNV.isEmpty()) ps.setString(paramIndex++, maNV);
+
+            // Gắn tham số phân trang
+            ps.setInt(paramIndex++, offset);
+            ps.setInt(paramIndex++, limit);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    DonHangDashboard dh = new DonHangDashboard();
+                    dh.setMaDH(rs.getString("ma_dh"));
+                    dh.setThoiGian(rs.getTimestamp("thoi_gian_tao"));
+                    dh.setTongTien(rs.getInt("tong_phai_tra"));
+                    dh.setTrangThai(rs.getString("trang_thai_don"));
+                    dh.setTenNhanVien(rs.getString("ho_ten"));
+                    list.add(dh);
+                }
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return list;
+    }
+
     // TỐI ƯU TRUY VẤN: Tránh N+1 Select và Bổ sung Doanh thu tháng
     public ThongKe getThongKeTongQuan(String tuNgay, String denNgay, String maNV) {
         ThongKe tk = new ThongKe();

@@ -42,9 +42,27 @@ public class TrangChuAdminController extends HttpServlet {
         ThongKe tk = thongKeService.getThongKeTongQuan(tuNgay, denNgay, maNV);
         request.setAttribute("thongKe", tk);
 
-        List<DonHangDashboard> listDonHang = thongKeService.getDonHangTheoNgay(tuNgay, denNgay, maNV);
-        request.setAttribute("listDonHang", listDonHang);
+        // Khởi tạo lấy Page từ request
+        int page = 1;
+        String pageParam = request.getParameter("page");
+        if (pageParam != null && !pageParam.isEmpty()) {
+            try {
+                page = Integer.parseInt(pageParam);
+            } catch (Exception e) {
+            }
+        }
 
+        // Lấy danh sách có phân trang và đếm tổng số
+        List<DonHangDashboard> listDonHang = thongKeService.getDonHangTheoNgayByPage(tuNgay, denNgay, maNV, page);
+        int totalRecords = thongKeService.getTotalDonHang(tuNgay, denNgay, maNV);
+        int totalPages = (int) Math.ceil((double) totalRecords / 10); // LIMIT = 10
+
+        request.setAttribute("listDonHang", listDonHang);
+        request.setAttribute("totalRecords", totalRecords);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("totalPages", totalPages);
+
+        // Các thông tin khác giữ nguyên
         List<TopSanPham> topSanPham = thongKeService.getTopSanPham(tuNgay, denNgay, maNV);
         request.setAttribute("topSanPham", topSanPham);
 
@@ -54,7 +72,6 @@ public class TrangChuAdminController extends HttpServlet {
         Map<String, Integer> chartData = thongKeService.getDoanhThu7NgayQua(tuNgay, denNgay, maNV);
         String chartLabels = "[]";
         String chartValues = "[]";
-
         if (!chartData.isEmpty()) {
             chartLabels = "[\"" + String.join("\",\"", chartData.keySet()) + "\"]";
             chartValues = "[" + chartData.values().stream().map(String::valueOf).collect(Collectors.joining(",")) + "]";
@@ -62,7 +79,6 @@ public class TrangChuAdminController extends HttpServlet {
 
         request.setAttribute("chartLabels", chartLabels);
         request.setAttribute("chartValues", chartValues);
-
         request.setAttribute("tuNgay", tuNgay);
         request.setAttribute("denNgay", denNgay);
         request.setAttribute("selectedNV", maNV);

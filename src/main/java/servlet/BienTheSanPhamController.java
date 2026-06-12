@@ -52,7 +52,19 @@ public class BienTheSanPhamController extends HttpServlet {
 
             case "list":
             default:
-                request.setAttribute("danhSach", bienTheService.getAll());
+                // Lấy số trang hiện tại
+                int page = 1;
+                String pageParam = request.getParameter("page");
+                if (pageParam != null && !pageParam.isEmpty()) {
+                    try { page = Integer.parseInt(pageParam); } catch (Exception e) {}
+                }
+
+                // Phân trang
+                request.setAttribute("danhSach", bienTheService.getAllByPage(page));
+                request.setAttribute("currentPage", page);
+                request.setAttribute("totalPages", bienTheService.getTotalPages());
+
+                // Giữ nguyên list Sản Phẩm gốc để in ra Dropdown lọc / Thêm mới
                 request.setAttribute("danhSachSP", sanPhamService.getAll());
                 request.getRequestDispatcher("/views/bien_the.jsp").forward(request, response);
                 break;

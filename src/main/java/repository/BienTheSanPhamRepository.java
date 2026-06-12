@@ -35,6 +35,48 @@ public class BienTheSanPhamRepository {
         return list;
     }
 
+    public List<BienTheSanPham> getAll(int offset, int limit) {
+        List<BienTheSanPham> list = new ArrayList<>();
+        String sql = "SELECT * FROM BIEN_THE_SAN_PHAM " +
+                "ORDER BY ma_bien_the DESC " +
+                "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        try (Connection con = DBConnect.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, offset);
+            ps.setInt(2, limit);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    BienTheSanPham bt = new BienTheSanPham();
+                    bt.setMaBienThe(rs.getString("ma_bien_the"));
+                    bt.setKichCo(rs.getString("kich_co"));
+                    bt.setGiaBan(rs.getInt("gia_ban"));
+                    bt.setTrangThai(rs.getInt("trang_thai"));
+
+                    // Set tạm mã sản phẩm để khớp với thiết kế của bạn
+                    SanPham sp = new SanPham();
+                    sp.setMaSP(rs.getString("ma_sp"));
+                    bt.setSanPham(sp);
+
+                    list.add(bt);
+                }
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return list;
+    }
+
+    public int getTotalCount() {
+        String sql = "SELECT COUNT(*) FROM BIEN_THE_SAN_PHAM";
+        try (Connection con = DBConnect.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
+
     public List<BienTheSanPham> search(String keyword, String maSP) {
         List<BienTheSanPham> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT * FROM BIEN_THE_SAN_PHAM WHERE 1=1 ");

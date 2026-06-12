@@ -9,9 +9,18 @@ import java.util.List;
 
 public class SanPhamService {
     private SanPhamRepository sanPhamRepo = new SanPhamRepository();
+    private final int LIMIT = 5;
 
     public List<SanPham> getAll() {
         return sanPhamRepo.getAll();
+    }
+    public List<SanPham> getAllByPage(int page) {
+        int offset = (page - 1) * LIMIT;
+        return sanPhamRepo.getAll(offset, LIMIT);
+    }
+    public int getTotalPages() {
+        int totalRecords = sanPhamRepo.getTotalCount();
+        return (int) Math.ceil((double) totalRecords / LIMIT);
     }
 
     public String add(SanPham sp) {
