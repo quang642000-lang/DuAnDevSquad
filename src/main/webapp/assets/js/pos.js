@@ -19,9 +19,53 @@ function escapeHTML(str) {
     });
 }
 
+// =============================================================
+// CÁC HÀM HỖ TRỢ FIX LỖI KẸT GIỎ HÀNG (OFFCANVAS) TRÊN MOBILE
+// =============================================================
+function closeMobileCart() {
+    let offcanvasElement = document.getElementById('mobileCartOffcanvas');
+    if (!offcanvasElement) return;
+    try {
+        let bsOffcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
+        if (bsOffcanvas) {
+            bsOffcanvas.hide();
+        } else {
+            forceCloseOffcanvas(offcanvasElement);
+        }
+    } catch (err) {
+        // Fallback: Nếu Bootstrap lỗi 'backdrop undefined', tự động ép đóng bằng CSS
+        forceCloseOffcanvas(offcanvasElement);
+    }
+}
+
+function forceCloseOffcanvas(el) {
+    el.classList.remove('show');
+    document.querySelectorAll('.offcanvas-backdrop').forEach(b => b.remove());
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     optionModal = new bootstrap.Modal(document.getElementById('optionModal'));
     qrModal = new bootstrap.Modal(document.getElementById('qrModal'));
+
+    // FIX: Bắt sự kiện đóng giỏ hàng thủ công tránh lỗi 'backdrop' của Bootstrap
+    let offcanvasElement = document.getElementById('mobileCartOffcanvas');
+    if (offcanvasElement) {
+        let closeBtn = offcanvasElement.querySelector('.btn-close');
+        if (closeBtn) {
+            closeBtn.removeAttribute('data-bs-dismiss'); // Xóa hành vi mặc định gây lỗi
+            closeBtn.addEventListener('click', closeMobileCart);
+        }
+    }
+
+    // Ép đóng khi bấm ra ngoài vùng mờ (backdrop)
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('offcanvas-backdrop')) {
+            closeMobileCart();
+        }
+    });
+
     let receiptElement = document.getElementById('receiptModal');
     if(receiptElement) {
         sessionStorage.removeItem('tea_pos_cart');
@@ -54,16 +98,21 @@ function printReceipt() {
     };
 }
 
+// -------------------------------------------------------------
+// HÀM MỞ MODAL ĐỂ THÊM MỚI SẢN PHẨM VÀO GIỎ HÀNG
+// -------------------------------------------------------------
 function openOptionsModal(maSP, tenSP) {
     editingCartId = null;
     document.getElementById('btn-confirm-modal').innerHTML = '<i class="bi bi-cart-plus me-2"></i> THÊM VÀO ĐƠN';
     let decodedTenSP = tenSP.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#034;/g, '"').replace(/&#039;/g, "'");
     document.getElementById('modalProductName').innerText = decodedTenSP;
     currentProductVariants = window.allVariants.filter(v => v.maSP === maSP);
+
     if (currentProductVariants.length === 0) {
         showToast("Sản phẩm này chưa được thiết lập Size để bán!", "danger");
         return;
     }
+
     let sizeHtml = '';
     currentProductVariants.forEach(function(v, index) {
         let checked = index === 0 ? "checked" : "";
@@ -74,15 +123,61 @@ function openOptionsModal(maSP, tenSP) {
     document.querySelectorAll('input[id^="tp_qty_"]').forEach(function(inp) { inp.value = 0; });
     document.getElementById('modalDa').value = '100%';
     document.getElementById('modalDuong').value = '100%';
+
     optionModal.show();
 }
 
+// -------------------------------------------------------------
+// HÀM MỞ MODAL ĐỂ CHỈNH SỬA MÓN ĐÃ CÓ TRONG GIỎ HÀNG
+// -------------------------------------------------------------
+function editCartItem(cartId) {
+    let item = cart.find(i => i.cartId === cartId);
+    if (!item) return;
+
+    editingCartId = cartId; // Đánh dấu đang ở chế độ chỉnh sửa
+    document.getElementById('modalProductName').innerText = item.tenGoc;
+    document.getElementById('btn-confirm-modal').innerHTML = '<i class="bi bi-check2-circle me-2"></i> CẬP NHẬT MÓN';
+
+    // 1. Render lại Size và chọn đúng Size cũ
+    currentProductVariants = window.allVariants.filter(v => v.maSP === item.maSP);
+    let sizeHtml = '';
+    currentProductVariants.forEach(function(v) {
+        let checked = (v.maBT === item.maBT) ? "checked" : "";
+        sizeHtml += `<input type='radio' class='btn-check' name='modalSizeRadio' id='size_${v.maBT}' value='${v.maBT}' ${checked}>
+                     <label class='btn btn-outline-primary fw-bold rounded-3 px-3 py-2' for='size_${v.maBT}'>Size ${escapeHTML(v.size)} <br> <small class='text-dark'>${formatCurrency(v.price)}</small></label>`;
+    });
+    document.getElementById('sizeContainer').innerHTML = sizeHtml;
+
+    // 2. Render lại Đá / Đường
+    document.getElementById('modalDa').value = item.da;
+    document.getElementById('modalDuong').value = item.duong;
+
+    // 3. Render lại Topping
+    // Reset toàn bộ topping về 0 trước
+    document.querySelectorAll('input[id^="tp_qty_"]').forEach(function(inp) {
+        inp.value = 0;
+    });
+    // Điền số lượng topping đang có
+    if (item.toppings) {
+        item.toppings.forEach(function(tp) {
+            let tpInput = document.getElementById('tp_qty_' + tp.id);
+            if (tpInput) tpInput.value = tp.qty;
+        });
+    }
+
+    optionModal.show();
+}
+
+// -------------------------------------------------------------
+// XÁC NHẬN THÊM HOẶC CẬP NHẬT TỪ MODAL XUỐNG GIỎ HÀNG
+// -------------------------------------------------------------
 function confirmAddToCart() {
     let selectedSizeRadio = document.querySelector('input[name="modalSizeRadio"]:checked');
     if (!selectedSizeRadio) {
         showToast("Vui lòng chọn Size món nước!", "warning");
         return;
     }
+
     let maBT = selectedSizeRadio.value;
     let selectedVariant = currentProductVariants.find(v => v.maBT === maBT);
     let tenGoc = document.getElementById('modalProductName').innerText;
@@ -92,6 +187,7 @@ function confirmAddToCart() {
     let duong = document.getElementById('modalDuong').value;
     let toppings = [];
     let extraToppingPrice = 0;
+
     document.querySelectorAll('input[id^="tp_qty_"]').forEach(function(inp) {
         let qty = parseInt(inp.value);
         if (qty > 0) {
@@ -102,23 +198,43 @@ function confirmAddToCart() {
             extraToppingPrice += (price * qty);
         }
     });
+
+    // Tạo ID giỏ hàng (Khóa duy nhất định danh 1 món gồm size + đá + đường + topping)
     let cartId = maBT + "_" + da + "_" + duong;
     if (toppings.length > 0) cartId += "_" + toppings.map(function(t) { return t.id + "-" + t.qty; }).join('_');
-    let qtyToSet = 1;
+
+    let qtyToSet = 1; // Mặc định thêm mới là 1 ly
+
+    // NẾU LÀ CHẾ ĐỘ CHỈNH SỬA (SỬA MÓN)
     if (editingCartId) {
         let oldItemIndex = cart.findIndex(i => i.cartId === editingCartId);
         if (oldItemIndex > -1) {
-            qtyToSet = cart[oldItemIndex].soLuong;
-            cart.splice(oldItemIndex, 1);
+            qtyToSet = cart[oldItemIndex].soLuong; // Giữ nguyên số lượng ly cũ
+            cart.splice(oldItemIndex, 1); // Xóa món với cấu hình cũ đi
         }
         editingCartId = null;
     }
+
+    // Tìm xem món với cấu hình VỪA TẠO có tồn tại trong giỏ chưa
     let existingItem = cart.find(item => item.cartId === cartId);
     if (existingItem) {
-        existingItem.soLuong += qtyToSet;
+        existingItem.soLuong += qtyToSet; // Cộng dồn ly
     } else {
-        cart.push({ cartId: cartId, maSP: selectedVariant.maSP, tenGoc: tenGoc, maBT: maBT, ten: ten, giaChot: gia + extraToppingPrice, soLuong: qtyToSet, da: da, duong: duong, toppings: toppings });
+        // Thêm một đối tượng mới hoàn toàn
+        cart.push({
+            cartId: cartId,
+            maSP: selectedVariant.maSP,
+            tenGoc: tenGoc,
+            maBT: maBT,
+            ten: ten,
+            giaChot: gia + extraToppingPrice,
+            soLuong: qtyToSet,
+            da: da,
+            duong: duong,
+            toppings: toppings
+        });
     }
+
     optionModal.hide();
     checkVoucherValid();
     renderCart();
@@ -128,6 +244,9 @@ function renderCart() {
     sessionStorage.setItem('tea_pos_cart', JSON.stringify(cart));
     const container = document.getElementById('cart-items-container');
     container.innerHTML = '';
+
+    let badgeObjEmpty = document.getElementById('mobileCartBadge');
+
     if (cart.length === 0) {
         container.innerHTML = `<div class='text-center text-muted mt-5' id='empty-cart-msg'><i class='bi bi-cart-x text-secondary opacity-25' style='font-size: 4rem;'></i><p class='mt-3 fw-medium'>Chưa có món nào được chọn</p></div>`;
         document.getElementById('btn-checkout').disabled = true;
@@ -142,6 +261,8 @@ function renderCart() {
         isUsingPoints = false;
         if(document.getElementById('toggleDiem')) document.getElementById('toggleDiem').checked = false;
         handlePaymentMethodChange();
+
+        if (badgeObjEmpty) badgeObjEmpty.innerText = "0";
         return;
     }
     document.getElementById('btn-checkout').disabled = false;
@@ -150,7 +271,6 @@ function renderCart() {
         tongTienHang += item.giaChot * item.soLuong;
         let tpStr = "";
         if (item.toppings) {
-            // TÍCH HỢP FIX XSS ĐỂ ĐẢM BẢO AN TOÀN
             tpStr = item.toppings.map(t => `<span class='badge bg-warning bg-opacity-10 text-dark border border-warning border-opacity-50 me-1 mb-1'>+${escapeHTML(t.name)} (x${t.qty})</span>`).join('');
         }
         let itemHtml = `<div class='p-3 border-bottom bg-white'><div class='d-flex justify-content-between align-items-start'><div class='flex-grow-1 pe-2'><h6 class='mb-1 fw-bold text-dark'>${escapeHTML(item.ten)}</h6><div class='small text-muted mb-2 fw-medium'>Đá: ${escapeHTML(item.da)} &bull; Đường: ${escapeHTML(item.duong)}</div><div class='d-flex flex-wrap'>${tpStr}</div></div><div class='text-end'><h6 class='mb-1 fw-bold text-danger'>${formatCurrency(item.giaChot * item.soLuong)}</h6><small class='text-muted'>${formatCurrency(item.giaChot)}/ly</small></div></div><div class='d-flex justify-content-between align-items-center mt-3'><div><a href='javascript:void(0)' class='text-primary small text-decoration-none me-3 fw-bold' onclick="editCartItem('${item.cartId}')"><i class='bi bi-pencil-square'></i> Sửa</a><a href='javascript:void(0)' class='text-danger small text-decoration-none fw-bold' onclick="updateQty('${item.cartId}', -999)"><i class='bi bi-trash'></i> Xóa</a></div><div class='btn-group btn-group-sm shadow-sm'><button type='button' class='btn btn-light border fw-bold px-3' onclick="updateQty('${item.cartId}', -1)"><i class='bi bi-dash-lg'></i></button><span class='btn btn-white border fw-bold px-3 text-primary' style='pointer-events: none; background: #fff;'>${item.soLuong}</span><button type='button' class='btn btn-light border fw-bold px-3' onclick="updateQty('${item.cartId}', 1)"><i class='bi bi-plus-lg'></i></button></div></div></div>`;
@@ -180,6 +300,13 @@ function renderCart() {
     document.getElementById('input_diemSuDung').value = diemThucTeSuDung;
     document.getElementById('input_tongPhaiTra').value = tongPhaiTra;
     handlePaymentMethodChange();
+
+    let totalItems = cart.reduce((sum, item) => sum + item.soLuong, 0);
+    if(badgeObjEmpty) {
+        badgeObjEmpty.innerText = totalItems;
+        badgeObjEmpty.classList.add('animate__animated', 'animate__rubberBand');
+        setTimeout(() => badgeObjEmpty.classList.remove('animate__animated', 'animate__rubberBand'), 500);
+    }
 }
 
 function clearCart() {
@@ -193,6 +320,11 @@ function clearCart() {
         document.getElementById('customerInfoPanel').style.display = 'none';
         customerPoints = 0; isUsingPoints = false; customPointsToUse = 0;
         renderCart();
+
+        // Tự động gập Menu Giỏ hàng lại nếu đang dùng trên điện thoại
+        if (window.innerWidth < 992) {
+            closeMobileCart();
+        }
     });
 }
 

@@ -12,7 +12,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/global.css">
+    <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
 </head>
 <body>
 <%@ include file="layout/toast.jsp" %>
@@ -24,28 +26,9 @@
             <i class="bi bi-arrow-left me-1"></i> Dashboard
         </a>
     </div>
+
     <div class="row">
-
-
         <div class="col-12 mb-4">
-            <div class="card mb-4">
-                <div class="card-body p-3">
-<%--                    <form action="${pageContext.request.contextPath}/topping" method="get">--%>
-<%--                        <input type="hidden" name="action" value="search">--%>
-<%--                        <div class="row g-3">--%>
-<%--                            <div class="col-md-10">--%>
-<%--                                <div class="input-group">--%>
-<%--                                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>--%>
-<%--                                    <input type="text" class="form-control border-start-0 ps-0" name="keyword" placeholder="Nhập tên hoặc mã topping..." value="${requestScope.selectedKeyword}">--%>
-<%--                                </div>--%>
-<%--                            </div>--%>
-<%--                            <div class="col-md-2">--%>
-<%--                                <button type="submit" class="btn btn-dark w-100 fw-bold">Tìm Kiếm</button>--%>
-<%--                            </div>--%>
-<%--                        </div>--%>
-<%--                    </form>--%>
-                </div>
-            </div>
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center py-3">
                     <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-list-check text-brand me-2"></i>Danh Sách Tùy Chọn Món</h5>
@@ -54,16 +37,13 @@
                         <button type="button" class="btn btn-brand fw-bold shadow-sm me-2 rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#addModal">
                             <i class="bi bi-plus-circle me-1"></i> Thêm Topping
                         </button>
-
-                        <c:if test="${not empty requestScope.selectedKeyword}">
-                            <a href="${pageContext.request.contextPath}/topping?action=list" class="btn btn-light text-danger fw-bold me-2 rounded-pill px-3"><i class="bi bi-x-circle"></i> Bỏ lọc</a>
-                        </c:if>
                         <a href="${pageContext.request.contextPath}/topping?action=list" class="btn btn-light border rounded-circle" style="width: 38px; height: 38px;"><i class="bi bi-arrow-clockwise"></i></a>
                     </div>
                 </div>
-                <div class="card-body p-0">
+                <div class="card-body p-3">
+                    <!-- Bảng dữ liệu Topping -->
                     <div class="table-responsive">
-                        <table class="table table-hover table-custom mb-0 text-center" id="toppingTable">
+                        <table class="table table-hover table-custom mb-0 text-center dt-responsive nowrap" style="width:100%" id="toppingTable">
                             <thead>
                             <tr>
                                 <th width="5%">STT</th>
@@ -114,9 +94,6 @@
                                         </tr>
                                     </c:forEach>
                                 </c:when>
-                                <c:otherwise>
-                                    <tr><td colspan="7" class="text-center text-muted py-5"><i class="bi bi-inbox fs-1 d-block mb-3 opacity-50"></i>Chưa có Topping nào.</td></tr>
-                                </c:otherwise>
                             </c:choose>
                             </tbody>
                         </table>
@@ -162,6 +139,50 @@
     </div>
 </div>
 
+<!-- MODAL SỬA TOPPING -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0" style="border-radius: 16px;">
+            <div class="modal-header border-0 py-3 bg-light">
+                <h5 class="modal-title fw-bold text-dark"><i class="bi bi-pencil-square text-brand me-2"></i>Cập Nhật Topping</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="${pageContext.request.contextPath}/topping" method="post" enctype="multipart/form-data" onsubmit="showConfirmForm(event, this, 'Lưu Thay Đổi', 'Bạn có chắc chắn muốn lưu thông tin này?');">
+                <div class="modal-body p-4">
+                    <input type="hidden" name="action" value="update">
+                    <input type="hidden" name="maTopping" id="edit_maTopping">
+                    <input type="hidden" name="oldHinhAnh" id="edit_oldHinhAnh">
+
+                    <div class="mb-3 text-center">
+                        <img id="preview_hinhAnh" src="" alt="Preview" class="img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted fw-bold small text-uppercase">Mã Số</label>
+                        <input type="text" class="form-control bg-light fw-bold text-muted border-0" id="display_maTopping" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-muted small text-uppercase">Tên Topping</label>
+                        <input type="text" class="form-control" name="tenTopping" id="edit_tenTopping" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-muted small text-uppercase">Giá Bán (VNĐ)</label>
+                        <input type="number" class="form-control text-danger fw-bold fs-5" name="giaBan" id="edit_giaBan" min="0" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold text-muted small text-uppercase">Đổi Ảnh Khác (Tùy chọn)</label>
+                        <input type="file" class="form-control" name="hinhAnhFile" accept="image/*">
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0 d-flex justify-content-end p-3">
+                    <button type="button" class="btn btn-light fw-bold rounded-pill px-4 border me-2" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-brand fw-bold rounded-pill px-4 shadow-sm"><i class="bi bi-check-lg me-1"></i> Lưu Cập Nhật</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/global.js"></script>
 
@@ -176,17 +197,21 @@
         document.getElementById('preview_hinhAnh').src = imgUrl;
     }
 </script>
+
 <!-- Thư viện jQuery và DataTables -->
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
 
 <!-- Script khởi tạo phân trang -->
 <script>
     $(document).ready(function() {
         $('#toppingTable').DataTable({
-            "pageLength": 5, // Cài đặt mặc định hiển thị 5 dòng/trang
-            "lengthMenu": [[5, 10, 20, -1], [5, 10, 20, "Tất cả"]], // Cho phép người dùng tự chọn số dòng
+            "responsive": true,
+            "pageLength": 5,
+            "lengthMenu": [[5, 10, 20, -1], [5, 10, 20, "Tất cả"]],
             "language": {
                 "lengthMenu": "Hiển thị _MENU_ dòng",
                 "zeroRecords": "Không tìm thấy Topping nào",
@@ -199,7 +224,11 @@
                     "next": "Sau",
                     "previous": "Trước"
                 }
-            }
+            },
+            "order": [],
+            "columnDefs": [
+                { "orderable": false, "targets": [1, 6] }
+            ]
         });
     });
 </script>

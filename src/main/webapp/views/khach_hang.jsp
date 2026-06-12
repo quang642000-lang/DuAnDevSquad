@@ -36,7 +36,7 @@
                         <!-- Form Tìm Kiếm Gọn Nhẹ -->
                         <form action="${pageContext.request.contextPath}/khach-hang" method="get" class="d-flex m-0">
                             <input type="hidden" name="action" value="search">
-                            <div class="input-group shadow-sm" style="width: 250px;">
+                            <div class="input-group shadow-sm" flex-grow-1>
                                 <input type="text" class="form-control" name="sdt" placeholder="Tìm số điện thoại..." value="${param.sdt}" required pattern="\d{10,11}">
                                 <button class="btn btn-dark fw-bold" type="submit"><i class="bi bi-search"></i></button>
                             </div>
@@ -139,7 +139,7 @@
                     </div>
                     <div class="mb-2">
                         <label class="form-label fw-semibold small text-muted text-uppercase">Số Điện Thoại</label>
-                        <input type="text" class="form-control" name="soDienThoai" placeholder="Gồm 10 số..." required pattern="\d{10,11}">
+                        <input type="tel"> class="form-control" name="soDienThoai" placeholder="Gồm 10 số..." required pattern="\d{10,11}">
                     </div>
                 </div>
                 <div class="modal-footer bg-light border-0 p-3">

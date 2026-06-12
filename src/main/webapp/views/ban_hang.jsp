@@ -12,14 +12,12 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- 1. GỌI CSS DÙNG CHUNG VÀ CSS RIÊNG CỦA MÀN HÌNH POS -->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/global.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/pos.css">
 </head>
 <body>
 <input type="hidden" id="appContextPath" value="${pageContext.request.contextPath}">
 
-<!-- 2. GỌI KHỐI TOAST THÔNG BÁO DÙNG CHUNG -->
 <%@ include file="layout/toast.jsp" %>
 
 <nav class="navbar navbar-expand-lg navbar-dark shadow-sm sticky-top">
@@ -40,171 +38,194 @@
     </div>
 </nav>
 
-<div class="container-fluid mt-3 px-3 px-xl-4 pb-5">
-    <div class="row g-4">
+<div class="container-fluid px-3 px-xl-4 mt-3">
+    <!-- Đã thêm class pos-main-row để khống chế chiều cao Layout -->
+    <div class="row g-4 pos-main-row">
+
         <!-- ================= BÊN TRÁI: DANH SÁCH MÓN ================= -->
-        <div class="col-lg-7 col-xl-8">
-            <div class="d-flex category-scroll gap-2 mb-3">
-                <a href="${pageContext.request.contextPath}/ban-hang" class="btn-filter text-decoration-none ${empty param.maDanhMuc ? 'active' : ''}">Tất cả</a>
-                <c:forEach var="dm" items="${requestScope.danhSachDanhMuc}">
-                    <a href="${pageContext.request.contextPath}/ban-hang?maDanhMuc=${dm.maDanhMuc}" class="btn-filter text-decoration-none ${param.maDanhMuc == dm.maDanhMuc ? 'active' : ''}">${dm.tenDanhMuc}</a>
-                </c:forEach>
+        <!-- Đã thêm class product-area -->
+        <div class="col-lg-7 col-xl-8 product-area">
+
+            <!-- Vùng Danh mục: Luôn đứng yên ở trên cùng -->
+            <div class="category-scroll-wrapper">
+                <div class="d-flex category-scroll gap-2">
+                    <a href="${pageContext.request.contextPath}/ban-hang" class="btn-filter text-decoration-none ${empty param.maDanhMuc ? 'active' : ''}">Tất cả</a>
+                    <c:forEach var="dm" items="${requestScope.danhSachDanhMuc}">
+                        <a href="${pageContext.request.contextPath}/ban-hang?maDanhMuc=${dm.maDanhMuc}" class="btn-filter text-decoration-none ${param.maDanhMuc == dm.maDanhMuc ? 'active' : ''}">${dm.tenDanhMuc}</a>
+                    </c:forEach>
+                </div>
             </div>
 
-            <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-3">
-                <c:choose>
-                    <c:when test="${not empty requestScope.danhSachSanPham}">
-                        <c:forEach var="sp" items="${requestScope.danhSachSanPham}">
-                            <c:if test="${sp.trangThai == 1}">
-                                <div class="col">
-                                    <div class="card h-100 shadow-sm product-card" onclick="openOptionsModal('${sp.maSP}', '${fn:escapeXml(sp.tenSanPham)}')">
-                                        <div class="product-img-wrapper">
-                                            <img src="${pageContext.request.contextPath}/image/${not empty sp.hinhAnh ? sp.hinhAnh : 'default.png'}" class="product-img" onerror="this.src='https://placehold.co/300x200?text=No+Image'" alt="${fn:escapeXml(sp.tenSanPham)}">
-                                        </div>
-                                        <div class="card-body p-3 d-flex flex-column justify-content-between text-center">
-                                            <h6 class="card-title fw-bold mb-2 text-dark" style="font-size: 0.9rem; line-height: 1.3;" title="${fn:escapeXml(sp.tenSanPham)}">${sp.tenSanPham}</h6>
-                                            <div class="mt-auto">
-                                                <span class="badge bg-light text-primary border border-primary border-opacity-25 rounded-pill px-3 py-2 w-100 fw-bold"><i class="bi bi-plus-lg"></i> Chọn</span>
+            <!-- Vùng Lưới Sản phẩm: Tự động có thanh cuộn dọc (không làm cuộn trang) -->
+            <div class="product-grid-wrapper custom-scrollbar">
+                <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-3">
+                    <c:choose>
+                        <c:when test="${not empty requestScope.danhSachSanPham}">
+                            <c:forEach var="sp" items="${requestScope.danhSachSanPham}">
+                                <c:if test="${sp.trangThai == 1}">
+                                    <div class="col">
+                                        <div class="card h-100 shadow-sm product-card" onclick="openOptionsModal('${sp.maSP}', '${fn:escapeXml(sp.tenSanPham)}')">
+                                            <div class="product-img-wrapper">
+                                                <img src="${pageContext.request.contextPath}/image/${not empty sp.hinhAnh ? sp.hinhAnh : 'default.png'}" class="product-img" onerror="this.src='https://placehold.co/300x200?text=No+Image'" alt="${fn:escapeXml(sp.tenSanPham)}">
+                                            </div>
+                                            <div class="card-body p-3 d-flex flex-column justify-content-between text-center">
+                                                <h6 class="card-title fw-bold mb-2 text-dark" style="font-size: 0.9rem; line-height: 1.3;" title="${fn:escapeXml(sp.tenSanPham)}">${sp.tenSanPham}</h6>
+                                                <div class="mt-auto">
+                                                    <span class="badge bg-light text-primary border border-primary border-opacity-25 rounded-pill px-3 py-2 w-100 fw-bold"><i class="bi bi-plus-lg"></i> Chọn</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </c:if>
-                        </c:forEach>
-                    </c:when>
-                    <c:otherwise>
-                        <div class="col-12 text-center py-5">
-                            <i class="bi bi-cup-straw text-muted opacity-50" style="font-size: 4rem;"></i>
-                            <h5 class="text-muted mt-3 fw-semibold">Không có sản phẩm nào!</h5>
-                        </div>
-                    </c:otherwise>
-                </c:choose>
+                                </c:if>
+                            </c:forEach>
+                        </c:when>
+                        <c:otherwise>
+                            <div class="col-12 text-center py-5">
+                                <i class="bi bi-cup-straw text-muted opacity-50" style="font-size: 4rem;"></i>
+                                <h5 class="text-muted mt-3 fw-semibold">Không có sản phẩm nào!</h5>
+                            </div>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
             </div>
         </div>
 
         <!-- ================= BÊN PHẢI: GIỎ HÀNG THU NGÂN ================= -->
-        <div class="col-lg-5 col-xl-4">
-            <div class="card shadow-lg border-0 cart-wrapper">
-                <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-cart3 me-2" style="color: var(--brand-primary);"></i> ĐƠN HÀNG</h5>
-                    <button class="btn btn-sm btn-outline-danger rounded-pill fw-bold" onclick="clearCart()"><i class="bi bi-trash"></i> Xóa Hết</button>
-                </div>
+        <div class="col-lg-5 col-xl-4 offcanvas-lg offcanvas-end shadow cart-area" tabindex="-1" id="mobileCartOffcanvas" aria-labelledby="mobileCartLabel" style="background-color: var(--bg-surface);">
 
-                <div class="card-body p-0 cart-items" id="cart-items-container">
-                    <!-- Render JS Cart Items -->
-                </div>
+            <div class="offcanvas-header d-lg-none bg-white border-bottom shadow-sm z-3 flex-shrink-0">
+                <h5 class="offcanvas-title fw-bold text-brand" id="mobileCartLabel"><i class="bi bi-cart3 me-2"></i>GIỎ HÀNG</h5>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
 
-                <div class="card-footer bg-white border-top shadow-sm p-3">
-                    <form action="${pageContext.request.contextPath}/ban-hang" method="post" id="checkout-form" onsubmit="return validateCheckout(event)">
-                        <input type="hidden" name="action" value="checkout">
-                        <div id="hidden-cart-inputs"></div>
-                        <input type="hidden" name="tongTienHang" id="input_tongTienHang" value="0">
-                        <input type="hidden" name="tienGiamGia" id="input_tienGiamGia" value="0">
-                        <input type="hidden" name="tongPhaiTra" id="input_tongPhaiTra" value="0">
-                        <input type="hidden" name="maKM" id="input_maKM" value="">
+            <div class="offcanvas-body p-0 p-lg-2 overflow-hidden d-flex flex-column" style="height: 100%;">
+                <div class="card shadow-lg border-0 cart-wrapper w-100 rounded-0 rounded-lg-4">
+                    <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center flex-shrink-0">
+                        <h5 class="mb-0 fw-bold text-dark d-none d-lg-block"><i class="bi bi-cart3 me-2" style="color: var(--brand-primary);"></i> ĐƠN HÀNG</h5>
+                        <h5 class="mb-0 fw-bold text-dark d-lg-none">Số lượng món</h5>
+                        <button class="btn btn-sm btn-outline-danger rounded-pill fw-bold" onclick="clearCart()"><i class="bi bi-trash"></i> Xóa Hết</button>
+                    </div>
 
-                        <!-- TT Khách Hàng -->
-                        <div class="row g-2 mb-2">
-                            <div class="col-5">
-                                <input type="text" class="form-control form-control-sm text-center fw-bold" name="sdtKhachHang" id="sdtKhachHang" placeholder="SĐT Khách" maxlength="10" pattern="\d*" oninput="checkCustomerPhone()">
-                            </div>
-                            <div class="col-7">
-                                <input type="text" class="form-control form-control-sm fw-medium" name="tenKhachHang" id="tenKhachHang" placeholder="Tên khách (nếu mới)">
-                            </div>
-                        </div>
+                    <!-- VÙNG NÀY SẼ TỰ ĐỘNG CUỘN KHI NHIỀU MÓN NHỜ CSS MIN-HEIGHT: 0 -->
+                    <div class="card-body p-0 cart-items custom-scrollbar" id="cart-items-container">
+                        <!-- Render JS Cart Items -->
+                    </div>
 
-                        <div id="customerInfoPanel" class="bg-light p-2 rounded-3 border mb-2" style="display: none; border-color: #E2E8F0 !important;">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="fw-bold text-dark small"><i class="bi bi-person-check-fill text-success"></i> <span id="lblTenKH"></span></span>
-                                <span class="badge bg-warning text-dark px-2 rounded-pill"><i class="bi bi-coin"></i> <span id="lblDiem">0</span></span>
-                            </div>
-                            <div class="form-check form-switch small mb-1">
-                                <input class="form-check-input" type="checkbox" id="toggleDiem" onchange="applyPoints()">
-                                <label class="form-check-label text-danger fw-bold" for="toggleDiem">Dùng điểm (1đ = 1.000đ)</label>
-                            </div>
-                            <div id="nhapDiemContainer" class="input-group input-group-sm mt-1" style="display: none;">
-                                <span class="input-group-text bg-white fw-medium">Dùng:</span>
-                                <input type="number" class="form-control text-end text-danger fw-bold" id="input_nhapDiemTay" value="0" min="0" oninput="calculateCustomPoints()">
-                                <button class="btn btn-outline-danger fw-bold" type="button" onclick="useMaxPoints()">Max</button>
-                            </div>
-                            <input type="hidden" name="diemSuDung" id="input_diemSuDung" value="0">
-                        </div>
-                        <div id="newCustomerPanel" class="text-primary small fw-semibold mb-2 ps-1" style="display: none;">
-                            <i class="bi bi-stars"></i> Tự động tạo thẻ tích điểm cho khách mới!
-                        </div>
+                    <div class="card-footer bg-white border-top shadow-sm p-3 flex-shrink-0">
+                        <form action="${pageContext.request.contextPath}/ban-hang" method="post" id="checkout-form" onsubmit="return validateCheckout(event)">
+                            <input type="hidden" name="action" value="checkout">
+                            <div id="hidden-cart-inputs"></div>
+                            <input type="hidden" name="tongTienHang" id="input_tongTienHang" value="0">
+                            <input type="hidden" name="tienGiamGia" id="input_tienGiamGia" value="0">
+                            <input type="hidden" name="tongPhaiTra" id="input_tongPhaiTra" value="0">
+                            <input type="hidden" name="maKM" id="input_maKM" value="">
 
-                        <!-- Khuyến Mãi -->
-                        <div class="mb-3 bg-light p-3 rounded-3 border" style="border-color: #E2E8F0 !important;">
-                            <label class="fw-bold small text-muted mb-2 d-block"><i class="bi bi-ticket-perforated"></i> Mã Giảm Giá</label>
-                            <div class="input-group">
-                                <input type="text" class="form-control text-uppercase fw-bold border-dark" id="inputVoucherCode" placeholder="Nhập mã KM...">
-                                <button class="btn btn-dark fw-bold px-3" type="button" onclick="checkAndApplyVoucher()">Áp Dụng</button>
-                            </div>
-                            <div id="activeVoucherInfo" class="mt-2 pt-2 border-top" style="display: none;">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="text-success fw-bold"><i class="bi bi-check-circle-fill me-1"></i> Đã áp mã: <span id="voucherLabel" class="text-decoration-underline"></span></span>
-                                    <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2" onclick="removeVoucher()"><i class="bi bi-x"></i> Gỡ</button>
+                            <!-- TT Khách Hàng -->
+                            <div class="row g-2 mb-2">
+                                <div class="col-5">
+                                    <input type="tel" class="form-control form-control-sm text-center fw-bold" name="sdtKhachHang" id="sdtKhachHang" placeholder="SĐT Khách" maxlength="10" pattern="\d*" oninput="checkCustomerPhone()">
+                                </div>
+                                <div class="col-7">
+                                    <input type="text" class="form-control form-control-sm fw-medium" name="tenKhachHang" id="tenKhachHang" placeholder="Tên khách (nếu mới)">
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Tổng kết -->
-                        <div class="border rounded-3 p-3 mb-3 bg-light" style="border-color: #E2E8F0 !important;">
-                            <div class="d-flex justify-content-between mb-1 small">
-                                <span class="text-muted fw-semibold">Tổng tiền hàng:</span>
-                                <span class="fw-bold text-dark" id="display_tongTienHang">0 ₫</span>
+                            <div id="customerInfoPanel" class="bg-light p-2 rounded-3 border mb-2" style="display: none; border-color: #E2E8F0 !important;">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="fw-bold text-dark small"><i class="bi bi-person-check-fill text-success"></i> <span id="lblTenKH"></span></span>
+                                    <span class="badge bg-warning text-dark px-2 rounded-pill"><i class="bi bi-coin"></i> <span id="lblDiem">0</span></span>
+                                </div>
+                                <div class="form-check form-switch small mb-1">
+                                    <input class="form-check-input" type="checkbox" id="toggleDiem" onchange="applyPoints()">
+                                    <label class="form-check-label text-danger fw-bold" for="toggleDiem">Dùng điểm (1đ = 1.000đ)</label>
+                                </div>
+                                <div id="nhapDiemContainer" class="input-group input-group-sm mt-1" style="display: none;">
+                                    <span class="input-group-text bg-white fw-medium">Dùng:</span>
+                                    <input type="number" class="form-control text-end text-danger fw-bold" id="input_nhapDiemTay" value="0" min="0" oninput="calculateCustomPoints()">
+                                    <button class="btn btn-outline-danger fw-bold" type="button" onclick="useMaxPoints()">Max</button>
+                                </div>
+                                <input type="hidden" name="diemSuDung" id="input_diemSuDung" value="0">
                             </div>
-                            <div class="d-flex justify-content-between mb-1 small text-success">
-                                <span class="fw-semibold">Giảm Voucher:</span>
-                                <span class="fw-bold" id="display_tienGiamGia">- 0 ₫</span>
+                            <div id="newCustomerPanel" class="text-primary small fw-semibold mb-2 ps-1" style="display: none;">
+                                <i class="bi bi-stars"></i> Tự động tạo thẻ tích điểm cho khách mới!
                             </div>
-                            <div class="d-flex justify-content-between mb-2 small text-danger" id="row_giamDiem" style="display: none !important;">
-                                <span class="fw-semibold">Trừ điểm tích lũy:</span>
-                                <span class="fw-bold" id="display_giamDiem">- 0 ₫</span>
-                            </div>
-                            <hr class="my-2 border-secondary opacity-25">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="fw-bold text-dark">TỔNG THANH TOÁN:</span>
-                                <span class="fw-bold text-danger" style="font-size: 1.4rem;" id="display_tongPhaiTra">0 ₫</span>
-                            </div>
-                        </div>
 
-                        <!-- Thanh toán -->
-                        <div class="row g-2 align-items-center mb-3">
-                            <div class="col-12 col-sm-5">
-                                <select class="form-select fw-bold bg-light" name="maPTTT" id="select_pttt" required onchange="handlePaymentMethodChange()">
-                                    <c:forEach var="pt" items="${requestScope.danhSachPTTT}">
-                                        <option value="${pt.maPTTT}">${pt.tenPhuongThuc}</option>
-                                    </c:forEach>
-                                </select>
-                            </div>
-                            <div class="col-12 col-sm-7">
+                            <!-- Khuyến Mãi -->
+                            <div class="mb-3 bg-light p-3 rounded-3 border" style="border-color: #E2E8F0 !important;">
+                                <label class="fw-bold small text-muted mb-2 d-block"><i class="bi bi-ticket-perforated"></i> Mã Giảm Giá</label>
                                 <div class="input-group">
-                                    <span class="input-group-text bg-white fw-bold border-end-0"><i class="bi bi-cash"></i></span>
-                                    <input type="number" class="form-control text-end fw-bold text-primary border-start-0 ps-0" name="tienKhachDua" id="tienKhachDua" placeholder="Khách đưa" required oninput="calculateChange()">
+                                    <input type="text" class="form-control text-uppercase fw-bold border-dark" id="inputVoucherCode" placeholder="Nhập mã KM...">
+                                    <button class="btn btn-dark fw-bold px-3" type="button" onclick="checkAndApplyVoucher()">Áp Dụng</button>
+                                </div>
+                                <div id="activeVoucherInfo" class="mt-2 pt-2 border-top" style="display: none;">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-success fw-bold"><i class="bi bi-check-circle-fill me-1"></i> Đã áp mã: <span id="voucherLabel" class="text-decoration-underline"></span></span>
+                                        <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2" onclick="removeVoucher()"><i class="bi bi-x"></i> Gỡ</button>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-12 text-end small mt-1" id="tienThuaContainer" style="display: none;">
-                                <span class="fw-semibold text-muted">Tiền thối lại:</span>
-                                <span class="fw-bold text-success fs-6 ms-2" id="tienThuaLabel">0 ₫</span>
-                            </div>
-                        </div>
 
-                        <button type="submit" class="btn btn-brand w-100 py-3 fs-5 shadow-sm" id="btn-checkout" disabled>
-                            <i class="bi bi-check-circle me-2"></i> THANH TOÁN ĐƠN
-                        </button>
-                    </form>
+                            <!-- Tổng kết -->
+                            <div class="border rounded-3 p-3 mb-3 bg-light" style="border-color: #E2E8F0 !important;">
+                                <div class="d-flex justify-content-between mb-1 small">
+                                    <span class="text-muted fw-semibold">Tổng tiền hàng:</span>
+                                    <span class="fw-bold text-dark" id="display_tongTienHang">0 ₫</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-1 small text-success">
+                                    <span class="fw-semibold">Giảm Voucher:</span>
+                                    <span class="fw-bold" id="display_tienGiamGia">- 0 ₫</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2 small text-danger" id="row_giamDiem" style="display: none !important;">
+                                    <span class="fw-semibold">Trừ điểm tích lũy:</span>
+                                    <span class="fw-bold" id="display_giamDiem">- 0 ₫</span>
+                                </div>
+                                <hr class="my-2 border-secondary opacity-25">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold text-dark">TỔNG THANH TOÁN:</span>
+                                    <span class="fw-bold text-danger" style="font-size: 1.4rem;" id="display_tongPhaiTra">0 ₫</span>
+                                </div>
+                            </div>
+
+                            <!-- Thanh toán -->
+                            <div class="row g-2 align-items-center mb-3">
+                                <div class="col-12 col-sm-5">
+                                    <select class="form-select fw-bold bg-light" name="maPTTT" id="select_pttt" required onchange="handlePaymentMethodChange()">
+                                        <c:forEach var="pt" items="${requestScope.danhSachPTTT}">
+                                            <option value="${pt.maPTTT}">${pt.tenPhuongThuc}</option>
+                                        </c:forEach>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-sm-7">
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white fw-bold border-end-0"><i class="bi bi-cash"></i></span>
+                                        <input type="number" class="form-control text-end fw-bold text-primary border-start-0 ps-0" name="tienKhachDua" id="tienKhachDua" placeholder="Khách đưa" required oninput="calculateChange()">
+                                    </div>
+                                </div>
+                                <div class="col-12 text-end small mt-1" id="tienThuaContainer" style="display: none;">
+                                    <span class="fw-semibold text-muted">Tiền thối lại:</span>
+                                    <span class="fw-bold text-success fs-6 ms-2" id="tienThuaLabel">0 ₫</span>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-brand w-100 py-3 fs-5 shadow-sm" id="btn-checkout" disabled>
+                                <i class="bi bi-check-circle me-2"></i> THANH TOÁN ĐƠN
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- ================= CÁC MODAL HỖ TRỢ POS ================= -->
-<!-- 3. GỌI KHỐI MODAL XÁC NHẬN DÙNG CHUNG -->
+<button class="btn btn-brand floating-cart-btn d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileCartOffcanvas">
+    <i class="bi bi-cart3 fs-3"></i>
+    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light" id="mobileCartBadge" style="font-size: 0.8rem;">0</span>
+</button>
+
 <%@ include file="layout/confirm_modal.jsp" %>
 
-<!-- Modal Cài Đặt Cá Nhân -->
+<!-- CÁC MODAL HỖ TRỢ ... -->
 <div class="modal fade" id="profileModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content shadow-lg border-0">
@@ -227,7 +248,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold small text-muted">Số Điện Thoại</label>
-                            <input type="text" class="form-control fw-medium" name="sdt" value="${sessionScope.nhanVienDangNhap.SDT}" pattern="\d{10,11}" required>
+                            <input type="tel" class="form-control fw-medium" name="sdt" value="${sessionScope.nhanVienDangNhap.SDT}" pattern="\d{10,11}" required>
                         </div>
                         <div class="col-md-12 mt-3">
                             <label class="form-label fw-bold small text-muted">Địa Chỉ Email</label>
@@ -260,7 +281,6 @@
     </div>
 </div>
 
-<!-- Modal QR Code -->
 <div class="modal fade" id="qrModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content shadow-lg border-0">
@@ -294,7 +314,6 @@
     </div>
 </div>
 
-<!-- Modal Tùy Chọn Món (Options) -->
 <div class="modal fade" id="optionModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content shadow-lg">
@@ -326,7 +345,7 @@
                     </div>
                 </div>
                 <label class="fw-bold text-muted small mb-2 text-uppercase" style="letter-spacing: 0.5px;">4. Chọn Thêm Topping</label>
-                <div class="topping-list bg-light rounded-3 p-2 border">
+                <div class="topping-list custom-scrollbar bg-light rounded-3 p-2 border">
                     <c:forEach var="tp" items="${requestScope.danhSachTopping}">
                         <c:if test="${tp.trangThai == 1}">
                             <div class="d-flex justify-content-between align-items-center p-2 mb-1 bg-white rounded shadow-sm">
@@ -360,7 +379,6 @@
     </div>
 </div>
 
-<!-- Modal In Hóa Đơn (Receipt Modal) -->
 <c:if test="${not empty sessionScope.recentOrder}">
     <div class="modal fade" id="receiptModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered modal-sm">
@@ -462,7 +480,6 @@
     </div>
 </c:if>
 
-<!-- Biến Thể Tạm Ẩn để JS lấy dữ liệu -->
 <div id="hidden-variants-data" style="display: none;">
     <c:forEach var="bt" items="${requestScope.danhSachBienThe}">
         <div class="variant-item-data"
@@ -472,19 +489,25 @@
              data-price="${bt.giaBan}"></div>
     </c:forEach>
 </div>
+<div id="hidden-vouchers-data" style="display: none;">
+    <c:forEach var="km" items="${requestScope.danhSachKhuyenMai}">
+        <c:if test="${km.trangThai == 1 && (km.soLuong - km.soLuongDaDung > 0)}">
+            <div class="voucher-item-data"
+                 data-id="${km.maKM}"
+                 data-code="${km.maCode}"
+                 data-loai="${km.loaiGiamGia}"
+                 data-giatri="${km.giaTriGiam}"
+                 data-min="${km.dieuKienToiThieu}"></div>
+        </c:if>
+    </c:forEach>
+</div>
 
-<!-- ================= JAVASCRIPT ================= -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- 4. GỌI FILE JS DÙNG CHUNG (TOAST, CONFIRM) -->
 <script src="${pageContext.request.contextPath}/assets/js/global.js"></script>
 
-<!-- 5. KHAI BÁO CẤU HÌNH DỮ LIỆU ĐỘNG CHO MÀN HÌNH POS -->
 <script>
-    // Cấu hình URL Root cho các lệnh Call API (Kiểm tra sdt, kiểm tra thanh toán qr)
     const appBasePath = document.getElementById('appContextPath').value;
 
-    // Bơm mảng Biến thể Món nước (Dùng để hiển thị Modal chọn Size)
     window.allVariants = [];
     document.querySelectorAll('.variant-item-data').forEach(function(item) {
         window.allVariants.push({
@@ -495,33 +518,31 @@
         });
     });
 
-    // Bơm mảng Khuyến mãi (Dùng để kiểm tra mã Voucher)
-    window.availableVouchers = [
-        <c:forEach var="km" items="${requestScope.danhSachKhuyenMai}">
-        <c:if test="${km.trangThai == 1 && (km.soLuong - km.soLuongDaDung > 0)}">
-        { id: '${km.maKM}', code: '${km.maCode}'.toUpperCase(), loai: '${km.loaiGiamGia}', giaTri: ${km.giaTriGiam}, min: ${km.dieuKienToiThieu} },
-        </c:if>
-        </c:forEach>
-    ];
+    window.availableVouchers = [];
+    document.querySelectorAll('.voucher-item-data').forEach(function(item) {
+        window.availableVouchers.push({
+            id: item.getAttribute('data-id'),
+            code: item.getAttribute('data-code').toUpperCase(),
+            loai: item.getAttribute('data-loai'),
+            giaTri: parseFloat(item.getAttribute('data-giatri')),
+            min: parseFloat(item.getAttribute('data-min'))
+        });
+    });
 
-    // Validate Đổi mật khẩu cá nhân
     function validateProfileAndConfirm(event, formElement) {
         event.preventDefault();
         let newP = document.getElementById('newPass').value;
         let confP = document.getElementById('confirmPass').value;
         if(newP !== '' && newP !== confP) {
-            // Gọi hàm showToast từ global.js
             showToast("Cảnh báo: Mật khẩu mới và Xác nhận không khớp nhau!", "danger");
             return false;
         }
-        // Gọi hàm showConfirmAction từ global.js
         showConfirmAction('Lưu Thiết Lập', 'Xác nhận thay đổi thông tin cá nhân và bảo mật?', function() {
             formElement.submit();
         });
     }
 </script>
 
-<!-- 6. GỌI FILE JS XỬ LÝ LOGIC GIỎ HÀNG (CORE POS) -->
 <script src="${pageContext.request.contextPath}/assets/js/pos.js"></script>
 
 </body>

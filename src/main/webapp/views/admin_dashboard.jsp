@@ -22,8 +22,19 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-surface); overflow-x: hidden; color: #334155;}
         .wrapper { display: flex; width: 100%; min-height: 100vh; }
 
-        /* KẾ THỪA CSS SIDEBAR */
-        .sidebar { width: 280px; background-color: var(--brand-dark); color: #fff; display: flex; flex-direction: column; transition: all 0.3s ease; z-index: 1050;}
+        /* KẾ THỪA CSS SIDEBAR (ĐÃ SỬA LỖI CHIỀU CAO) */
+        .sidebar {
+            width: 280px;
+            background-color: var(--brand-dark);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            z-index: 1050;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+        }
         .sidebar-header { padding: 24px 20px; text-align: center; background: rgba(0,0,0,0.1); border-bottom: 1px solid rgba(255,255,255,0.05); }
         .sidebar-menu { flex-grow: 1; padding: 15px 10px; overflow-y: auto; }
         .sidebar-menu::-webkit-scrollbar { width: 4px; }
@@ -35,7 +46,7 @@
 
         /* MAIN CONTENT */
         .main-content { flex-grow: 1; display: flex; flex-direction: column; min-height: 100vh; width: calc(100% - 280px); transition: all 0.3s ease; }
-        .top-navbar { background-color: #fff; height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); z-index: 10; position: sticky; top: 0;}
+        .top-navbar { background-color: #fff; min-height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 10px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); z-index: 10; position: sticky; top: 0; flex-wrap: wrap; gap: 15px;}
 
         /* BẢNG & CARD */
         .stat-card { border: none; border-radius: var(--card-radius); transition: transform 0.2s; background: #fff; padding: 24px;}
@@ -51,11 +62,20 @@
         .receipt-view table { width: 100%; border-collapse: collapse; font-size: 13px;}
         .receipt-view hr { border-top: 1px dashed #000; opacity: 1; margin: 12px 0; background: none; }
 
+        /* ================= TỐI ƯU MOBILE ================= */
         @media (max-width: 991.98px) {
-            .sidebar { position: fixed; transform: translateX(-100%); }
+            /* Fix lỗi Sidebar bị cụt đáy */
+            .sidebar { position: fixed; top: 0; left: 0; height: 100vh; transform: translateX(-100%); box-shadow: 4px 0 15px rgba(0,0,0,0.2); }
             .sidebar.show { transform: translateX(0); }
             .sidebar-overlay.show { display: block; }
             .main-content { width: 100%; margin-left: 0; }
+
+            /* Cấu trúc lại Header cho Mobile gọn gàng hơn */
+            .top-navbar { padding: 10px 15px; }
+            .mobile-header-row { width: 100%; display: flex; justify-content: space-between; align-items: center; }
+            .filter-form { width: 100%; justify-content: space-between !important; margin-top: 10px; }
+            .filter-form > div { flex: 1 1 45%; }
+            .filter-form button, .filter-form a { flex: 1 1 auto; }
         }
     </style>
 </head>
@@ -72,50 +92,66 @@
     <!-- ================= MAIN CONTENT ================= -->
     <div class="main-content">
         <!-- NAVBAR CỦA ADMIN -->
-        <header class="top-navbar" style="height: auto; min-height: 70px; padding: 15px 24px; flex-wrap: wrap; gap: 15px;">
-            <div class="d-flex align-items-center">
-                <button class="btn btn-light d-lg-none me-3 border-0 shadow-sm rounded-3" onclick="toggleSidebar()">
-                    <i class="bi bi-list fs-5"></i>
-                </button>
-                <h5 class="mb-0 fw-bold text-dark d-none d-sm-block me-4">Dashboard</h5>
+        <header class="top-navbar">
+            <!-- Mobile Header Row (Nút Menu + Tiêu đề + User Profile) -->
+            <div class="mobile-header-row d-lg-none">
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-light me-3 border-0 shadow-sm rounded-3 px-3 py-2" onclick="toggleSidebar()">
+                        <i class="bi bi-list fs-5"></i>
+                    </button>
+                    <h5 class="mb-0 fw-bold text-dark">TEA POS</h5>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-sm" style="width: 42px; height: 42px;" type="button" data-bs-toggle="dropdown">
+                        <img src="https://ui-avatars.com/api/?name=${sessionScope.nhanVienDangNhap.hoTen}&background=D97706&color=fff&rounded=true&bold=true" alt="avatar" width="34" height="34" class="rounded-circle">
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 rounded-3">
+                        <li><h6 class="dropdown-header">${sessionScope.nhanVienDangNhap.hoTen}</h6></li>
+                        <li><a class="dropdown-item text-danger fw-semibold py-2" href="${pageContext.request.contextPath}/auth?action=logout"><i class="bi bi-box-arrow-right me-2"></i> Đăng Xuất</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Desktop Left Side (Tiêu đề) -->
+            <div class="d-none d-lg-flex align-items-center">
+                <h5 class="mb-0 fw-bold text-dark me-4">Dashboard</h5>
             </div>
 
             <!-- BỘ LỌC NGÀY & NHÂN VIÊN -->
-            <form action="${pageContext.request.contextPath}/admin" method="get" class="d-flex flex-wrap align-items-center gap-2 bg-white rounded-3 p-2 border shadow-sm flex-grow-1 justify-content-end" style="border-color: #E2E8F0 !important;">
+            <form action="${pageContext.request.contextPath}/admin" method="get" class="filter-form d-flex flex-wrap align-items-center gap-2 bg-white rounded-3 p-2 border shadow-sm flex-grow-1 justify-content-lg-end" style="border-color: #E2E8F0 !important;">
                 <div class="d-flex align-items-center bg-light rounded-pill px-3 py-1">
                     <span class="small text-muted fw-bold me-2">Từ:</span>
-                    <input type="date" class="form-control form-control-sm border-0 bg-transparent shadow-none p-0 fw-medium text-dark" name="tuNgay" id="filterTuNgay" value="${requestScope.tuNgay}" style="width: 110px;">
+                    <input type="date" class="form-control form-control-sm border-0 bg-transparent shadow-none p-0 fw-medium text-dark w-100" name="tuNgay" id="filterTuNgay" value="${requestScope.tuNgay}">
                 </div>
                 <div class="d-flex align-items-center bg-light rounded-pill px-3 py-1">
                     <span class="small text-muted fw-bold me-2">Đến:</span>
-                    <input type="date" class="form-control form-control-sm border-0 bg-transparent shadow-none p-0 fw-medium text-dark" name="denNgay" id="filterDenNgay" value="${requestScope.denNgay}" style="width: 110px;">
+                    <input type="date" class="form-control form-control-sm border-0 bg-transparent shadow-none p-0 fw-medium text-dark w-100" name="denNgay" id="filterDenNgay" value="${requestScope.denNgay}">
                 </div>
                 <div class="d-flex align-items-center bg-light rounded-pill px-2 py-1">
                     <i class="bi bi-person-badge text-primary ms-1 me-2"></i>
-                    <select class="form-select form-select-sm border-0 bg-transparent shadow-none fw-medium text-dark p-0 pe-4" name="maNV" id="filterMaNV" style="width: 130px;">
+                    <select class="form-select form-select-sm border-0 bg-transparent shadow-none fw-medium text-dark p-0 pe-4 w-100" name="maNV" id="filterMaNV">
                         <option value="">Mọi nhân viên</option>
                         <c:forEach var="nv" items="${requestScope.danhSachNhanVien}">
                             <option value="${nv.maNV}" ${requestScope.selectedNV == nv.maNV ? 'selected' : ''}>${nv.hoTen}</option>
                         </c:forEach>
                     </select>
                 </div>
-                <button class="btn btn-sm btn-dark rounded-pill px-4 fw-bold" type="submit">Lọc</button>
-                <a href="${pageContext.request.contextPath}/admin" class="btn btn-sm btn-light border text-danger rounded-pill px-3" title="Xóa Lọc"><i class="bi bi-arrow-clockwise"></i></a>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-dark rounded-pill px-4 fw-bold w-100" type="submit">Lọc</button>
+                    <a href="${pageContext.request.contextPath}/admin" class="btn btn-sm btn-light border text-danger rounded-pill px-3 w-100" title="Xóa Lọc"><i class="bi bi-arrow-clockwise"></i></a>
+                </div>
             </form>
 
-            <div class="d-flex align-items-center ms-auto">
-                <!-- ĐÃ XÓA NÚT XUẤT BÁO CÁO Ở ĐÂY -->
-
-                <div class="dropdown">
-                    <button class="btn btn-light rounded-pill px-3 py-2 fw-semibold border-0 shadow-sm d-flex align-items-center" type="button" data-bs-toggle="dropdown">
-                        <img src="https://ui-avatars.com/api/?name=${sessionScope.nhanVienDangNhap.hoTen}&background=D97706&color=fff&rounded=true&bold=true" alt="avatar" width="28" height="28" class="me-2 rounded-circle">
-                        <span class="d-none d-md-inline">${sessionScope.nhanVienDangNhap.hoTen}</span>
-                        <i class="bi bi-chevron-down ms-2 small text-muted"></i>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 rounded-3">
-                        <li><a class="dropdown-item text-danger fw-semibold py-2" href="${pageContext.request.contextPath}/auth?action=logout"><i class="bi bi-box-arrow-right me-2"></i> Đăng Xuất</a></li>
-                    </ul>
-                </div>
+            <!-- Desktop Profile -->
+            <div class="dropdown d-none d-lg-block ms-auto ps-3">
+                <button class="btn btn-light rounded-pill px-3 py-2 fw-semibold border-0 shadow-sm d-flex align-items-center" type="button" data-bs-toggle="dropdown">
+                    <img src="https://ui-avatars.com/api/?name=${sessionScope.nhanVienDangNhap.hoTen}&background=D97706&color=fff&rounded=true&bold=true" alt="avatar" width="28" height="28" class="me-2 rounded-circle">
+                    <span>${sessionScope.nhanVienDangNhap.hoTen}</span>
+                    <i class="bi bi-chevron-down ms-2 small text-muted"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 rounded-3">
+                    <li><a class="dropdown-item text-danger fw-semibold py-2" href="${pageContext.request.contextPath}/auth?action=logout"><i class="bi bi-box-arrow-right me-2"></i> Đăng Xuất</a></li>
+                </ul>
             </div>
         </header>
 

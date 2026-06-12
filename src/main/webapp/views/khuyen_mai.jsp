@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/global.css">
+    <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 </head>
 <body>
@@ -24,6 +25,7 @@
             <i class="bi bi-arrow-left me-1"></i> Dashboard
         </a>
     </div>
+
     <div class="row">
         <div class="col-12 mb-4">
             <div class="card">
@@ -36,7 +38,9 @@
                         <a href="${pageContext.request.contextPath}/khuyen-mai?action=list" class="btn btn-light border rounded-circle" style="width: 38px; height: 38px;"><i class="bi bi-arrow-clockwise"></i></a>
                     </div>
                 </div>
-                <div class="card-body p-0">
+
+                <div class="card-body p-3">
+                    <!-- Bảng dữ liệu Khuyến Mãi (sử dụng DataTables) -->
                     <div class="table-responsive">
                         <table class="table table-hover table-custom mb-0 text-center" id="khuyenMaiTable">
                             <thead>
@@ -102,9 +106,6 @@
                                         </tr>
                                     </c:forEach>
                                 </c:when>
-                                <c:otherwise>
-                                    <tr><td colspan="8" class="text-center text-muted py-5"><i class="bi bi-inbox fs-1 d-block mb-3 opacity-50"></i>Chưa có Khuyến Mãi nào.</td></tr>
-                                </c:otherwise>
                             </c:choose>
                             </tbody>
                         </table>
@@ -284,6 +285,7 @@
         document.getElementById('edit_ngayKetThuc').value = end;
     }
 </script>
+
 <!-- Thư viện jQuery và DataTables -->
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
@@ -291,9 +293,10 @@
 
 <script>
     $(document).ready(function() {
+        // Cấu hình DataTables với tiếng Việt
         $('#khuyenMaiTable').DataTable({
-            "pageLength": 5, // Cài đặt mặc định hiển thị 5 dòng/trang
-            "lengthMenu": [[5, 10, 20, -1], [5, 10, 20, "Tất cả"]], // Cho phép người dùng tự chọn số dòng
+            "pageLength": 5,
+            "lengthMenu": [[5, 10, 20, -1], [5, 10, 20, "Tất cả"]],
             "language": {
                 "lengthMenu": "Hiển thị _MENU_ dòng",
                 "zeroRecords": "Không tìm thấy Mã Khuyến Mãi nào",
@@ -306,7 +309,11 @@
                     "next": "Sau",
                     "previous": "Trước"
                 }
-            }
+            },
+            "order": [], // Tắt sắp xếp mặc định ở cột đầu tiên
+            "columnDefs": [
+                { "orderable": false, "targets": [7] } // Vô hiệu hóa tính năng sắp xếp ở cột "Thao tác" (cột số 7)
+            ]
         });
     });
 </script>

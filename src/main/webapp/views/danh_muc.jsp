@@ -10,9 +10,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- ÁP DỤNG CLEAN ARCHITECTURE -->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/global.css">
+
+    <!-- DataTables CSS cho Mobile -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
 </head>
 <body>
 <!-- NHÚNG COMPONENT THÔNG BÁO -->
@@ -46,13 +48,13 @@
 
         <div class="col-md-8 mb-4">
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="card-header d-flex justify-content-between align-items-center py-3">
                     <h5 class="mb-0 fw-bold text-dark">Danh Sách Phân Loại</h5>
-                    <a href="${pageContext.request.contextPath}/danh-muc?action=list" class="btn btn-sm btn-light border"><i class="bi bi-arrow-clockwise"></i> Làm mới</a>
+                    <a href="${pageContext.request.contextPath}/danh-muc?action=list" class="btn btn-light border rounded-circle" style="width: 38px; height: 38px;"><i class="bi bi-arrow-clockwise"></i></a>
                 </div>
-                <div class="card-body p-0">
+                <div class="card-body p-3">
                     <div class="table-responsive">
-                        <table class="table table-hover table-custom mb-0">
+                        <table class="table table-hover table-custom mb-0 dt-responsive nowrap" style="width:100%" id="danhMucTable">
                             <thead>
                             <tr>
                                 <th class="text-center" width="10%">STT</th>
@@ -66,18 +68,27 @@
                                 <c:when test="${not empty requestScope.danhSach}">
                                     <c:forEach var="dm" items="${requestScope.danhSach}" varStatus="status">
                                         <tr>
-                                            <td class="fw-semibold text-muted">${(currentPage - 1) * 5 + status.index + 1}</td>
+                                            <td class="text-center fw-semibold text-muted">
+                                                <c:choose>
+                                                    <c:when test="${not empty currentPage}">${(currentPage - 1) * 5 + status.index + 1}</c:when>
+                                                    <c:otherwise>${status.index + 1}</c:otherwise>
+                                                </c:choose>
+                                            </td>
                                             <td class="text-center fw-semibold text-brand">${dm.maDanhMuc}</td>
                                             <td class="fw-bold text-dark fs-6">${dm.tenDanhMuc}</td>
                                             <td class="text-center">
                                                 <div class="btn-group btn-group-sm shadow-sm">
+                                                    <!-- ĐÃ FIX: Sử dụng data-* attributes để tránh lỗi vỡ cú pháp JS khi chuỗi có dấu nháy đơn -->
                                                     <button class="btn btn-light text-primary border" data-bs-toggle="modal" data-bs-target="#editModal"
-                                                            onclick="fillEditModal('${dm.maDanhMuc}', '${fn:escapeXml(dm.tenDanhMuc)}')">
+                                                            data-id="${dm.maDanhMuc}"
+                                                            data-name="${fn:escapeXml(dm.tenDanhMuc)}"
+                                                            onclick="fillEditModal(this.getAttribute('data-id'), this.getAttribute('data-name'))">
                                                         <i class="bi bi-pencil-square"></i> Sửa
                                                     </button>
                                                     <a href="${pageContext.request.contextPath}/danh-muc?action=delete&id=${dm.maDanhMuc}"
                                                        class="btn btn-light text-danger border"
-                                                       onclick="event.preventDefault(); showConfirmLink('Xóa Danh Mục', 'Bạn có chắc chắn muốn xóa danh mục [${fn:escapeXml(dm.tenDanhMuc)}]?', this.href);">
+                                                       data-name="${fn:escapeXml(dm.tenDanhMuc)}"
+                                                       onclick="event.preventDefault(); showConfirmLink('Xóa Danh Mục', 'Bạn có chắc chắn muốn xóa danh mục [' + this.getAttribute('data-name') + ']?', this.href);">
                                                         <i class="bi bi-trash"></i>
                                                     </a>
                                                 </div>
@@ -91,25 +102,21 @@
                             </c:choose>
                             </tbody>
                         </table>
-                        <!-- KHU VỰC PHÂN TRANG -->
+
+                        <!-- KHU VỰC PHÂN TRANG THỦ CÔNG SERVER-SIDE -->
                         <c:if test="${totalPages > 1}">
                             <div class="d-flex justify-content-center mt-4 mb-3">
                                 <nav aria-label="Page navigation">
                                     <ul class="pagination pagination-sm shadow-sm">
-                                        <!-- Nút Trước -->
                                         <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
                                             <a class="page-link text-brand fw-bold" href="${pageContext.request.contextPath}/danh-muc?action=list&page=${currentPage - 1}">Trước</a>
                                         </li>
-
-                                        <!-- Hiển thị các số trang -->
                                         <c:forEach begin="1" end="${totalPages}" var="i">
                                             <li class="page-item ${currentPage == i ? 'active' : ''}">
                                                 <a class="page-link ${currentPage == i ? 'bg-brand border-brand text-white' : 'text-dark'}"
                                                    href="${pageContext.request.contextPath}/danh-muc?action=list&page=${i}">${i}</a>
                                             </li>
                                         </c:forEach>
-
-                                        <!-- Nút Sau -->
                                         <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
                                             <a class="page-link text-brand fw-bold" href="${pageContext.request.contextPath}/danh-muc?action=list&page=${currentPage + 1}">Sau</a>
                                         </li>
@@ -117,6 +124,7 @@
                                 </nav>
                             </div>
                         </c:if>
+
                     </div>
                 </div>
             </div>
@@ -157,8 +165,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- NHÚNG GLOBAL JS -->
 <script src="${pageContext.request.contextPath}/assets/js/global.js"></script>
 
 <script>
@@ -167,6 +173,28 @@
         document.getElementById("display_maDanhMuc").value = maDM;
         document.getElementById("edit_tenDanhMuc").value = tenDM;
     }
+</script>
+
+<!-- Thư viện jQuery và DataTables -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#danhMucTable').DataTable({
+            "responsive": true,
+            "paging": false,      // Tắt phân trang tự động để không xung đột JSTL
+            "searching": false,   // Tắt ô tìm kiếm tự động
+            "info": false,        // Tắt info hiển thị số dòng
+            "order": [],
+            "columnDefs": [
+                { "orderable": false, "targets": [3] }
+            ]
+        });
+    });
 </script>
 </body>
 </html>

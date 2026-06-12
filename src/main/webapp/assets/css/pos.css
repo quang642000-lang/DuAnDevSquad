@@ -2,8 +2,48 @@
    POS CSS - GIAO DIỆN MÀN HÌNH BÁN HÀNG (CASHIER APP)
 ========================================================= */
 :root { --brand: #D97706; --brand-dark: #0F172A; }
-body { background-color: #F8FAFC; overflow-x: hidden; font-family: 'Plus Jakarta Sans', sans-serif; user-select: none; }
-.navbar { background-color: var(--brand-dark) !important; padding: 0.75rem 1.5rem; }
+
+/* 1. KHÓA CUỘN TOÀN BỘ TRANG WEB TRÊN TẤT CẢ CÁC THIẾT BỊ (DESKTOP VÀ MOBILE) */
+body {
+    background-color: #F8FAFC;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    user-select: none;
+    overflow: hidden;
+}
+
+.navbar { background-color: var(--brand-dark) !important; padding: 0.75rem 1.5rem; z-index: 1030; }
+
+/* Hàng chính chứa toàn bộ giao diện POS */
+.pos-main-row {
+    height: calc(100vh - 75px); /* Khóa chiều cao vừa khít màn hình, trừ đi Navbar */
+    margin-bottom: 0;
+}
+
+/* ================= CỘT BÊN TRÁI (DANH MỤC & SẢN PHẨM) ================= */
+.product-area {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Thanh Danh mục (Ghim im một chỗ) */
+.category-scroll-wrapper {
+    flex-shrink: 0; /* Ép không bị co lại khi thẻ bên dưới chiếm chỗ */
+    background-color: #F8FAFC;
+    padding-bottom: 15px;
+}
+.category-scroll { overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; }
+.category-scroll::-webkit-scrollbar { display: none; }
+.btn-filter { border-radius: 99px; font-weight: 600; white-space: nowrap; padding: 0.5rem 1.5rem; border: 1px solid #E2E8F0; color: #475569; background: #fff; transition: all 0.2s;}
+.btn-filter.active { background-color: var(--brand); color: #fff; border-color: var(--brand); box-shadow: 0 4px 10px rgba(217, 119, 6, 0.3); }
+
+/* Khung chứa các món ăn (Có thanh cuộn dọc riêng biệt) */
+.product-grid-wrapper {
+    flex-grow: 1; /* Chiếm toàn bộ khoảng trống còn lại */
+    overflow-y: auto; /* CHỈ VÙNG NÀY MỚI ĐƯỢC CUỘN */
+    padding-bottom: 100px; /* Chừa khoảng trống dưới đáy để không bị khuất bởi nút Giỏ hàng nổi */
+    padding-right: 5px;
+}
 
 /* Thẻ Sản Phẩm POS */
 .product-card { cursor: pointer; transition: all 0.2s ease; border: 1px solid #E2E8F0; border-radius: 16px; overflow: hidden; background: #fff;}
@@ -12,26 +52,62 @@ body { background-color: #F8FAFC; overflow-x: hidden; font-family: 'Plus Jakarta
 .product-card:hover .product-img { transform: scale(1.05); }
 .product-img-wrapper { overflow: hidden; position: relative; }
 
-/* Thanh Bộ Lọc Menu */
-.category-scroll { overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; padding-bottom: 0.5rem; }
-.category-scroll::-webkit-scrollbar { display: none; }
-.btn-filter { border-radius: 99px; font-weight: 600; white-space: nowrap; padding: 0.5rem 1.5rem; border: 1px solid #E2E8F0; color: #475569; background: #fff; transition: all 0.2s;}
-.btn-filter.active { background-color: var(--brand); color: #fff; border-color: var(--brand); box-shadow: 0 4px 10px rgba(217, 119, 6, 0.3); }
+/* Tùy chỉnh thanh cuộn đẹp mắt cho các khu vực lướt */
+.custom-scrollbar::-webkit-scrollbar { width: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background-color: #CBD5E1; border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: #94A3B8; }
 
-/* Khu vực Giỏ Hàng */
-.cart-wrapper { height: calc(100vh - 75px); position: sticky; top: 75px; display: flex; flex-direction: column; border-radius: 16px; overflow: hidden;}
-.cart-items { flex-grow: 1; overflow-y: auto; background-color: #fff; padding: 0.5rem;}
-.cart-items::-webkit-scrollbar { width: 6px; }
-.cart-items::-webkit-scrollbar-thumb { background-color: #CBD5E1; border-radius: 10px; }
+/* ================= CỘT GIỎ HÀNG (DESKTOP) ================= */
+.cart-area {
+    height: 100%; /* Ép cột bên phải cao đúng 100% không gian cho phép */
+}
+.cart-wrapper {
+    height: 100%; /* Giỏ hàng chiếm toàn bộ chiều cao có sẵn */
+    display: flex;
+    flex-direction: column;
+    border-radius: 16px;
+    overflow: hidden;
+}
+.cart-items {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    min-height: 0; /* Điểm mấu chốt để ép thanh cuộn sinh ra cho giỏ hàng */
+    background-color: #fff;
+    padding: 0.5rem;
+}
 .topping-list { max-height: 250px; overflow-y: auto; }
 
-/* Biên lai in nhiệt (Thermal Receipt) */
+/* Biên lai in nhiệt */
 .thermal-receipt { background: #fff; width: 100%; max-width: 320px; margin: 0 auto; padding: 20px; font-family: 'Courier New', Courier, monospace; color: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-radius: 4px;}
 .thermal-receipt table { width: 100%; border-collapse: collapse; }
 .thermal-receipt hr { border-top: 1px dashed #000; opacity: 1; margin: 10px 0; background: none; }
 
-/* Responsive */
+/* ================= CSS CHO NÚT GIỎ HÀNG NỔI (MOBILE) ================= */
+.floating-cart-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 25px rgba(217, 119, 6, 0.5);
+    z-index: 1040;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.floating-cart-btn:active { transform: scale(0.9); }
+
+/* ================= ĐIỀU CHỈNH RESPONSIVE ================= */
+@media (min-width: 992px) {
+    .product-grid-wrapper { padding-bottom: 20px; } /* Desktop màn rộng nên không cần chừa nhiều khoảng trống đáy */
+}
+
 @media (max-width: 991.98px) {
-    .cart-wrapper { height: auto; position: static; margin-top: 1rem; border: 1px solid #E2E8F0; }
-    .cart-items { max-height: 400px; }
+    /* Ép Giỏ hàng dạng trượt chiếm full màn hình dọc/ngang */
+    #mobileCartOffcanvas { width: 100vw !important; }
+    .cart-wrapper { height: 100% !important; position: static; margin-top: 0; border: none; border-radius: 0; }
+    .cart-items { max-height: none !important; flex: 1; overflow-y: auto; }
 }

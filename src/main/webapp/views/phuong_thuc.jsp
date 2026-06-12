@@ -11,7 +11,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/global.css">
+    <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
 </head>
 <body>
 <%@ include file="layout/toast.jsp" %>
@@ -36,9 +38,10 @@
                         <a href="${pageContext.request.contextPath}/phuong-thuc?action=list" class="btn btn-light border rounded-circle" style="width: 38px; height: 38px;"><i class="bi bi-arrow-clockwise"></i></a>
                     </div>
                 </div>
-                <div class="card-body p-0">
+                <div class="card-body p-3">
+                    <!-- Bảng dữ liệu PTTT -->
                     <div class="table-responsive">
-                        <table class="table table-hover table-custom mb-0 text-center" id="ptttTable">
+                        <table class="table table-hover table-custom mb-0 text-center dt-responsive nowrap" style="width:100%" id="ptttTable">
                             <thead>
                             <tr>
                                 <th width="10%">STT</th>
@@ -83,9 +86,6 @@
                                         </tr>
                                     </c:forEach>
                                 </c:when>
-                                <c:otherwise>
-                                    <tr><td colspan="5" class="text-center text-muted py-5"><i class="bi bi-inbox fs-1 d-block mb-3 opacity-50"></i>Chưa có phương thức nào.</td></tr>
-                                </c:otherwise>
                             </c:choose>
                             </tbody>
                         </table>
@@ -126,6 +126,7 @@
     </div>
 </div>
 
+<!-- MODAL SỬA PHƯƠNG THỨC THANH TOÁN -->
 <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content shadow-lg">
@@ -165,14 +166,18 @@
         document.getElementById('edit_tenPhuongThuc').value = tenPT;
     }
 </script>
+
 <!-- Thư viện jQuery và DataTables -->
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
 
 <script>
     $(document).ready(function() {
         $('#ptttTable').DataTable({
+            "responsive": true,
             "pageLength": 5,
             "lengthMenu": [[5, 10, 20, -1], [5, 10, 20, "Tất cả"]],
             "language": {
@@ -187,7 +192,11 @@
                     "next": "Sau",
                     "previous": "Trước"
                 }
-            }
+            },
+            "order": [],
+            "columnDefs": [
+                { "orderable": false, "targets": [4] }
+            ]
         });
     });
 </script>

@@ -13,7 +13,10 @@
 
     <!-- ÁP DỤNG CLEAN ARCHITECTURE -->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/global.css">
+
+    <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
 </head>
 <body>
 <!-- NHÚNG COMPONENT THÔNG BÁO -->
@@ -40,9 +43,9 @@
                         <a href="${pageContext.request.contextPath}/nhan-vien?action=list" class="btn btn-light border rounded-circle" style="width: 38px; height: 38px;"><i class="bi bi-arrow-clockwise"></i></a>
                     </div>
                 </div>
-                <div class="card-body p-0">
+                <div class="card-body p-3">
                     <div class="table-responsive">
-                        <table class="table table-hover table-custom mb-0 text-center" id="nhanVienTable">
+                        <table class="table table-hover table-custom mb-0 text-center dt-responsive nowrap" style="width:100%" id="nhanVienTable">
                             <thead>
                             <tr>
                                 <th class="text-start ps-4">Họ Tên & Liên Hệ</th>
@@ -95,7 +98,6 @@
                                                             <a href="${pageContext.request.contextPath}/nhan-vien?action=toggle-status&id=${nv.maNV}&status=1" class="btn btn-light text-success border" title="Mở khóa" onclick="event.preventDefault(); showConfirmLink('Mở Khóa', 'Bạn có muốn mở lại quyền truy cập cho nhân viên này?', this.href);"><i class="bi bi-play-circle"></i></a>
                                                         </c:otherwise>
                                                     </c:choose>
-                                                    <!-- ĐÃ TỐI ƯU: Dùng showConfirmLink thay vì tạo thêm 1 modal rác -->
                                                     <a href="${pageContext.request.contextPath}/nhan-vien?action=delete&id=${nv.maNV}" class="btn btn-light text-danger border" title="Xóa" onclick="event.preventDefault(); showConfirmLink('Xóa Nhân Viên', 'Bạn có chắc muốn xóa tài khoản [${fn:escapeXml(nv.hoTen)}]? Thao tác này không thể hoàn tác.', this.href);">
                                                         <i class="bi bi-trash"></i>
                                                     </a>
@@ -104,9 +106,6 @@
                                         </tr>
                                     </c:forEach>
                                 </c:when>
-                                <c:otherwise>
-                                    <tr><td colspan="5" class="text-center text-muted py-5"><i class="bi bi-inbox fs-1 d-block mb-3 opacity-50"></i>Chưa có nhân viên.</td></tr>
-                                </c:otherwise>
                             </c:choose>
                             </tbody>
                         </table>
@@ -138,7 +137,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold small text-muted text-uppercase">Số Điện Thoại</label>
-                            <input type="text" class="form-control" name="SDT" placeholder="Gồm 10 số..." pattern="\d{10,11}" required>
+                            <input type="tel" class="form-control" name="SDT" placeholder="Gồm 10 số..." pattern="\d{10,11}" required>
                         </div>
                     </div>
                     <div class="mb-3">
@@ -181,11 +180,14 @@
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
 
 <script>
     $(document).ready(function() {
         $('#nhanVienTable').DataTable({
-            "order": [], // THÊM DÒNG NÀY ĐỂ TẮT CHẾ ĐỘ TỰ ĐỘNG SẮP XẾP CỦA DATATABLES
+            "responsive": true,
+            "order": [],
             "pageLength": 5,
             "lengthMenu": [[5, 10, 20, -1], [5, 10, 20, "Tất cả"]],
             "language": {
@@ -200,7 +202,10 @@
                     "next": "Sau",
                     "previous": "Trước"
                 }
-            }
+            },
+            "columnDefs": [
+                { "orderable": false, "targets": [4] }
+            ]
         });
     });
 </script>
