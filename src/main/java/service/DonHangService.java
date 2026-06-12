@@ -42,15 +42,33 @@ public class DonHangService {
             dh.setTongTienHang(tongTienHang);
 
             int tienGiamVoucher = 0;
+            Date now = new Date(); // Lấy thời gian hiện tại lúc tạo đơn
+
             if (dh.getKhuyenMai() != null && dh.getKhuyenMai().getMaKM() != null && !dh.getKhuyenMai().getMaKM().isEmpty()) {
                 KhuyenMai km = khuyenMaiRepo.getById(dh.getKhuyenMai().getMaKM());
-                if (km != null && tongTienHang >= km.getDieuKienToiThieu()) {
-                    if ("Phần Trăm".equalsIgnoreCase(km.getLoaiGiamGia())) {
-                        tienGiamVoucher = (tongTienHang * km.getGiaTriGiam()) / 100;
-                    } else {
-                        tienGiamVoucher = km.getGiaTriGiam();
+
+                if (km != null) {
+                    // KIỂM TRA ĐIỀU KIỆN 1: Ngày tháng hiệu lực của Voucher
+                    if (km.getNgayBatDau() != null && now.before(km.getNgayBatDau())) {
+                        return "Lỗi: Mã giảm giá này chưa đến ngày bắt đầu sử dụng!";
                     }
-                    if (tienGiamVoucher > tongTienHang) tienGiamVoucher = tongTienHang;
+                    if (km.getNgayKetThuc() != null && now.after(km.getNgayKetThuc())) {
+                        return "Lỗi: Mã giảm giá này đã hết hạn sử dụng!";
+                    }
+
+                    // Bỏ qua kiểm tra số lượng ở Service vì Repository đã chặn bằng Transaction Lock rất chặt chẽ.
+
+                    // KIỂM TRA ĐIỀU KIỆN 2: Đơn tối thiểu
+                    if (tongTienHang >= km.getDieuKienToiThieu()) {
+                        if ("Phần Trăm".equalsIgnoreCase(km.getLoaiGiamGia())) {
+                            tienGiamVoucher = (tongTienHang * km.getGiaTriGiam()) / 100;
+                        } else {
+                            tienGiamVoucher = km.getGiaTriGiam();
+                        }
+                        if (tienGiamVoucher > tongTienHang) tienGiamVoucher = tongTienHang;
+                    } else {
+                        return "Lỗi: Đơn hàng chưa đạt mức tối thiểu " + km.getDieuKienToiThieu() + "đ để dùng mã này!";
+                    }
                 } else {
                     dh.setKhuyenMai(null);
                 }
@@ -84,7 +102,7 @@ public class DonHangService {
             int tongPhaiTra = Math.max(tongTienHang - tienGiamVoucher - diemGiamGia, 0);
             dh.setTienGiamGia(tienGiamVoucher + diemGiamGia);
             dh.setTongTienTra(tongPhaiTra);
-            dh.setThoiGianTao(new Date());
+            dh.setThoiGianTao(now); // Đã lấy ở trên
 
             if (dh.getSoTienKhachDua() < dh.getTongTienTra()) return "Lỗi: Số tiền khách đưa không đủ!";
             if (dh.getDanhSachChiTiet() == null || dh.getDanhSachChiTiet().isEmpty()) return "Lỗi: Giỏ hàng trống!";
