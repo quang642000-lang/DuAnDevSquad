@@ -35,10 +35,8 @@
                 <div class="card-body p-4">
                     <form action="${pageContext.request.contextPath}/san-pham" method="post" enctype="multipart/form-data" onsubmit="showConfirmForm(event, this, 'Thêm Món', 'Bạn có chắc chắn muốn thêm món này?');">
                         <input type="hidden" name="action" value="add">
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold text-muted small text-uppercase">Tên Món Nước</label>
-                            <input type="text" class="form-control" name="tenSanPham" placeholder="VD: Trà sữa Oolong..." required>
-                        </div>
+
+                        <!-- ĐÃ ĐẢO LÊN TRÊN: Danh Mục -->
                         <div class="mb-3">
                             <label class="form-label fw-semibold text-muted small text-uppercase">Danh Mục</label>
                             <select class="form-select bg-light" name="maDanhMuc" required>
@@ -48,6 +46,13 @@
                                 </c:forEach>
                             </select>
                         </div>
+
+                        <!-- ĐÃ ĐẢO XUỐNG DƯỚI: Tên Sản Phẩm -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-muted small text-uppercase">Tên Món Nước</label>
+                            <input type="text" class="form-control" name="tenSanPham" placeholder="VD: Trà sữa Oolong..." required>
+                        </div>
+
                         <div class="mb-4">
                             <label class="form-label fw-semibold text-muted small text-uppercase">Tải Hình Ảnh Lên</label>
                             <input type="file" class="form-control" name="hinhAnhFile" accept="image/*">
@@ -159,6 +164,7 @@
                             </c:choose>
                             </tbody>
                         </table>
+
                         <!-- KHU VỰC PHÂN TRANG -->
                         <c:if test="${totalPages > 1}">
                             <div class="d-flex justify-content-center mt-4">
@@ -210,14 +216,13 @@
                     <input type="hidden" name="action" value="update">
                     <input type="hidden" name="maSP" id="edit_maSP">
                     <input type="hidden" name="oldHinhAnh" id="edit_oldHinhAnh">
+
                     <div class="mb-3">
                         <label class="form-label text-muted fw-bold small text-uppercase">Mã Sản Phẩm</label>
                         <input type="text" class="form-control bg-light fw-bold text-muted border-0" id="display_maSP" disabled>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold text-dark small text-uppercase">Tên Sản Phẩm</label>
-                        <input type="text" class="form-control" name="tenSanPham" id="edit_tenSanPham" required>
-                    </div>
+
+                    <!-- ĐÃ ĐẢO LÊN TRÊN: Danh Mục -->
                     <div class="mb-3">
                         <label class="form-label fw-bold text-dark small text-uppercase">Danh Mục</label>
                         <select class="form-select" name="maDanhMuc" id="edit_maDanhMuc" required>
@@ -226,6 +231,13 @@
                             </c:forEach>
                         </select>
                     </div>
+
+                    <!-- ĐÃ ĐẢO XUỐNG DƯỚI: Tên Sản Phẩm -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-dark small text-uppercase">Tên Sản Phẩm</label>
+                        <input type="text" class="form-control" name="tenSanPham" id="edit_tenSanPham" required>
+                    </div>
+
                     <div class="mb-2">
                         <label class="form-label fw-bold text-dark small text-uppercase">Thay Ảnh (Trống để giữ nguyên)</label>
                         <input type="file" class="form-control" name="hinhAnhFile" accept="image/*">

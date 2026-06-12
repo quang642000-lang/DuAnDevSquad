@@ -96,12 +96,17 @@ public class BanHangController extends HttpServlet {
                 nvSession.setSDT(sdt);
                 nvSession.setEmail(email);
 
-                if (newPass != null && !newPass.trim().isEmpty()) {
-                    nvSession.setMatKhau(SecurityUtil.hashPassword(newPass));
-                }
-
+                // 1. Cập nhật các thông tin cơ bản trước (Họ tên, SĐT, Email)
                 boolean isUpdated = nhanVienService.update(nvSession).contains("thành công");
+
                 if(isUpdated) {
+                    // 2. Nếu nhân viên có nhập mật khẩu mới, băm mật khẩu và gọi hàm đổi riêng biệt
+                    if (newPass != null && !newPass.trim().isEmpty()) {
+                        String hashedNewPass = SecurityUtil.hashPassword(newPass);
+                        nhanVienService.resetPassword(nvSession.getMaNV(), hashedNewPass);
+                        nvSession.setMatKhau(hashedNewPass); // Cập nhật lại session
+                    }
+
                     request.getSession().setAttribute("nhanVienDangNhap", nvSession);
                     request.getSession().setAttribute("message", "Cập nhật thông tin cá nhân thành công!");
                 } else {
@@ -123,7 +128,7 @@ public class BanHangController extends HttpServlet {
                 String sdtKhach = request.getParameter("sdtKhachHang");
                 String tenKhach = request.getParameter("tenKhachHang");
 
-                // ĐÃ FIX: Chống NumberFormatException gây sập trang khi parse dữ liệu rỗng
+                // Chống NumberFormatException gây sập trang khi parse dữ liệu rỗng
                 int diemSuDung = 0;
                 int tongTienHang = 0;
                 int soTienKhachDua = 0;

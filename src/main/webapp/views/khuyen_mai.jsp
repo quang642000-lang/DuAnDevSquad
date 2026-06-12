@@ -12,8 +12,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/global.css">
-    <!-- DataTables CSS -->
+    <!-- DataTables CSS (Kèm Responsive) -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
 </head>
 <body>
 <%@ include file="layout/toast.jsp" %>
@@ -40,9 +41,9 @@
                 </div>
 
                 <div class="card-body p-3">
-                    <!-- Bảng dữ liệu Khuyến Mãi (sử dụng DataTables) -->
+                    <!-- Bảng dữ liệu Khuyến Mãi (Có dt-responsive nowrap) -->
                     <div class="table-responsive">
-                        <table class="table table-hover table-custom mb-0 text-center" id="khuyenMaiTable">
+                        <table class="table table-hover table-custom mb-0 text-center dt-responsive nowrap" style="width:100%" id="khuyenMaiTable">
                             <thead>
                             <tr>
                                 <th width="5%">STT</th>
@@ -61,7 +62,7 @@
                                     <c:forEach var="km" items="${requestScope.danhSach}" varStatus="status">
                                         <tr>
                                             <td class="fw-semibold text-muted">${status.index + 1}</td>
-                                            <td class="text-start fw-bold text-dark" style="max-width: 200px;">${km.tenKM}</td>
+                                            <td class="text-start fw-bold text-dark" style="max-width: 200px; white-space: normal;">${km.tenKM}</td>
                                             <td><span class="badge border border-danger text-danger bg-danger bg-opacity-10 py-2 px-3 fw-bold fs-6">${km.maCode}</span></td>
                                             <td class="fw-bold text-danger">
                                                 <c:choose>
@@ -290,11 +291,14 @@
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
 
 <script>
     $(document).ready(function() {
-        // Cấu hình DataTables với tiếng Việt
+        // Cấu hình DataTables (Đã thêm thuộc tính "language" đầy đủ)
         $('#khuyenMaiTable').DataTable({
+            "responsive": true,
             "pageLength": 5,
             "lengthMenu": [[5, 10, 20, -1], [5, 10, 20, "Tất cả"]],
             "language": {
@@ -310,9 +314,9 @@
                     "previous": "Trước"
                 }
             },
-            "order": [], // Tắt sắp xếp mặc định ở cột đầu tiên
+            "order": [],
             "columnDefs": [
-                { "orderable": false, "targets": [7] } // Vô hiệu hóa tính năng sắp xếp ở cột "Thao tác" (cột số 7)
+                { "orderable": false, "targets": [7] }
             ]
         });
     });
