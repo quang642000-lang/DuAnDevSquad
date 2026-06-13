@@ -220,7 +220,9 @@ function confirmAddToCart() {
             tenGoc: tenGoc,
             maBT: maBT,
             ten: ten,
-            giaChot: gia + extraToppingPrice,
+            giaGoc: gia, // Bổ sung lưu giá gốc để hiển thị minh bạch
+            size: selectedVariant.size, // Bổ sung lưu Size
+            giaChot: gia + extraToppingPrice, // Vẫn giữ tổng cộng để validate nhanh
             soLuong: qtyToSet,
             da: da,
             duong: duong,
@@ -234,7 +236,7 @@ function confirmAddToCart() {
 }
 
 // -------------------------------------------------------------
-// RENDER GIỎ HÀNG VÀ TÍNH TOÁN TIỀN
+// RENDER GIỎ HÀNG VÀ TÍNH TOÁN TIỀN MINH BẠCH
 // -------------------------------------------------------------
 function renderCart() {
     sessionStorage.setItem('tea_pos_cart', JSON.stringify(cart));
@@ -265,43 +267,70 @@ function renderCart() {
     document.getElementById('btn-checkout').disabled = false;
     let tongTienHang = 0, tienGiamGia = 0, tienGiamDiem = 0, diemThucTeSuDung = 0;
 
-    // Thêm tham số 'index' vào vòng lặp để lấy Số Thứ Tự
     cart.forEach(function(item, index) {
         tongTienHang += item.giaChot * item.soLuong;
+
+        let toppingTotalOneLy = 0;
         let tpStr = "";
-        if (item.toppings) {
-            tpStr = item.toppings.map(t => `<span class='badge bg-warning bg-opacity-10 text-dark border border-warning border-opacity-50 me-1 mb-1'>+${escapeHTML(t.name)} (x${t.qty})</span>`).join('');
+
+        // Hiển thị minh bạch giá từng loại Topping
+        if (item.toppings && item.toppings.length > 0) {
+            tpStr = `<div class="mt-2 w-100">`;
+            item.toppings.forEach(t => {
+                let tpTotal = t.price * t.qty;
+                toppingTotalOneLy += tpTotal;
+                tpStr += `
+                    <div class="d-flex justify-content-between small text-muted mb-1 ps-2" style="border-left: 2px solid #CBD5E1;">
+                        <span>+ ${t.qty} x ${escapeHTML(t.name)}</span>
+                        <span>${formatCurrency(tpTotal)}</span>
+                    </div>
+                `;
+            });
+            tpStr += `</div>`;
         }
+
+        // Tính giá nước gốc (Phòng hờ bộ nhớ cookie/session cũ chưa cập nhật giaGoc)
+        let basePrice = item.giaGoc || (item.giaChot - toppingTotalOneLy);
 
         // Bổ sung Khối hiển thị STT (Hình tròn nổi bật)
         let sttHtml = `<span class="badge rounded-circle d-flex align-items-center justify-content-center me-2 shadow-sm text-white" style="width: 26px; height: 26px; font-size: 0.85rem; flex-shrink: 0; background-color: var(--brand); margin-top: 2px;">${index + 1}</span>`;
 
-        // Render lại cấu trúc HTML của từng món ăn có chứa STT
+        // Render lại cấu trúc HTML của từng món ăn
         let itemHtml = `
         <div class='p-3 border-bottom bg-white'>
             <div class='d-flex justify-content-between align-items-start'>
                 <div class='d-flex align-items-start flex-grow-1 pe-2'>
                     ${sttHtml}
-                    <div>
+                    <div class="w-100">
                         <h6 class='mb-1 fw-bold text-dark'>${escapeHTML(item.ten)}</h6>
                         <div class='small text-muted mb-2 fw-medium'>Đá: ${escapeHTML(item.da)} &bull; Đường: ${escapeHTML(item.duong)}</div>
-                        <div class='d-flex flex-wrap'>${tpStr}</div>
+                        
+                        <!-- Hiển thị Giá Gốc của Nước -->
+                        <div class="d-flex justify-content-between small fw-semibold text-dark mb-1">
+                            <span>Giá nước x1</span>
+                            <span>${formatCurrency(basePrice)}</span>
+                        </div>
+
+                        <!-- Hiển thị Giá Topping -->
+                        ${tpStr}
                     </div>
                 </div>
-                <div class='text-end'>
-                    <h6 class='mb-1 fw-bold text-danger'>${formatCurrency(item.giaChot * item.soLuong)}</h6>
-                    <small class='text-muted'>${formatCurrency(item.giaChot)}/ly</small>
-                </div>
             </div>
-            <div class='d-flex justify-content-between align-items-center mt-3'>
+            
+            <div class='d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-light'>
                 <div>
                     <a href='javascript:void(0)' class='text-primary small text-decoration-none me-3 fw-bold' onclick="editCartItem('${item.cartId}')"><i class='bi bi-pencil-square'></i> Sửa</a>
                     <a href='javascript:void(0)' class='text-danger small text-decoration-none fw-bold' onclick="updateQty('${item.cartId}', -999)"><i class='bi bi-trash'></i> Xóa</a>
                 </div>
-                <div class='btn-group btn-group-sm shadow-sm'>
-                    <button type='button' class='btn btn-light border fw-bold px-3' onclick="updateQty('${item.cartId}', -1)"><i class='bi bi-dash-lg'></i></button>
-                    <span class='btn btn-white border fw-bold px-3 text-primary' style='pointer-events: none; background: #fff;'>${item.soLuong}</span>
-                    <button type='button' class='btn btn-light border fw-bold px-3' onclick="updateQty('${item.cartId}', 1)"><i class='bi bi-plus-lg'></i></button>
+                <div class="d-flex align-items-center">
+                    <div class='btn-group btn-group-sm shadow-sm me-3'>
+                        <button type='button' class='btn btn-light border fw-bold px-2' onclick="updateQty('${item.cartId}', -1)"><i class='bi bi-dash-lg'></i></button>
+                        <span class='btn btn-white border fw-bold px-3 text-primary' style='pointer-events: none; background: #fff;'>${item.soLuong}</span>
+                        <button type='button' class='btn btn-light border fw-bold px-2' onclick="updateQty('${item.cartId}', 1)"><i class='bi bi-plus-lg'></i></button>
+                    </div>
+                    <div class='text-end'>
+                        <h6 class='mb-0 fw-bold text-danger' style="font-size: 1.1rem;">${formatCurrency(item.giaChot * item.soLuong)}</h6>
+                    </div>
                 </div>
             </div>
         </div>`;

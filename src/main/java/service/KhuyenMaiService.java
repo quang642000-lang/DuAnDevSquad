@@ -16,6 +16,11 @@ public class KhuyenMaiService {
     }
 
     public String add(KhuyenMai km) {
+        // Sửa Lỗi Bảo mật: Chặn nhập mức giảm phần trăm vượt quá 100%
+        if ("Phần Trăm".equals(km.getLoaiGiamGia()) && km.getGiaTriGiam() > 100) {
+            return "Lỗi: Mức giảm phần trăm không được vượt quá 100%!";
+        }
+
         if (repo.add(km)) {
             return "Thêm chương trình khuyến mãi thành công!";
         }
@@ -23,6 +28,11 @@ public class KhuyenMaiService {
     }
 
     public String update(KhuyenMai km) {
+        // Sửa Lỗi Bảo mật: Chặn nhập mức giảm phần trăm vượt quá 100%
+        if ("Phần Trăm".equals(km.getLoaiGiamGia()) && km.getGiaTriGiam() > 100) {
+            return "Lỗi: Mức giảm phần trăm không được vượt quá 100%!";
+        }
+
         // --- KIỂM TRA BẢO MẬT BACKEND CHỐNG GIAN LẬN F12 ---
         KhuyenMai kmCu = repo.getById(km.getMaKM());
         if (kmCu != null && km.getSoLuong() < kmCu.getSoLuongDaDung()) {

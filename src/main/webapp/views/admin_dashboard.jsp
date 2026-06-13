@@ -297,7 +297,8 @@
                         </div>
                         <div class="card-body p-0">
                             <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
-                                <table class="table table-hover table-custom mb-0 text-center" id="orderTable">
+                                <!-- Sửa lỗi UX 4: Thêm class text-nowrap để bảng không bị bóp vỡ dòng trên màn hình hẹp -->
+                                <table class="table table-hover table-custom mb-0 text-center text-nowrap" id="orderTable">
                                     <thead class="sticky-top bg-white shadow-sm">
                                     <tr>
                                         <th width="10%">Giờ Tạo</th>
@@ -527,24 +528,41 @@
                     } else {
                         data.items.forEach(item => {
                             let tr = document.createElement('tr');
-                            tr.innerHTML = `<td colspan="2" style="font-weight:bold; padding-top: 5px;">\${item.soLuong} x \${item.tenMon}</td>`;
+                            let basePriceFormatted = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.giaChot * item.soLuong);
+
+                            // Tên món + Giá gốc
+                            tr.innerHTML = `<td style="font-weight:bold; padding-top: 8px; vertical-align: top;">\${item.soLuong} x \${item.tenMon}</td>
+                                            <td style="text-align:right; padding-top: 8px; vertical-align: top;">\${basePriceFormatted}</td>`;
                             tbody.appendChild(tr);
 
+                            // Tùy chọn
+                            let sizeText = item.size ? item.size : 'M'; // Fallback nếu rỗng
                             let trDetails = document.createElement('tr');
-                            trDetails.innerHTML = `<td colspan="2" style="padding-left:10px; color:#444; font-size:11px;">(Size \${item.size} | \${item.da} Đá | \${item.duong} Đường)</td>`;
+                            trDetails.innerHTML = `<td colspan="2" style="padding-left:12px; color:#555; font-size:11px; padding-bottom: 2px;">- Size \${sizeText}, \${item.da} Đá, \${item.duong} Đường</td>`;
                             tbody.appendChild(trDetails);
 
-                            if(item.toppings) {
+                            let tongTien1Mon = item.giaChot * item.soLuong;
+
+                            if(item.toppings && item.toppings.length > 0) {
                                 item.toppings.forEach(tp => {
+                                    let tpTotal = tp.gia * tp.sl;
+                                    tongTien1Mon += tpTotal;
+
+                                    let tpPriceFormatted = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(tpTotal);
                                     let trTp = document.createElement('tr');
-                                    trTp.innerHTML = `<td style="padding-left:15px; color:#444; font-size:11px;">+ \${tp.sl} x \${tp.ten}</td><td></td>`;
+                                    trTp.innerHTML = `<td style="padding-left:12px; color:#555; font-size:11px;">+ \${tp.sl} x \${tp.ten}</td>
+                                                      <td style="text-align:right; color:#555; font-size:11px;">\${tpPriceFormatted}</td>`;
                                     tbody.appendChild(trTp);
                                 });
                             }
 
+                            // Tổng món
                             let trPrice = document.createElement('tr');
-                            let priceFormatted = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.giaChot * item.soLuong);
-                            trPrice.innerHTML = `<td></td><td style="text-align:right; font-weight:bold; padding-bottom: 5px;">\${priceFormatted}</td>`;
+                            let priceFormatted = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(tongTien1Mon);
+                            trPrice.innerHTML = `<td colspan="2" style="text-align:right; font-size: 11px; padding-top: 4px; padding-bottom: 8px; border-bottom: 1px dashed #ccc;">
+                                                    <span style="color:#555; margin-right: 5px;">Thành tiền:</span>
+                                                    <span style="font-size: 12px; font-weight: bold;">\${priceFormatted}</span>
+                                                 </td>`;
                             tbody.appendChild(trPrice);
                         });
                     }

@@ -55,7 +55,9 @@ public class TrangChuAdminController extends HttpServlet {
         // Lấy danh sách có phân trang và đếm tổng số
         List<DonHangDashboard> listDonHang = thongKeService.getDonHangTheoNgayByPage(tuNgay, denNgay, maNV, page);
         int totalRecords = thongKeService.getTotalDonHang(tuNgay, denNgay, maNV);
-        int totalPages = (int) Math.ceil((double) totalRecords / 10); // LIMIT = 10
+
+        // Sửa Lỗi Kiến trúc 4: Bỏ số 10 gõ cứng mà dùng hàm lấy thông số từ Service cho việc chia trang
+        int totalPages = (int) Math.ceil((double) totalRecords / thongKeService.getLimit());
 
         request.setAttribute("listDonHang", listDonHang);
         request.setAttribute("totalRecords", totalRecords);

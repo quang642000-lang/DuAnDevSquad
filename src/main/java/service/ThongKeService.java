@@ -13,6 +13,11 @@ public class ThongKeService {
     private ThongKeRepository repo = new ThongKeRepository();
     private final int LIMIT = 10; // Hiển thị 10 đơn hàng trên 1 trang cho thoải mái
 
+    // Sửa Lỗi Kiến trúc 4: Bổ sung getter cho LIMIT để Controller có thể truy xuất thay vì gõ số cứng
+    public int getLimit() {
+        return LIMIT;
+    }
+
     public int getTotalDonHang(String tuNgay, String denNgay, String maNV) {
         return repo.getTotalDonHang(tuNgay, denNgay, maNV);
     }

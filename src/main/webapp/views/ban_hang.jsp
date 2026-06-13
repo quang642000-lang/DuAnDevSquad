@@ -124,7 +124,8 @@
                             <!-- TT Khách Hàng -->
                             <div class="row g-2 mb-2">
                                 <div class="col-5">
-                                    <input type="tel" class="form-control form-control-sm text-center fw-bold" name="sdtKhachHang" id="sdtKhachHang" placeholder="SĐT Khách" maxlength="10" pattern="\d*" oninput="checkCustomerPhone()">
+                                    <!-- Sửa lỗi nghiệp vụ 2: Đổi maxlength thành 11 và pattern cho SĐT -->
+                                    <input type="tel" class="form-control form-control-sm text-center fw-bold" name="sdtKhachHang" id="sdtKhachHang" placeholder="SĐT Khách" maxlength="11" pattern="\d{10,11}" oninput="checkCustomerPhone()">
                                 </div>
                                 <div class="col-7">
                                     <input type="text" class="form-control form-control-sm fw-medium" name="tenKhachHang" id="tenKhachHang" placeholder="Tên khách (nếu mới)">
@@ -199,7 +200,8 @@
                                 <div class="col-12 col-sm-7">
                                     <div class="input-group">
                                         <span class="input-group-text bg-white fw-bold border-end-0"><i class="bi bi-cash"></i></span>
-                                        <input type="number" class="form-control text-end fw-bold text-primary border-start-0 ps-0" name="tienKhachDua" id="tienKhachDua" placeholder="Khách đưa" required oninput="calculateChange()">
+                                        <!-- Sửa lỗi UX 3: Thêm onfocus để cuộn giao diện lên tránh bị bàn phím ảo che -->
+                                        <input type="number" class="form-control text-end fw-bold text-primary border-start-0 ps-0" name="tienKhachDua" id="tienKhachDua" placeholder="Khách đưa" required oninput="calculateChange()" onfocus="this.scrollIntoView({behavior: 'smooth', block: 'center'});">
                                     </div>
                                 </div>
                                 <div class="col-12 text-end small mt-1" id="tienThuaContainer" style="display: none;">
@@ -226,7 +228,6 @@
 
 <%@ include file="layout/confirm_modal.jsp" %>
 
-<!-- CÁC MODAL HỖ TRỢ ... -->
 <div class="modal fade" id="profileModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content shadow-lg border-0">
@@ -328,7 +329,8 @@
 </div>
 
 <div class="modal fade" id="optionModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
+    <!-- Sửa lỗi UX 2: Thêm modal-dialog-scrollable để tránh bị tràn và che nút trên mobile -->
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content shadow-lg">
             <div class="modal-header border-0 py-3 bg-light">
                 <h5 class="modal-title fw-bold text-dark" id="modalProductName">Tên Sản Phẩm</h5>
@@ -423,22 +425,39 @@
                     <div style="font-size:12px;">
                         <table style="width:100%; border-collapse:collapse;">
                             <c:forEach var="ct" items="${sessionScope.recentOrder.danhSachChiTiet}">
+                                <!-- 1. Tên món và Giá gốc -->
                                 <tr>
-                                    <td colspan="2" style="font-weight:bold; padding-top: 5px;">${ct.soLuong} x ${ct.bienThe.sanPham.tenSanPham}</td>
+                                    <td style="font-weight:bold; padding-top: 8px; vertical-align: top;">${ct.soLuong} x ${ct.bienThe.sanPham.tenSanPham}</td>
+                                    <td style="text-align:right; padding-top: 8px; vertical-align: top;">
+                                        <fmt:formatNumber value="${ct.giaChot * ct.soLuong}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
+                                    </td>
                                 </tr>
+
+                                <!-- 2. Tùy chọn (Format lại gạch đầu dòng rõ ràng, bỏ dấu ngoặc, check ẩn Size rỗng) -->
                                 <tr>
-                                    <td colspan="2" style="padding-left:10px; color:#444; font-size:11px;">(Size ${ct.bienThe.kichCo} | ${ct.mucDa} Đá | ${ct.mucDuong} Đường)</td>
+                                    <td colspan="2" style="padding-left:12px; color:#555; font-size:11px; padding-bottom: 2px;">
+                                        - <c:if test="${not empty fn:trim(ct.bienThe.kichCo)}">Size ${ct.bienThe.kichCo}, </c:if>${ct.mucDa} Đá, ${ct.mucDuong} Đường
+                                    </td>
                                 </tr>
+
+                                <c:set var="tongTien1Mon" value="${ct.giaChot * ct.soLuong}" />
+
+                                <!-- 3. Topping -->
                                 <c:forEach var="tpItem" items="${ct.danhSachTopping}">
                                     <tr>
-                                        <td style="padding-left:15px; color:#444; font-size:11px;">+ ${tpItem.soLuongTopping} x ${tpItem.topping.tenTopping}</td>
-                                        <td></td>
+                                        <td style="padding-left:12px; color:#555; font-size:11px;">+ ${tpItem.soLuongTopping} x ${tpItem.topping.tenTopping}</td>
+                                        <td style="text-align:right; color:#555; font-size:11px;">
+                                            <fmt:formatNumber value="${tpItem.giaChot * tpItem.soLuongTopping}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
+                                        </td>
                                     </tr>
+                                    <c:set var="tongTien1Mon" value="${tongTien1Mon + (tpItem.giaChot * tpItem.soLuongTopping)}" />
                                 </c:forEach>
+
+                                <!-- 4. Tổng thành tiền của nhóm món này -->
                                 <tr>
-                                    <td></td>
-                                    <td style="text-align:right; font-weight:bold; padding-bottom: 5px;">
-                                        <fmt:formatNumber value="${ct.giaChot * ct.soLuong}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
+                                    <td colspan="2" style="text-align:right; font-size: 11px; padding-top: 4px; padding-bottom: 8px; border-bottom: 1px dashed #ccc;">
+                                        <span style="color:#555; margin-right: 5px;">Thành tiền:</span>
+                                        <span style="font-size: 12px; font-weight: bold;"><fmt:formatNumber value="${tongTien1Mon}" type="currency" currencySymbol="đ" maxFractionDigits="0"/></span>
                                     </td>
                                 </tr>
                             </c:forEach>
