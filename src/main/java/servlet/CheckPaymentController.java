@@ -18,16 +18,20 @@ public class CheckPaymentController extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
 
-        String code = request.getParameter("code"); // VD: TEA12345
+        String code = request.getParameter("code");
 
         if (code == null || code.trim().isEmpty()) {
             out.print("{\"status\":\"error\", \"message\":\"Thiếu mã giao dịch\"}");
             return;
         }
 
-        // TỐI ƯU: Đọc từ Local Store của Webhook, tránh spam/polling API của SePay
-        if (PaymentStore.transactions.containsKey(code)) {
-            PaymentStore.transactions.remove(code); // Giải phóng bộ nhớ ngay sau khi check xong
+        // TỐI ƯU: Ép in hoa và xóa khoảng trắng thừa để khớp 100% với Webhook
+        String cleanCode = code.trim().toUpperCase();
+
+        // Đọc từ Local Store của Webhook, tránh spam/polling API của SePay
+        if (PaymentStore.transactions.containsKey(cleanCode)) {
+            PaymentStore.transactions.remove(cleanCode); // Giải phóng bộ nhớ ngay sau khi check xong
+            System.out.println("✅ [HỆ THỐNG POS] ĐÃ CHỐT ĐƠN THÀNH CÔNG CHO MÃ: " + cleanCode);
             out.print("{\"status\":\"success\"}");
         } else {
             out.print("{\"status\":\"pending\"}");

@@ -19,14 +19,14 @@ public class SePayWebhookController extends HttpServlet {
             while ((line = reader.readLine()) != null) sb.append(line);
 
             JsonObject payload = JsonParser.parseString(sb.toString()).getAsJsonObject();
-            String content = payload.get("content").getAsString(); // Nội dung chuyển khoản
+            String content = payload.get("content").getAsString().toUpperCase(); // Đổi tất cả thành IN HOA để chống phân biệt hoa/thường
 
-            // Tách mã TEA từ nội dung CK (VD: TEA123456)
-            for (String part : content.split("\\s+")) {
-                if (part.startsWith("TEA")) {
-                    PaymentStore.transactions.put(part, true);
-                }
+            // Tìm đoạn mã bắt đầu bằng chữ TEA và theo sau là các chữ số (VD: TEA2606123456) bất chấp khoảng trắng
+            java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("TEA\\d+").matcher(content);
+            while (matcher.find()) {
+                PaymentStore.transactions.put(matcher.group(), true); // Bắt dính mã và đưa vào bộ nhớ tạm
             }
+
             response.setStatus(200);
             response.getWriter().write("{\"success\":true}");
         } catch (Exception e) {

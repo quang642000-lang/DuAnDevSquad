@@ -19,8 +19,8 @@ public class AuthFilter implements Filter {
 
         String path = req.getServletPath();
 
-        // 1. Cho phép tự do đi qua: Login, Quên pass, Assets
-        if (path.startsWith("/auth") || path.startsWith("/assets") || path.contains(".css") || path.contains(".js") || path.contains(".png") || path.contains(".jpg")) {
+        // 1. Cho phép tự do đi qua: Login, Quên pass, Assets, và API Webhook
+        if (path.startsWith("/auth") || path.startsWith("/assets") || path.startsWith("/api/") || path.contains(".css") || path.contains(".js") || path.contains(".png") || path.contains(".jpg")) {
             chain.doFilter(request, response);
             return;
         }
