@@ -4,13 +4,13 @@ import model.ThongKe;
 import model.DonHangDashboard;
 import model.TopSanPham;
 import repository.ThongKeRepository;
+
 import java.util.List;
 import java.util.Map;
 import com.google.gson.Gson;
 
 public class ThongKeService {
     private ThongKeRepository repo = new ThongKeRepository();
-
     private final int LIMIT = 10; // Hiển thị 10 đơn hàng trên 1 trang cho thoải mái
 
     public int getTotalDonHang(String tuNgay, String denNgay, String maNV) {
@@ -38,12 +38,21 @@ public class ThongKeService {
         return repo.getDoanhThu7NgayQua(tuNgay, denNgay, maNV);
     }
 
-    // Xử lý JSON ở tầng Service thay vì Repository
+    // Xử lý JSON ở tầng Service thay vì Repository (CHUẨN CLEAN ARCHITECTURE)
     public String getReceiptJson(String maDH) {
         Map<String, Object> data = repo.getReceiptData(maDH);
         if (data == null || data.isEmpty()) {
             return "{\"error\":\"Không tìm thấy đơn hàng trong Database.\"}";
         }
+
+        // FORMAT LẠI DỮ LIỆU ĐÚNG TẦNG SERVICE
+        java.sql.Timestamp ts = (java.sql.Timestamp) data.get("thoi_gian_tho");
+        if(ts != null) {
+            data.put("ngay", new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(ts));
+        }
+        data.put("khachHang", data.get("ten_kh_tho") != null ? data.get("ten_kh_tho") : "Khách vãng lai");
+        data.put("phuongThuc", data.get("ten_pttt_tho") != null ? data.get("ten_pttt_tho") : "Tiền mặt");
+
         return new Gson().toJson(data);
     }
 }

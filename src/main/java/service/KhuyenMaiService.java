@@ -23,6 +23,13 @@ public class KhuyenMaiService {
     }
 
     public String update(KhuyenMai km) {
+        // --- KIỂM TRA BẢO MẬT BACKEND CHỐNG GIAN LẬN F12 ---
+        KhuyenMai kmCu = repo.getById(km.getMaKM());
+        if (kmCu != null && km.getSoLuong() < kmCu.getSoLuongDaDung()) {
+            return "Lỗi: Số lượng tổng không được nhỏ hơn số lượng mã đã phát hành (" + kmCu.getSoLuongDaDung() + ")!";
+        }
+        // ---------------------------------------------------
+
         if (repo.update(km)) {
             return "Cập nhật chương trình khuyến mãi thành công!";
         }
@@ -35,8 +42,6 @@ public class KhuyenMaiService {
         }
         return "Xóa thất bại!";
     }
-
-    // --- CÁC HÀM ĐƯỢC KHÔI PHỤC LẠI ---
 
     public List<KhuyenMai> search(String keyword) {
         return repo.search(keyword);

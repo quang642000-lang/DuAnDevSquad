@@ -3,10 +3,10 @@ package repository;
 import model.ThongKe;
 import model.DonHangDashboard;
 import model.TopSanPham;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -14,8 +14,9 @@ import java.util.Map;
 import java.util.LinkedHashMap;
 
 public class ThongKeRepository {
+
     private String[] getDefaultDates(String tuNgay, String denNgay) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
         String today = sdf.format(new Date());
         if ((tuNgay == null || tuNgay.isEmpty()) && (denNgay == null || denNgay.isEmpty())) {
             tuNgay = today;
@@ -36,7 +37,6 @@ public class ThongKeRepository {
             ps.setString(paramIndex++, dates[0]);
             ps.setString(paramIndex++, dates[1]);
             if (maNV != null && !maNV.isEmpty()) ps.setString(paramIndex++, maNV);
-
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) return rs.getInt(1);
             }
@@ -59,11 +59,8 @@ public class ThongKeRepository {
             ps.setString(paramIndex++, dates[0]);
             ps.setString(paramIndex++, dates[1]);
             if (maNV != null && !maNV.isEmpty()) ps.setString(paramIndex++, maNV);
-
-            // Gắn tham số phân trang
             ps.setInt(paramIndex++, offset);
             ps.setInt(paramIndex++, limit);
-
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     DonHangDashboard dh = new DonHangDashboard();
@@ -79,7 +76,6 @@ public class ThongKeRepository {
         return list;
     }
 
-    // TỐI ƯU TRUY VẤN: Tránh N+1 Select và Bổ sung Doanh thu tháng
     public ThongKe getThongKeTongQuan(String tuNgay, String denNgay, String maNV) {
         ThongKe tk = new ThongKe();
         String[] dates = getDefaultDates(tuNgay, denNgay);
@@ -90,21 +86,16 @@ public class ThongKeRepository {
                 "(SELECT COUNT(*) FROM DON_HANG CROSS JOIN Params WHERE CAST(thoi_gian_tao AS DATE) BETWEEN StartDate AND EndDate AND (MaNV IS NULL OR ma_nv = MaNV)) AS don_hang_moi, " +
                 "(SELECT COUNT(*) FROM SAN_PHAM WHERE trang_thai = 1) AS tong_san_pham, " +
                 "(SELECT COUNT(*) FROM KHACH_HANG) AS tong_khach_hang";
-
         try (Connection con = DBConnect.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, dates[0]);
             ps.setString(2, dates[1]);
             if (maNV == null || maNV.isEmpty()) ps.setNull(3, java.sql.Types.VARCHAR);
             else ps.setString(3, maNV);
-
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     tk.setDoanhThuHomNay(rs.getInt("doanh_thu"));
-
-                    // Bổ sung mapping Doanh thu trong tháng
                     tk.setDoanhThuThangNay(rs.getInt("doanh_thu_thang"));
-
                     tk.setDonHangMoi(rs.getInt("don_hang_moi"));
                     tk.setTongSanPham(rs.getInt("tong_san_pham"));
                     tk.setTongKhachHang(rs.getInt("tong_khach_hang"));
@@ -190,7 +181,6 @@ public class ThongKeRepository {
         return chartData;
     }
 
-    // XỬ LÝ CLEAN CODE: Trả về Map (Model) thay vì tự Build JSON bằng String trong Repo
     public Map<String, Object> getReceiptData(String maDH) {
         Map<String, Object> receipt = new LinkedHashMap<>();
         String sqlDH = "SELECT dh.ma_dh, dh.thoi_gian_tao, dh.tong_tien_hang, dh.tien_giam_gia, dh.tong_phai_tra, dh.so_tien_khach_dua, " +
@@ -198,17 +188,20 @@ public class ThongKeRepository {
                 "FROM DON_HANG dh LEFT JOIN NHAN_VIEN nv ON dh.ma_nv = nv.ma_nv " +
                 "LEFT JOIN KHACH_HANG kh ON dh.ma_kh = kh.ma_kh " +
                 "LEFT JOIN PHUONG_THUC_THANH_TOAN pt ON dh.ma_pttt = pt.ma_pttt WHERE dh.ma_dh = ?";
+
         try (Connection con = DBConnect.getConnection();
              PreparedStatement ps = con.prepareStatement(sqlDH)) {
             ps.setString(1, maDH);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
                     receipt.put("maDH", rs.getString("ma_dh"));
-                    receipt.put("ngay", sdf.format(rs.getTimestamp("thoi_gian_tao")));
                     receipt.put("nhanVien", rs.getString("ten_nv"));
-                    receipt.put("khachHang", rs.getString("ten_kh") != null ? rs.getString("ten_kh") : "Khách vãng lai");
-                    receipt.put("phuongThuc", rs.getString("ten_phuong_thuc") != null ? rs.getString("ten_phuong_thuc") : "Tiền mặt");
+
+                    // CHỈ LẤY DỮ LIỆU THÔ, NHƯỜNG PHẦN FORMAT CHO SERVICE
+                    receipt.put("thoi_gian_tho", rs.getTimestamp("thoi_gian_tao"));
+                    receipt.put("ten_kh_tho", rs.getString("ten_kh"));
+                    receipt.put("ten_pttt_tho", rs.getString("ten_phuong_thuc"));
+
                     receipt.put("tongTienHang", rs.getInt("tong_tien_hang"));
                     receipt.put("tienGiamGia", rs.getInt("tien_giam_gia"));
                     receipt.put("tongPhaiTra", rs.getInt("tong_phai_tra"));
@@ -218,6 +211,7 @@ public class ThongKeRepository {
                     String sqlCT = "SELECT ct.ma_chi_tiet, ct.so_luong, ct.gia_chot_mon, ct.muc_da, ct.muc_duong, sp.ten_san_pham, bt.kich_co " +
                             "FROM CHI_TIET_DON_HANG ct JOIN BIEN_THE_SAN_PHAM bt ON ct.ma_bien_the = bt.ma_bien_the " +
                             "JOIN SAN_PHAM sp ON bt.ma_sp = sp.ma_sp WHERE ct.ma_dh = ?";
+
                     try (PreparedStatement psCT = con.prepareStatement(sqlCT)) {
                         psCT.setString(1, maDH);
                         try (ResultSet rsCT = psCT.executeQuery()) {
