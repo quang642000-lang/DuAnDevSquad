@@ -5,7 +5,13 @@ let currentProductVariants = [];
 let customerPoints = 0;
 let isUsingPoints = false;
 let customPointsToUse = 0;
+
+/* Các biến quản lý Thanh toán QR (Đã khai báo đầy đủ tránh lỗi kẹt) */
 let checkPaymentInterval = null;
+let countdownInterval = null;
+let qrTimeout = null;
+let isPaymentActive = false;
+
 let editingCartId = null;
 let optionModal = null;
 let qrModal = null;
@@ -33,7 +39,6 @@ function closeMobileCart() {
             forceCloseOffcanvas(offcanvasElement);
         }
     } catch (err) {
-        // Fallback: Nếu Bootstrap lỗi 'backdrop undefined', tự động ép đóng bằng CSS
         forceCloseOffcanvas(offcanvasElement);
     }
 }
@@ -49,17 +54,15 @@ document.addEventListener("DOMContentLoaded", function() {
     optionModal = new bootstrap.Modal(document.getElementById('optionModal'));
     qrModal = new bootstrap.Modal(document.getElementById('qrModal'));
 
-    // FIX: Bắt sự kiện đóng giỏ hàng thủ công tránh lỗi 'backdrop' của Bootstrap
     let offcanvasElement = document.getElementById('mobileCartOffcanvas');
     if (offcanvasElement) {
         let closeBtn = offcanvasElement.querySelector('.btn-close');
         if (closeBtn) {
-            closeBtn.removeAttribute('data-bs-dismiss'); // Xóa hành vi mặc định gây lỗi
+            closeBtn.removeAttribute('data-bs-dismiss');
             closeBtn.addEventListener('click', closeMobileCart);
         }
     }
 
-    // Ép đóng khi bấm ra ngoài vùng mờ (backdrop)
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('offcanvas-backdrop')) {
             closeMobileCart();
@@ -134,11 +137,10 @@ function editCartItem(cartId) {
     let item = cart.find(i => i.cartId === cartId);
     if (!item) return;
 
-    editingCartId = cartId; // Đánh dấu đang ở chế độ chỉnh sửa
+    editingCartId = cartId;
     document.getElementById('modalProductName').innerText = item.tenGoc;
     document.getElementById('btn-confirm-modal').innerHTML = '<i class="bi bi-check2-circle me-2"></i> CẬP NHẬT MÓN';
 
-    // 1. Render lại Size và chọn đúng Size cũ
     currentProductVariants = window.allVariants.filter(v => v.maSP === item.maSP);
     let sizeHtml = '';
     currentProductVariants.forEach(function(v) {
@@ -147,24 +149,18 @@ function editCartItem(cartId) {
                      <label class='btn btn-outline-primary fw-bold rounded-3 px-3 py-2' for='size_${v.maBT}'>Size ${escapeHTML(v.size)} <br> <small class='text-dark'>${formatCurrency(v.price)}</small></label>`;
     });
     document.getElementById('sizeContainer').innerHTML = sizeHtml;
-
-    // 2. Render lại Đá / Đường
     document.getElementById('modalDa').value = item.da;
     document.getElementById('modalDuong').value = item.duong;
 
-    // 3. Render lại Topping
-    // Reset toàn bộ topping về 0 trước
     document.querySelectorAll('input[id^="tp_qty_"]').forEach(function(inp) {
         inp.value = 0;
     });
-    // Điền số lượng topping đang có
     if (item.toppings) {
         item.toppings.forEach(function(tp) {
             let tpInput = document.getElementById('tp_qty_' + tp.id);
             if (tpInput) tpInput.value = tp.qty;
         });
     }
-
     optionModal.show();
 }
 
@@ -199,28 +195,24 @@ function confirmAddToCart() {
         }
     });
 
-    // Tạo ID giỏ hàng (Khóa duy nhất định danh 1 món gồm size + đá + đường + topping)
     let cartId = maBT + "_" + da + "_" + duong;
     if (toppings.length > 0) cartId += "_" + toppings.map(function(t) { return t.id + "-" + t.qty; }).join('_');
 
-    let qtyToSet = 1; // Mặc định thêm mới là 1 ly
+    let qtyToSet = 1;
 
-    // NẾU LÀ CHẾ ĐỘ CHỈNH SỬA (SỬA MÓN)
     if (editingCartId) {
         let oldItemIndex = cart.findIndex(i => i.cartId === editingCartId);
         if (oldItemIndex > -1) {
-            qtyToSet = cart[oldItemIndex].soLuong; // Giữ nguyên số lượng ly cũ
-            cart.splice(oldItemIndex, 1); // Xóa món với cấu hình cũ đi
+            qtyToSet = cart[oldItemIndex].soLuong;
+            cart.splice(oldItemIndex, 1);
         }
         editingCartId = null;
     }
 
-    // Tìm xem món với cấu hình VỪA TẠO có tồn tại trong giỏ chưa
     let existingItem = cart.find(item => item.cartId === cartId);
     if (existingItem) {
-        existingItem.soLuong += qtyToSet; // Cộng dồn ly
+        existingItem.soLuong += qtyToSet;
     } else {
-        // Thêm một đối tượng mới hoàn toàn
         cart.push({
             cartId: cartId,
             maSP: selectedVariant.maSP,
@@ -321,7 +313,6 @@ function clearCart() {
         customerPoints = 0; isUsingPoints = false; customPointsToUse = 0;
         renderCart();
 
-        // Tự động gập Menu Giỏ hàng lại nếu đang dùng trên điện thoại
         if (window.innerWidth < 992) {
             closeMobileCart();
         }
@@ -383,6 +374,7 @@ function handlePaymentMethodChange() {
     let ptttName = ptttSelect.options[ptttSelect.selectedIndex].text.toLowerCase();
     let tienKhachDuaInput = document.getElementById('tienKhachDua');
     let phaiTra = parseInt(document.getElementById('input_tongPhaiTra').value) || 0;
+
     if (ptttName.includes("tiền mặt") || ptttName.includes("cash")) {
         tienKhachDuaInput.readOnly = false;
         tienKhachDuaInput.classList.remove('bg-light');
@@ -390,7 +382,7 @@ function handlePaymentMethodChange() {
     } else {
         tienKhachDuaInput.readOnly = true;
         tienKhachDuaInput.classList.add('bg-light');
-        tienKhachDuaInput.value = phaiTra;
+        tienKhachDuaInput.value = phaiTra; // Tự động gán tiền bằng số cần thanh toán
     }
     calculateChange();
 }
@@ -411,12 +403,23 @@ function calculateChange() {
 
 function validateCheckout(event) {
     event.preventDefault();
-    let khachDua = parseInt(document.getElementById('tienKhachDua').value);
-    let phaiTra = parseInt(document.getElementById('input_tongPhaiTra').value);
-    if (!khachDua || khachDua < phaiTra) {
-        showToast("Số tiền khách không đủ để thanh toán hóa đơn!", "danger");
-        return false;
+    let phaiTra = parseInt(document.getElementById('input_tongPhaiTra').value) || 0;
+    let ptttSelect = document.getElementById('select_pttt');
+    let ptttName = ptttSelect.options[ptttSelect.selectedIndex].text.toLowerCase();
+
+    // 1. KIỂM TRA PHƯƠNG THỨC TIỀN MẶT
+    if (ptttName.includes("tiền mặt") || ptttName.includes("cash")) {
+        let khachDua = parseInt(document.getElementById('tienKhachDua').value) || 0;
+        if (khachDua < phaiTra) {
+            showToast("Số tiền khách đưa không đủ để thanh toán hóa đơn!", "danger");
+            return false;
+        }
+    } else {
+        // Đối với chuyển khoản, ép buộc số tiền đưa = tiền phải trả
+        document.getElementById('tienKhachDua').value = phaiTra;
     }
+
+    // 2. GẮN DỮ LIỆU GIỎ HÀNG VÀO FORM
     const h = document.getElementById('hidden-cart-inputs');
     h.innerHTML = '';
     cart.forEach(function(item, idx) {
@@ -424,34 +427,109 @@ function validateCheckout(event) {
         item.toppings.forEach(function(tp) { inputs += `<input type='hidden' name='toppings_${idx}[]' value='${tp.id}|${tp.qty}|${tp.price}|${escapeHTML(tp.name)}'>`; });
         h.insertAdjacentHTML('beforeend', inputs);
     });
-    let ptttName = document.getElementById('select_pttt').options[document.getElementById('select_pttt').selectedIndex].text.toLowerCase();
+
+    // 3. XỬ LÝ THANH TOÁN
     if (ptttName.includes("tiền mặt") || ptttName.includes("cash")) {
+        let khachDua = parseInt(document.getElementById('tienKhachDua').value) || 0;
         showConfirmAction("Xác Nhận Thanh Toán", `Thu đủ ${formatCurrency(khachDua)} tiền mặt?`, () => document.getElementById('checkout-form').submit());
     } else {
+        if (phaiTra <= 0) {
+            document.getElementById('checkout-form').submit();
+            return false;
+        }
+
+        // TẠO QR VÀ HIỂN THỊ MODAL CHUYỂN KHOẢN
         document.getElementById('qrAmount').innerText = formatCurrency(phaiTra);
         let transactionCode = "TEA" + new Date().getFullYear().toString().slice(-2) + String(new Date().getMonth() + 1).padStart(2, '0') + String(new Date().getDate()).padStart(2, '0') + Math.floor(1000 + Math.random() * 9000);
         document.getElementById('qrCodeDisplay').innerText = transactionCode;
         document.getElementById('qrImage').src = `https://img.vietqr.io/image/TPB-0346406405-compact2.png?amount=${phaiTra}&addInfo=${transactionCode}`;
+
+        // RESET GIAO DIỆN
         document.getElementById('qrSuccessOverlay').style.setProperty('display', 'none', 'important');
-        document.getElementById('qrLoadingStatus').style.setProperty('display', 'flex', 'important');
+        let expiredOverlay = document.getElementById('qrExpiredOverlay');
+        if(expiredOverlay) expiredOverlay.style.setProperty('display', 'none', 'important');
+
+        let loadingStatus = document.getElementById('qrLoadingStatus');
+        loadingStatus.style.setProperty('display', 'flex', 'important');
+        loadingStatus.innerHTML = '<div class="spinner-border spinner-border-sm me-2" role="status"></div><span class="text-primary">Hệ thống đang chờ tiền vào...</span>';
+
+        isPaymentActive = true;
+
         if (checkPaymentInterval) clearInterval(checkPaymentInterval);
+        if (countdownInterval) clearInterval(countdownInterval);
+        if (qrTimeout) clearTimeout(qrTimeout);
+
         qrModal.show();
+
+        // ---- XỬ LÝ ĐẾM NGƯỢC HIỂN THỊ (UX) ----
+        let timeLeft = 60;
+        let countdownEl = document.getElementById('qrCountdownText');
+        if(countdownEl) countdownEl.innerText = timeLeft;
+
+        countdownInterval = setInterval(function() {
+            timeLeft--;
+            if (timeLeft >= 0 && countdownEl) {
+                countdownEl.innerText = timeLeft;
+            }
+            if (timeLeft <= 0) {
+                clearInterval(countdownInterval);
+
+                // HẾT 60s: CHỈ CHE MÃ QR ĐI CHO KHÁCH MỚI KHÔNG QUÉT ĐƯỢC
+                // TUYỆT ĐỐI KHÔNG TẮT isPaymentActive VÀ checkPaymentInterval
+                if(expiredOverlay) expiredOverlay.style.setProperty('display', 'flex', 'important');
+                loadingStatus.innerHTML = '<div class="spinner-grow spinner-grow-sm text-warning me-2" role="status"></div><span class="text-warning fw-bold">Mã đã ẩn, nhưng hệ thống vẫn đang chờ nếu khách lỡ chuyển...</span>';
+            }
+        }, 1000);
+
+        // ---- LẮNG NGHE NGẦM TỪ SERVER MỖI 3 GIÂY ----
         checkPaymentInterval = setInterval(function() {
-            fetch(appBasePath + '/api/check-payment?code=' + transactionCode).then(response => response.json()).then(data => {
-                if (data.status === 'success') {
-                    clearInterval(checkPaymentInterval);
-                    document.getElementById('qrLoadingStatus').style.setProperty('display', 'none', 'important');
-                    document.getElementById('qrSuccessOverlay').style.setProperty('display', 'flex', 'important');
-                    setTimeout(() => { qrModal.hide(); document.getElementById('checkout-form').submit(); }, 1500);
-                }
-            });
+            if (!isPaymentActive) {
+                clearInterval(checkPaymentInterval);
+                return;
+            }
+
+            fetch(appBasePath + '/api/check-payment?code=' + transactionCode)
+                .then(response => response.json())
+                .then(data => {
+                    if (!isPaymentActive) return;
+
+                    if (data.status === 'success') {
+                        // TIỀN ĐÃ VÀO TÀI KHOẢN! (Dù sớm hay trễ)
+                        isPaymentActive = false;
+                        clearInterval(checkPaymentInterval);
+                        if (countdownInterval) clearInterval(countdownInterval);
+
+                        // GIẤU MÀN HÌNH HẾT HẠN ĐI (NẾU CÓ) ĐỂ HIỆN THÀNH CÔNG
+                        if(expiredOverlay) expiredOverlay.style.setProperty('display', 'none', 'important');
+
+                        document.getElementById('qrLoadingStatus').style.setProperty('display', 'none', 'important');
+                        document.getElementById('qrSuccessOverlay').style.setProperty('display', 'flex', 'important');
+
+                        // In bill và tắt Modal
+                        setTimeout(() => { qrModal.hide(); document.getElementById('checkout-form').submit(); }, 1500);
+                    }
+                }).catch(e => console.log("Lỗi mạng khi check QR:", e));
         }, 3000);
     }
     return false;
 }
 
-function cancelQRPayment() { if (checkPaymentInterval) clearInterval(checkPaymentInterval); qrModal.hide(); }
-function forceSubmitCheckout() { if (checkPaymentInterval) clearInterval(checkPaymentInterval); qrModal.hide(); document.getElementById('checkout-form').submit(); }
+function cancelQRPayment() {
+    isPaymentActive = false;
+    if (checkPaymentInterval) clearInterval(checkPaymentInterval);
+    if (countdownInterval) clearInterval(countdownInterval);
+    if (qrTimeout) clearTimeout(qrTimeout);
+    qrModal.hide();
+}
+
+function forceSubmitCheckout() {
+    isPaymentActive = false;
+    if (checkPaymentInterval) clearInterval(checkPaymentInterval);
+    if (countdownInterval) clearInterval(countdownInterval);
+    if (qrTimeout) clearTimeout(qrTimeout);
+    qrModal.hide();
+    document.getElementById('checkout-form').submit();
+}
 
 function checkCustomerPhone() {
     let phone = document.getElementById('sdtKhachHang').value;

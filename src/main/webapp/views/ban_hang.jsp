@@ -297,6 +297,18 @@
                         <i class='bi bi-check-circle-fill text-success' style='font-size: 4rem;'></i>
                         <h5 class='text-success mt-2 fw-bold'>Đã Nhận Tiền!</h5>
                     </div>
+
+                    <!-- BỔ SUNG OVERLAY HẾT HẠN CHE MÃ QR KHI VỀ 0 -->
+                    <div id="qrExpiredOverlay" class="position-absolute top-0 start-0 w-100 h-100 bg-white bg-opacity-85 d-flex flex-column justify-content-center align-items-center rounded-4" style="display: none !important; z-index: 10; backdrop-filter: blur(4px);">
+                        <i class='bi bi-x-circle-fill text-danger' style='font-size: 4rem;'></i>
+                        <h5 class='text-danger mt-2 fw-bold'>Mã Đã Hết Hạn</h5>
+                    </div>
+                    <!-- ----------------------------------------- -->
+                </div>
+
+                <!-- BỔ SUNG DÒNG CẢNH BÁO ĐẾM NGƯỢC THỜI GIAN -->
+                <div class="text-danger fw-bold small mb-3 text-uppercase animate__animated animate__pulse animate__infinite">
+                    <i class="bi bi-clock-history"></i> Mã QR chỉ có hiệu lực thanh toán trong <span id="qrCountdownText" class="fs-5">60</span> giây
                 </div>
 
                 <div id="qrLoadingStatus" class="text-primary fw-bold small mb-2 d-flex align-items-center justify-content-center">

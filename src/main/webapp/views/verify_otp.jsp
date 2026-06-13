@@ -26,25 +26,84 @@
                         <div class="alert alert-danger shadow-sm"><i class="bi bi-exclamation-triangle-fill"></i> ${requestScope.error}</div>
                     </c:if>
 
-                    <form action="${pageContext.request.contextPath}/auth" method="post">
-                        <!-- Action để kiểm tra OTP -->
-                        <input type="hidden" name="action" value="verify-otp">
+                    <!-- Khối hiển thị đồng hồ đếm ngược -->
+                    <div class="text-center mb-3">
+                        <span id="countdownText" class="fw-bold text-danger fs-5">Thời gian còn lại: 05:00</span>
+                    </div>
 
+                    <!-- Form 1: Xác nhận OTP hiện tại -->
+                    <form action="${pageContext.request.contextPath}/auth" method="post" id="verifyForm">
+                        <input type="hidden" name="action" value="verify-otp">
                         <div class="mb-4">
                             <label class="form-label fw-bold">Nhập Mã OTP</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-123"></i></span>
-                                <input type="text" class="form-control text-center fw-bold fs-4 tracking-widest" name="otpInput" placeholder=" _ _ _ _ _ _ " required pattern="\d{6}" maxlength="6">
+                                <input type="text" class="form-control text-center fw-bold fs-4 tracking-widest" name="otpInput" id="otpInput" placeholder=" _ _ _ _ _ _ " required pattern="\d{6}" maxlength="6">
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100 fw-bold py-2">
+                        <button type="submit" id="btnVerify" class="btn btn-primary w-100 fw-bold py-2">
                             Xác Nhận & Tiếp Tục <i class="bi bi-arrow-right-circle"></i>
                         </button>
                     </form>
+
+                    <!-- Form 2: Yêu cầu gửi lại OTP (Ẩn mặc định, chỉ hiện khi hết giờ) -->
+                    <form action="${pageContext.request.contextPath}/auth" method="post" id="resendForm" style="display: none;" class="mt-3">
+                        <input type="hidden" name="action" value="send-otp">
+                        <!-- Gửi kèm email cũ đang lưu trong session -->
+                        <input type="hidden" name="email" value="${sessionScope.reset_email}">
+                        <button type="submit" class="btn btn-outline-danger w-100 fw-bold py-2 shadow-sm">
+                            <i class="bi bi-arrow-clockwise"></i> Mã hết hạn! Bấm để gửi lại OTP
+                        </button>
+                    </form>
+
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    // Lấy mốc thời gian hết hạn từ máy chủ (Java Session)
+    const expiryTimeStr = "${not empty sessionScope.otp_expiry ? sessionScope.otp_expiry : 0}";
+    const expiryTime = parseInt(expiryTimeStr) || 0;
+
+    const timerDisplay = document.getElementById('countdownText');
+    const btnVerify = document.getElementById('btnVerify');
+    const inputOtp = document.getElementById('otpInput');
+    const resendForm = document.getElementById('resendForm');
+
+    if (expiryTime > 0) {
+        const countdownInterval = setInterval(function() {
+            const now = new Date().getTime();
+            const distance = expiryTime - now; // Tính khoảng cách thời gian (mili-giây)
+
+            if (distance <= 0) {
+                // KHI HẾT GIỜ
+                clearInterval(countdownInterval);
+                timerDisplay.innerHTML = "MÃ OTP ĐÃ HẾT HẠN!";
+                timerDisplay.classList.replace('text-danger', 'text-muted');
+
+                // Khóa ô nhập liệu và nút bấm cũ
+                inputOtp.disabled = true;
+                btnVerify.disabled = true;
+                btnVerify.classList.replace('btn-primary', 'btn-secondary');
+
+                // Hiển thị nút Gửi lại OTP
+                resendForm.style.display = 'block';
+            } else {
+                // ĐANG CÒN GIỜ -> Chuyển đổi mili-giây sang Phút và Giây
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                // Thêm số 0 đằng trước nếu nhỏ hơn 10 (VD: 04:09)
+                timerDisplay.innerHTML = "Thời gian còn lại: " +
+                    (minutes < 10 ? "0" : "") + minutes + ":" +
+                    (seconds < 10 ? "0" : "") + seconds;
+            }
+        }, 1000); // Cập nhật mỗi 1 giây
+    } else {
+        timerDisplay.innerHTML = "Không tìm thấy thời gian hiệu lực!";
+    }
+</script>
 </body>
 </html>
