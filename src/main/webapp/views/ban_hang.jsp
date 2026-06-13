@@ -98,7 +98,8 @@
                 <button type="button" class="btn-close shadow-none" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
 
-            <div class="offcanvas-body p-0 p-lg-2 overflow-hidden d-flex flex-column" style="height: 100%;">
+            <!-- GHI CHÚ: Đã XÓA thẻ style="height: 100%;" tại đây -->
+            <div class="offcanvas-body p-0 p-lg-2 overflow-hidden d-flex flex-column">
                 <div class="card shadow-lg border-0 cart-wrapper w-100 rounded-0 rounded-lg-4">
                     <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center flex-shrink-0">
                         <h5 class="mb-0 fw-bold text-dark d-none d-lg-block"><i class="bi bi-cart3 me-2" style="color: var(--brand-primary);"></i> ĐƠN HÀNG</h5>

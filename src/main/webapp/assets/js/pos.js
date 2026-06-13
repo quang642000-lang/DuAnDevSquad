@@ -6,7 +6,7 @@ let customerPoints = 0;
 let isUsingPoints = false;
 let customPointsToUse = 0;
 
-/* Các biến quản lý Thanh toán QR (Đã khai báo đầy đủ tránh lỗi kẹt) */
+/* Các biến quản lý Thanh toán QR */
 let checkPaymentInterval = null;
 let countdownInterval = null;
 let qrTimeout = null;
@@ -195,6 +195,7 @@ function confirmAddToCart() {
         }
     });
 
+    // Tạo ID giỏ hàng dựa trên các tùy chọn (để gộp chung món)
     let cartId = maBT + "_" + da + "_" + duong;
     if (toppings.length > 0) cartId += "_" + toppings.map(function(t) { return t.id + "-" + t.qty; }).join('_');
 
@@ -232,6 +233,9 @@ function confirmAddToCart() {
     renderCart();
 }
 
+// -------------------------------------------------------------
+// RENDER GIỎ HÀNG VÀ TÍNH TOÁN TIỀN
+// -------------------------------------------------------------
 function renderCart() {
     sessionStorage.setItem('tea_pos_cart', JSON.stringify(cart));
     const container = document.getElementById('cart-items-container');
@@ -257,23 +261,61 @@ function renderCart() {
         if (badgeObjEmpty) badgeObjEmpty.innerText = "0";
         return;
     }
+
     document.getElementById('btn-checkout').disabled = false;
     let tongTienHang = 0, tienGiamGia = 0, tienGiamDiem = 0, diemThucTeSuDung = 0;
-    cart.forEach(function(item) {
+
+    // Thêm tham số 'index' vào vòng lặp để lấy Số Thứ Tự
+    cart.forEach(function(item, index) {
         tongTienHang += item.giaChot * item.soLuong;
         let tpStr = "";
         if (item.toppings) {
             tpStr = item.toppings.map(t => `<span class='badge bg-warning bg-opacity-10 text-dark border border-warning border-opacity-50 me-1 mb-1'>+${escapeHTML(t.name)} (x${t.qty})</span>`).join('');
         }
-        let itemHtml = `<div class='p-3 border-bottom bg-white'><div class='d-flex justify-content-between align-items-start'><div class='flex-grow-1 pe-2'><h6 class='mb-1 fw-bold text-dark'>${escapeHTML(item.ten)}</h6><div class='small text-muted mb-2 fw-medium'>Đá: ${escapeHTML(item.da)} &bull; Đường: ${escapeHTML(item.duong)}</div><div class='d-flex flex-wrap'>${tpStr}</div></div><div class='text-end'><h6 class='mb-1 fw-bold text-danger'>${formatCurrency(item.giaChot * item.soLuong)}</h6><small class='text-muted'>${formatCurrency(item.giaChot)}/ly</small></div></div><div class='d-flex justify-content-between align-items-center mt-3'><div><a href='javascript:void(0)' class='text-primary small text-decoration-none me-3 fw-bold' onclick="editCartItem('${item.cartId}')"><i class='bi bi-pencil-square'></i> Sửa</a><a href='javascript:void(0)' class='text-danger small text-decoration-none fw-bold' onclick="updateQty('${item.cartId}', -999)"><i class='bi bi-trash'></i> Xóa</a></div><div class='btn-group btn-group-sm shadow-sm'><button type='button' class='btn btn-light border fw-bold px-3' onclick="updateQty('${item.cartId}', -1)"><i class='bi bi-dash-lg'></i></button><span class='btn btn-white border fw-bold px-3 text-primary' style='pointer-events: none; background: #fff;'>${item.soLuong}</span><button type='button' class='btn btn-light border fw-bold px-3' onclick="updateQty('${item.cartId}', 1)"><i class='bi bi-plus-lg'></i></button></div></div></div>`;
+
+        // Bổ sung Khối hiển thị STT (Hình tròn nổi bật)
+        let sttHtml = `<span class="badge rounded-circle d-flex align-items-center justify-content-center me-2 shadow-sm text-white" style="width: 26px; height: 26px; font-size: 0.85rem; flex-shrink: 0; background-color: var(--brand); margin-top: 2px;">${index + 1}</span>`;
+
+        // Render lại cấu trúc HTML của từng món ăn có chứa STT
+        let itemHtml = `
+        <div class='p-3 border-bottom bg-white'>
+            <div class='d-flex justify-content-between align-items-start'>
+                <div class='d-flex align-items-start flex-grow-1 pe-2'>
+                    ${sttHtml}
+                    <div>
+                        <h6 class='mb-1 fw-bold text-dark'>${escapeHTML(item.ten)}</h6>
+                        <div class='small text-muted mb-2 fw-medium'>Đá: ${escapeHTML(item.da)} &bull; Đường: ${escapeHTML(item.duong)}</div>
+                        <div class='d-flex flex-wrap'>${tpStr}</div>
+                    </div>
+                </div>
+                <div class='text-end'>
+                    <h6 class='mb-1 fw-bold text-danger'>${formatCurrency(item.giaChot * item.soLuong)}</h6>
+                    <small class='text-muted'>${formatCurrency(item.giaChot)}/ly</small>
+                </div>
+            </div>
+            <div class='d-flex justify-content-between align-items-center mt-3'>
+                <div>
+                    <a href='javascript:void(0)' class='text-primary small text-decoration-none me-3 fw-bold' onclick="editCartItem('${item.cartId}')"><i class='bi bi-pencil-square'></i> Sửa</a>
+                    <a href='javascript:void(0)' class='text-danger small text-decoration-none fw-bold' onclick="updateQty('${item.cartId}', -999)"><i class='bi bi-trash'></i> Xóa</a>
+                </div>
+                <div class='btn-group btn-group-sm shadow-sm'>
+                    <button type='button' class='btn btn-light border fw-bold px-3' onclick="updateQty('${item.cartId}', -1)"><i class='bi bi-dash-lg'></i></button>
+                    <span class='btn btn-white border fw-bold px-3 text-primary' style='pointer-events: none; background: #fff;'>${item.soLuong}</span>
+                    <button type='button' class='btn btn-light border fw-bold px-3' onclick="updateQty('${item.cartId}', 1)"><i class='bi bi-plus-lg'></i></button>
+                </div>
+            </div>
+        </div>`;
+
         container.insertAdjacentHTML('beforeend', itemHtml);
     });
+
     if (currentVoucher) {
         tienGiamGia = currentVoucher.loai === 'Phần Trăm' ? (tongTienHang * currentVoucher.giaTri) / 100 : currentVoucher.giaTri;
         if(tienGiamGia > tongTienHang) tienGiamGia = tongTienHang;
         document.getElementById('input_maKM').value = currentVoucher.id;
     }
     let tienSauVoucher = tongTienHang - tienGiamGia;
+
     if (isUsingPoints && customerPoints > 0) {
         let maxPointsCanUse = Math.floor(tienSauVoucher / 1000);
         diemThucTeSuDung = (customPointsToUse > maxPointsCanUse) ? maxPointsCanUse : customPointsToUse;
@@ -283,14 +325,18 @@ function renderCart() {
     } else {
         document.getElementById('row_giamDiem').style.setProperty('display', 'none', 'important');
     }
+
     let tongPhaiTra = tienSauVoucher - tienGiamDiem;
+
     document.getElementById('display_tongTienHang').innerText = formatCurrency(tongTienHang);
     document.getElementById('display_tienGiamGia').innerText = "- " + formatCurrency(tienGiamGia);
     document.getElementById('display_tongPhaiTra').innerText = formatCurrency(tongPhaiTra);
+
     document.getElementById('input_tongTienHang').value = tongTienHang;
     document.getElementById('input_tienGiamGia').value = tienGiamGia;
     document.getElementById('input_diemSuDung').value = diemThucTeSuDung;
     document.getElementById('input_tongPhaiTra').value = tongPhaiTra;
+
     handlePaymentMethodChange();
 
     let totalItems = cart.reduce((sum, item) => sum + item.soLuong, 0);
@@ -369,6 +415,9 @@ function checkVoucherValid() {
     }
 }
 
+// -------------------------------------------------------------
+// XỬ LÝ THANH TOÁN
+// -------------------------------------------------------------
 function handlePaymentMethodChange() {
     let ptttSelect = document.getElementById('select_pttt');
     let ptttName = ptttSelect.options[ptttSelect.selectedIndex].text.toLowerCase();
@@ -531,6 +580,9 @@ function forceSubmitCheckout() {
     document.getElementById('checkout-form').submit();
 }
 
+// -------------------------------------------------------------
+// KHÁCH HÀNG & ĐIỂM TÍCH LŨY
+// -------------------------------------------------------------
 function checkCustomerPhone() {
     let phone = document.getElementById('sdtKhachHang').value;
     document.getElementById('toggleDiem').checked = false; isUsingPoints = false; customerPoints = 0; customPointsToUse = 0;
@@ -586,4 +638,8 @@ function calculateCustomPoints() {
     renderCart();
 }
 
-function useMaxPoints() { document.getElementById('input_nhapDiemTay').value = getMaxAllowedPoints(); customPointsToUse = getMaxAllowedPoints(); renderCart(); }
+function useMaxPoints() {
+    document.getElementById('input_nhapDiemTay').value = getMaxAllowedPoints();
+    customPointsToUse = getMaxAllowedPoints();
+    renderCart();
+}

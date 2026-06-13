@@ -62,6 +62,7 @@ body {
 .cart-area {
     height: 100%; /* Ép cột bên phải cao đúng 100% không gian cho phép */
 }
+
 .cart-wrapper {
     height: 100%; /* Giỏ hàng chiếm toàn bộ chiều cao có sẵn */
     display: flex;
@@ -72,7 +73,7 @@ body {
 .cart-items {
     flex: 1 1 auto;
     overflow-y: auto;
-    min-height: 0; /* Điểm mấu chốt để ép thanh cuộn sinh ra cho giỏ hàng */
+    min-height: 200px; /* Đảm bảo cả trên POS danh sách món cũng không bị ép quá nhỏ */
     background-color: #fff;
     padding: 0.5rem;
 }
@@ -103,11 +104,44 @@ body {
 /* ================= ĐIỀU CHỈNH RESPONSIVE ================= */
 @media (min-width: 992px) {
     .product-grid-wrapper { padding-bottom: 20px; } /* Desktop màn rộng nên không cần chừa nhiều khoảng trống đáy */
+    .cart-area .offcanvas-body { height: 100%; } /* Cố định chiều cao cho Desktop */
 }
 
 @media (max-width: 991.98px) {
-    /* Ép Giỏ hàng dạng trượt chiếm full màn hình dọc/ngang */
     #mobileCartOffcanvas { width: 100vw !important; }
-    .cart-wrapper { height: 100% !important; position: static; margin-top: 0; border: none; border-radius: 0; }
-    .cart-items { max-height: none !important; flex: 1; overflow-y: auto; }
+
+    /* 1. CHO PHÉP TOÀN BỘ GIỎ HÀNG LƯỚT LÊN XUỐNG ĐỂ THẤY NÚT THANH TOÁN */
+    .cart-area .offcanvas-body {
+        height: auto !important;
+        overflow-y: auto !important;
+        display: block !important;
+        padding-bottom: 30px !important;
+    }
+
+    .cart-wrapper {
+        height: auto !important;
+        display: block !important;
+        position: static;
+        margin-top: 0;
+        border: none;
+        border-radius: 0;
+        overflow: visible !important;
+    }
+
+    /* 2. ĐÓNG KHUNG DANH SÁCH MÓN ĂN - CHỈ ĐỊNH KÍCH CỠ CỐ ĐỊNH */
+    .cart-items {
+        flex: none !important; /* Hủy flex để lấy kích cỡ cứng */
+        height: 40vh !important; /* Cao bằng 40% màn hình điện thoại */
+        min-height: 250px !important; /* Nhưng không bao giờ bị nhỏ hơn 250px */
+        max-height: 400px !important; /* Và không lớn quá 400px */
+        overflow-y: auto !important; /* Vẫn cho phép lướt các món ăn BÊN TRONG KHUNG này */
+        border: 1px solid #E2E8F0; /* Thêm viền nhẹ để tạo cảm giác là một cái khung */
+        border-radius: 8px; /* Bo góc cái khung */
+        margin-bottom: 15px; /* Cách ra một chút so với phần tính tiền bên dưới */
+    }
+
+    .cart-wrapper .card-footer {
+        padding-bottom: env(safe-area-inset-bottom, 1rem) !important;
+        border-top: none !important;
+    }
 }
