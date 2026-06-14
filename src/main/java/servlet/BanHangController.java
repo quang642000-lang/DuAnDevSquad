@@ -89,6 +89,13 @@ public class BanHangController extends HttpServlet {
             String sdt = request.getParameter("sdt");
             String email = request.getParameter("email");
 
+            // ĐÃ BỔ SUNG: Kiểm tra null hoặc chuỗi rỗng trước khi băm để tránh NullPointerException
+            if (oldPass == null || oldPass.trim().isEmpty()) {
+                request.getSession().setAttribute("message", "Lỗi: Vui lòng nhập mật khẩu hiện tại để xác nhận thay đổi!");
+                response.sendRedirect(request.getContextPath() + "/ban-hang");
+                return;
+            }
+
             String hashedOldPass = SecurityUtil.hashPassword(oldPass);
 
             if (hashedOldPass.equals(nvSession.getMatKhau())) {
@@ -96,14 +103,17 @@ public class BanHangController extends HttpServlet {
                 nvSession.setSDT(sdt);
                 nvSession.setEmail(email);
 
+                // 1. Cập nhật các thông tin cơ bản trước (Họ tên, SĐT, Email)
                 boolean isUpdated = nhanVienService.update(nvSession).contains("thành công");
 
                 if(isUpdated) {
+                    // 2. Nếu nhân viên có nhập mật khẩu mới, băm mật khẩu và gọi hàm đổi riêng biệt
                     if (newPass != null && !newPass.trim().isEmpty()) {
                         String hashedNewPass = SecurityUtil.hashPassword(newPass);
                         nhanVienService.resetPassword(nvSession.getMaNV(), hashedNewPass);
-                        nvSession.setMatKhau(hashedNewPass);
+                        nvSession.setMatKhau(hashedNewPass); // Cập nhật lại session
                     }
+
                     request.getSession().setAttribute("nhanVienDangNhap", nvSession);
                     request.getSession().setAttribute("message", "Cập nhật thông tin cá nhân thành công!");
                 } else {
@@ -125,6 +135,7 @@ public class BanHangController extends HttpServlet {
                 String sdtKhach = request.getParameter("sdtKhachHang");
                 String tenKhach = request.getParameter("tenKhachHang");
 
+                // Chống NumberFormatException gây sập trang khi parse dữ liệu rỗng
                 int diemSuDung = 0;
                 int tongTienHang = 0;
                 int soTienKhachDua = 0;
@@ -165,7 +176,7 @@ public class BanHangController extends HttpServlet {
                     dh.setKhuyenMai(km);
                 }
 
-                // Gọi hàm phụ trợ đã được tách để gom code gọn gàng
+                // Gọi hàm phụ trợ đã được tách
                 buildCartItems(request, dh);
 
                 String tb = donHangService.taoDonHangThanhToan(dh, sdtKhach, tenKhach, diemSuDung);
@@ -183,7 +194,7 @@ public class BanHangController extends HttpServlet {
         response.sendRedirect(request.getContextPath() + "/ban-hang");
     }
 
-    // --- HÀM PHỤ TRỢ XỬ LÝ CHI TIẾT GIỎ HÀNG ---
+    // Hàm phụ trợ xử lý giỏ hàng
     private void buildCartItems(HttpServletRequest request, DonHang dh) {
         String[] indexArr = request.getParameterValues("itemIndex[]");
         if (indexArr != null) {

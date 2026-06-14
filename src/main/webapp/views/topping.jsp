@@ -17,16 +17,17 @@
 </head>
 <body>
 <%@ include file="layout/toast.jsp" %>
-
-<div class="container-fluid mt-4 px-4 mb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="text-dark fw-bold m-0"><i class="bi bi-plus-square-fill text-brand me-2"></i>Quản Lý Topping</h3>
-        <a href="${pageContext.request.contextPath}/admin" class="btn btn-light border shadow-sm fw-bold">
-            <i class="bi bi-arrow-left me-1"></i> Dashboard
-        </a>
-    </div>
-
-    <div class="row">
+<div class="wrapper">
+    <%@ include file="layout/sidebar.jsp" %>
+    <div class="main-content">
+        <header class="top-navbar bg-white shadow-sm mb-4 px-4 py-3 d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <button class="btn btn-light me-3 border-0 shadow-sm d-lg-none" onclick="toggleSidebar()"><i class="bi bi-list fs-5"></i></button>
+                <h4 class="text-dark fw-bold m-0"><i class="bi bi-plus-square-fill text-brand me-2"></i>Quản Lý Topping</h4>
+            </div>
+            <div class="d-flex align-items-center"><span class="fw-bold text-dark d-none d-md-block me-3">${sessionScope.nhanVienDangNhap.hoTen}</span></div>
+        </header>
+        <div class="container-fluid px-4 mb-5">
         <div class="col-12 mb-4">
             <!-- TÌM KIẾM BACKEND -->
             <div class="card mb-3 border-0 shadow-sm">
@@ -134,7 +135,10 @@
         </div>
     </div>
 </div>
+</div> <!-- Đóng container-fluid -->
 
+<%@ include file="layout/confirm_modal.jsp" %>
+<!-- CÁC MODAL BÊN DƯỚI GIỮ NGUYÊN... -->
 <%@ include file="layout/confirm_modal.jsp" %>
 
 <!-- MODAL THÊM MỚI -->

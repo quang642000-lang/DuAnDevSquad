@@ -12,19 +12,22 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/global.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
 </head>
 <body>
 <%@ include file="layout/toast.jsp" %>
-
-<div class="container-fluid mt-4 px-4 mb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="text-dark fw-bold m-0"><i class="bi bi-tags-fill text-brand me-2"></i>Quản Lý Biến Thể & Kích Cỡ</h3>
-        <a href="${pageContext.request.contextPath}/admin" class="btn btn-light border shadow-sm fw-bold">
-            <i class="bi bi-arrow-left me-1"></i> Dashboard
-        </a>
-    </div>
-
-    <div class="row">
+<div class="wrapper">
+    <%@ include file="layout/sidebar.jsp" %>
+    <div class="main-content">
+        <header class="top-navbar bg-white shadow-sm mb-4 px-4 py-3 d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <button class="btn btn-light me-3 border-0 shadow-sm d-lg-none" onclick="toggleSidebar()"><i class="bi bi-list fs-5"></i></button>
+                <h4 class="text-dark fw-bold m-0"><i class="bi bi-tags-fill text-brand me-2"></i>Quản Lý Biến Thể & Kích Cỡ</h4>
+            </div>
+            <div class="d-flex align-items-center"><span class="fw-bold text-dark d-none d-md-block me-3">${sessionScope.nhanVienDangNhap.hoTen}</span></div>
+        </header>
+        <div class="container-fluid px-4 mb-5">
         <!-- BẢNG DANH SÁCH CHIẾM 100% -->
         <div class="col-12 mb-4">
 
@@ -76,7 +79,7 @@
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover table-custom mb-0 text-center align-middle">
+                        <table class="table table-hover table-custom mb-0 text-center align-middle dt-responsive nowrap" style="width:100%" id="bienTheTable">
                             <thead>
                             <tr>
                                 <th width="5%">STT</th>
@@ -93,7 +96,7 @@
                                 <c:when test="${not empty requestScope.danhSach}">
                                     <c:forEach var="bt" items="${requestScope.danhSach}" varStatus="status">
                                         <tr>
-                                            <td class="fw-semibold text-muted">${(currentPage - 1) * 5 + status.index + 1}</td>
+                                            <td class="fw-semibold text-muted">${(empty currentPage ? 0 : currentPage - 1) * 5 + status.index + 1}</td>
                                             <td class="fw-semibold text-muted">${bt.maBienThe}</td>
                                             <td class="text-start fw-bold text-dark">${bt.sanPham.tenSanPham}</td>
                                             <td><span class="badge bg-light text-dark border px-3">${bt.kichCo}</span></td>
@@ -143,7 +146,11 @@
         </div>
     </div>
 </div>
+</div> <!-- Đóng container-fluid -->
 
+
+<%@ include file="layout/confirm_modal.jsp" %>
+<!-- CÁC MODAL BÊN DƯỚI GIỮ NGUYÊN... -->
 <%@ include file="layout/confirm_modal.jsp" %>
 
 <!-- MODAL THÊM MỚI -->
@@ -241,6 +248,22 @@
         document.getElementById('edit_giaBan').value = giaBan;
         document.getElementById('btn-delete-modal').href = '${pageContext.request.contextPath}/bien-the?action=delete&id=' + maBT;
     }
+</script>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+<script>
+    $('#bienTheTable').DataTable({
+        "responsive": true,
+        "paging": false,
+        "searching": false,
+        "info": false,
+        "order": [],
+        "columnDefs": [ { "orderable": false, "targets": [2] } ], /* Cấm sắp xếp cột Thao tác (6) */
+        "language": { "emptyTable": "Chưa có dữ liệu." }
+    });
 </script>
 </body>
 </html>

@@ -13,19 +13,22 @@
 
     <!-- ÁP DỤNG CLEAN ARCHITECTURE -->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/global.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
 </head>
 <body>
-<!-- NHÚNG COMPONENT THÔNG BÁO -->
 <%@ include file="layout/toast.jsp" %>
-
-<div class="container-fluid mt-4 px-4 mb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="text-dark fw-bold m-0"><i class="bi bi-person-vcard-fill text-brand me-2"></i>CRM Thành Viên</h3>
-        <a href="${pageContext.request.contextPath}/admin" class="btn btn-light border shadow-sm fw-bold">
-            <i class="bi bi-arrow-left me-1"></i> Dashboard
-        </a>
-    </div>
-    <div class="row">
+<div class="wrapper">
+    <%@ include file="layout/sidebar.jsp" %>
+    <div class="main-content">
+        <header class="top-navbar bg-white shadow-sm mb-4 px-4 py-3 d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <button class="btn btn-light me-3 border-0 shadow-sm d-lg-none" onclick="toggleSidebar()"><i class="bi bi-list fs-5"></i></button>
+                <h4 class="text-dark fw-bold m-0"><i class="bi bi-person-vcard-fill text-brand me-2"></i>CRM Thành Viên</h4>
+            </div>
+            <div class="d-flex align-items-center"><span class="fw-bold text-dark d-none d-md-block me-3">${sessionScope.nhanVienDangNhap.hoTen}</span></div>
+        </header>
+        <div class="container-fluid px-4 mb-5">
 
         <!-- DANH SÁCH KHÁCH HÀNG -->
         <div class="col-12 mb-4">
@@ -57,7 +60,7 @@
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover table-custom mb-0 text-center">
+                        <table class="table table-hover table-custom mb-0 text-center align-middle dt-responsive nowrap" style="width:100%" id="khachHangTable">
                             <thead>
                             <tr>
                                 <th width="5%">STT</th>
@@ -73,7 +76,7 @@
                                 <c:when test="${not empty requestScope.danhSach}">
                                     <c:forEach var="kh" items="${requestScope.danhSach}" varStatus="status">
                                         <tr>
-                                            <td class="fw-semibold text-muted">${(currentPage - 1) * 5 + status.index + 1}</td>
+                                            <td class="fw-semibold text-muted">${(empty currentPage ? 0 : currentPage - 1) * 5 + status.index + 1}</td>
                                             <td class="fw-semibold text-muted">${kh.maKH}</td>
                                             <td class="text-start fw-bold text-dark">${kh.tenKH}</td>
                                             <td class="fw-medium">${kh.SDT}</td>
@@ -103,7 +106,11 @@
         </div>
     </div>
 </div>
+</div> <!-- Đóng container-fluid -->
 
+
+<%@ include file="layout/confirm_modal.jsp" %>
+<!-- CÁC MODAL BÊN DƯỚI GIỮ NGUYÊN... -->
 <!-- NHÚNG COMPONENT CONFIRM MODAL CHUNG -->
 <%@ include file="layout/confirm_modal.jsp" %>
 
@@ -183,6 +190,22 @@
         document.getElementById("edit_tenKH").value = tenKH;
         document.getElementById("edit_sdt").value = sdt;
     }
+</script>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+<script>
+    $('#khachHangTable').DataTable({
+        "responsive": true,
+        "paging": false,
+        "searching": false,
+        "info": false,
+        "order": [],
+        "columnDefs": [ { "orderable": false, "targets": [3] } ], /* Cấm sắp xếp cột Thao tác (5) */
+        "language": { "emptyTable": "Chưa có dữ liệu." }
+    });
 </script>
 </body>
 </html>
