@@ -7,9 +7,16 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.Arrays;
 
 @WebFilter("/*")
 public class AuthFilter implements Filter {
+
+    // Khai báo mảng chứa các đường dẫn bảo mật
+    private static final String[] ADMIN_ROUTES = {
+            "/nhan-vien", "/admin", "/san-pham", "/danh-muc",
+            "/bien-the", "/khach-hang", "/topping", "/khuyen-mai", "/phuong-thuc"
+    };
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -32,19 +39,12 @@ public class AuthFilter implements Filter {
             return;
         }
 
-        // 3. ĐÃ SỬA: Phân quyền chặt chẽ (Bổ sung các route còn thiếu để chống thu ngân vượt rào)
+        // 3. Phân quyền chặt chẽ bằng Stream
         NhanVien nv = (NhanVien) session.getAttribute("nhanVienDangNhap");
         int role = nv.getVaiTro().getMaVaiTro();
 
-        boolean isManagementPage = path.startsWith("/nhan-vien") ||
-                path.startsWith("/admin") ||
-                path.startsWith("/san-pham") ||
-                path.startsWith("/danh-muc") ||
-                path.startsWith("/bien-the") ||
-                path.startsWith("/khach-hang") ||
-                path.startsWith("/topping") ||
-                path.startsWith("/khuyen-mai") ||
-                path.startsWith("/phuong-thuc");
+        // Dùng Stream kiểm tra gọn gàng xem path hiện tại có nằm trong ADMIN_ROUTES không
+        boolean isManagementPage = Arrays.stream(ADMIN_ROUTES).anyMatch(path::startsWith);
 
         if (role == 2 && isManagementPage) {
             session.setAttribute("message", "Lỗi: Bạn chỉ là Nhân Viên, không có quyền truy cập trang này!");

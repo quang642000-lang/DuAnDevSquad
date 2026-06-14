@@ -50,24 +50,9 @@
                         </button>
                     </div>
                     <c:if test="${totalPages > 1}">
-                        <div class="d-flex justify-content-center mt-4 mb-3">
-                            <nav>
-                                <ul class="pagination pagination-sm shadow-sm">
-                                    <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
-                                        <a class="page-link text-brand fw-bold" href="${pageContext.request.contextPath}/khach-hang?action=list&page=${currentPage - 1}">Trước</a>
-                                    </li>
-                                    <c:forEach begin="1" end="${totalPages}" var="i">
-                                        <li class="page-item ${currentPage == i ? 'active' : ''}">
-                                            <a class="page-link ${currentPage == i ? 'bg-brand border-brand text-white' : 'text-dark'}"
-                                               href="${pageContext.request.contextPath}/khach-hang?action=list&page=${i}">${i}</a>
-                                        </li>
-                                    </c:forEach>
-                                    <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
-                                        <a class="page-link text-brand fw-bold" href="${pageContext.request.contextPath}/khach-hang?action=list&page=${currentPage + 1}">Sau</a>
-                                    </li>
-                                </ul>
-                            </nav>
-                        </div>
+                        <jsp:include page="layout/pagination.jsp">
+                            <jsp:param name="baseUrl" value="/khach-hang?action=list" />
+                        </jsp:include>
                     </c:if>
                 </div>
                 <div class="card-body p-0">

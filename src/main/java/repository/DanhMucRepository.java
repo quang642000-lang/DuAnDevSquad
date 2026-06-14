@@ -9,7 +9,6 @@ import java.util.List;
 
 public class DanhMucRepository {
 
-    // 1. Lấy danh sách danh mục
     public List<DanhMuc> getAll() {
         List<DanhMuc> list = new ArrayList<>();
         String sql = "SELECT ma_danh_muc, ten_danh_muc FROM DANH_MUC";
@@ -51,6 +50,7 @@ public class DanhMucRepository {
         } catch (Exception e) { e.printStackTrace(); }
         return list;
     }
+
     public int getTotalCount() {
         String sql = "SELECT COUNT(*) FROM DANH_MUC";
         try (Connection con = DBConnect.getConnection();
@@ -62,16 +62,13 @@ public class DanhMucRepository {
         } catch (Exception e) { e.printStackTrace(); }
         return 0;
     }
-    // 3. Thêm danh mục mới
+
     public boolean add(DanhMuc dm) {
         String sql = "INSERT INTO DANH_MUC (ten_danh_muc) VALUES (?)";
-
         try (Connection con = DBConnect.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
-
             ps.setString(1, dm.getTenDanhMuc());
             return ps.executeUpdate() > 0;
-
         } catch (Exception e) {
             System.err.println("LỖI THÊM DANH MỤC: " + e.getMessage());
             e.printStackTrace();
@@ -79,33 +76,25 @@ public class DanhMucRepository {
         return false;
     }
 
-    // 4. Cập nhật tên danh mục
     public boolean update(DanhMuc dm) {
         String sql = "UPDATE DANH_MUC SET ten_danh_muc = ? WHERE ma_danh_muc = ?";
-
         try (Connection con = DBConnect.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
-
             ps.setString(1, dm.getTenDanhMuc());
             ps.setString(2, dm.getMaDanhMuc());
             return ps.executeUpdate() > 0;
-
         } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
     }
 
-    // 5. Xóa danh mục
     public boolean delete(String maDanhMuc) {
         String sql = "DELETE FROM DANH_MUC WHERE ma_danh_muc = ?";
-
         try (Connection con = DBConnect.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
-
             ps.setString(1, maDanhMuc);
             return ps.executeUpdate() > 0;
-
         } catch (Exception e) {
             System.err.println("Lỗi xóa: Danh mục này có thể đang chứa sản phẩm!");
             e.printStackTrace();

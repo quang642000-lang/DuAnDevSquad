@@ -2,7 +2,6 @@ package servlet;
 
 import model.PhuongThucThanhToan;
 import service.PhuongThucThanhToanService;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -22,28 +21,28 @@ public class PhuongThucThanhToanController extends HttpServlet {
 
         switch (action) {
             case "delete":
-                String idDel = request.getParameter("id");
-                request.getSession().setAttribute("message", ptService.delete(idDel));
+                request.getSession().setAttribute("message", ptService.delete(request.getParameter("id")));
                 response.sendRedirect(request.getContextPath() + "/phuong-thuc?action=list");
                 break;
-
             case "toggle-status":
-                String idToggle = request.getParameter("id");
-                int status = Integer.parseInt(request.getParameter("status"));
-                request.getSession().setAttribute("message", ptService.updateTrangThai(idToggle, status));
+                request.getSession().setAttribute("message", ptService.updateTrangThai(request.getParameter("id"), Integer.parseInt(request.getParameter("status"))));
                 response.sendRedirect(request.getContextPath() + "/phuong-thuc?action=list");
                 break;
-
             case "search":
-                String keyword = request.getParameter("keyword");
-                request.setAttribute("danhSach", ptService.search(keyword));
-                request.setAttribute("selectedKeyword", keyword);
+                request.setAttribute("danhSach", ptService.search(request.getParameter("keyword")));
+                request.setAttribute("selectedKeyword", request.getParameter("keyword"));
                 request.getRequestDispatcher("/views/phuong_thuc.jsp").forward(request, response);
                 break;
-
             case "list":
             default:
-                request.setAttribute("danhSach", ptService.getAll());
+                int page = 1;
+                String pageParam = request.getParameter("page");
+                if (pageParam != null && !pageParam.isEmpty()) {
+                    try { page = Integer.parseInt(pageParam); } catch (Exception e) {}
+                }
+                request.setAttribute("danhSach", ptService.getAllByPage(page));
+                request.setAttribute("currentPage", page);
+                request.setAttribute("totalPages", ptService.getTotalPages());
                 request.getRequestDispatcher("/views/phuong_thuc.jsp").forward(request, response);
                 break;
         }
@@ -54,18 +53,15 @@ public class PhuongThucThanhToanController extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action");
 
-        if ("add".equals(action)) {
-            PhuongThucThanhToan pt = new PhuongThucThanhToan();
-            pt.setTenPhuongThuc(request.getParameter("tenPhuongThuc"));
-            request.getSession().setAttribute("message", ptService.add(pt));
+        PhuongThucThanhToan pt = new PhuongThucThanhToan();
+        pt.setTenPhuongThuc(request.getParameter("tenPhuongThuc"));
 
+        if ("add".equals(action)) {
+            request.getSession().setAttribute("message", ptService.add(pt));
         } else if ("update".equals(action)) {
-            PhuongThucThanhToan pt = new PhuongThucThanhToan();
             pt.setMaPTTT(request.getParameter("maPTTT"));
-            pt.setTenPhuongThuc(request.getParameter("tenPhuongThuc"));
             request.getSession().setAttribute("message", ptService.update(pt));
         }
-
         response.sendRedirect(request.getContextPath() + "/phuong-thuc?action=list");
     }
 }

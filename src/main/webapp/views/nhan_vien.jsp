@@ -10,16 +10,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- ÁP DỤNG CLEAN ARCHITECTURE -->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/global.css">
-
-    <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
 </head>
 <body>
-<!-- NHÚNG COMPONENT THÔNG BÁO -->
 <%@ include file="layout/toast.jsp" %>
 
 <div class="container-fluid mt-4 px-4 mb-5">
@@ -29,12 +24,38 @@
             <i class="bi bi-arrow-left me-1"></i> Dashboard
         </a>
     </div>
-    <div class="row">
 
-        <!-- BẢNG DANH SÁCH -->
+    <div class="row">
         <div class="col-12 mb-4">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center py-3">
+
+            <!-- TÌM KIẾM BACKEND -->
+            <div class="card mb-3 border-0 shadow-sm">
+                <div class="card-body p-3">
+                    <form action="${pageContext.request.contextPath}/nhan-vien" method="get">
+                        <input type="hidden" name="action" value="search">
+                        <div class="row g-3 align-items-center">
+                            <div class="col-md-8">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                                    <input type="text" class="form-control border-start-0 ps-0" name="keyword" placeholder="Tìm theo tên, SĐT hoặc email..." value="${param.keyword}">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-dark w-100 fw-bold">Tìm Kiếm</button>
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <c:if test="${not empty param.keyword}">
+                                    <a href="${pageContext.request.contextPath}/nhan-vien?action=list" class="btn btn-outline-danger fw-bold w-100"><i class="bi bi-x-circle"></i> Xóa Lọc</a>
+                                </c:if>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- BẢNG DANH SÁCH -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
                     <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-person-lines-fill text-brand me-2"></i>Danh Sách Nhân Sự</h5>
                     <div>
                         <button type="button" class="btn btn-brand fw-bold shadow-sm me-2 rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#addModal">
@@ -43,9 +64,9 @@
                         <a href="${pageContext.request.contextPath}/nhan-vien?action=list" class="btn btn-light border rounded-circle" style="width: 38px; height: 38px;"><i class="bi bi-arrow-clockwise"></i></a>
                     </div>
                 </div>
-                <div class="card-body p-3">
+                <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover table-custom mb-0 text-center dt-responsive nowrap" style="width:100%" id="nhanVienTable">
+                        <table class="table table-hover table-custom mb-0 text-center align-middle" style="width:100%" id="nhanVienTable">
                             <thead>
                             <tr>
                                 <th class="text-start ps-4">Họ Tên & Liên Hệ</th>
@@ -109,6 +130,13 @@
                             </c:choose>
                             </tbody>
                         </table>
+
+                        <!-- PHÂN TRANG -->
+                        <c:if test="${totalPages > 1}">
+                            <jsp:include page="layout/pagination.jsp">
+                                <jsp:param name="baseUrl" value="/nhan-vien?action=list" />
+                            </jsp:include>
+                        </c:if>
                     </div>
                 </div>
             </div>
@@ -116,7 +144,6 @@
     </div>
 </div>
 
-<!-- NHÚNG COMPONENT CONFIRM MODAL CHUNG -->
 <%@ include file="layout/confirm_modal.jsp" %>
 
 <!-- MODAL THÊM MỚI NHÂN VIÊN -->
@@ -171,13 +198,10 @@
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- NHÚNG GLOBAL JS XỬ LÝ SỰ KIỆN CHUNG -->
 <script src="${pageContext.request.contextPath}/assets/js/global.js"></script>
 
-<!-- Thư viện jQuery và DataTables -->
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
@@ -185,28 +209,21 @@
 
 <script>
     $(document).ready(function() {
-        $('#nhanVienTable').DataTable({
-            "responsive": true,
-            "order": [],
-            "pageLength": 5,
-            "lengthMenu": [[5, 10, 20, -1], [5, 10, 20, "Tất cả"]],
-            "language": {
-                "lengthMenu": "Hiển thị _MENU_ dòng",
-                "zeroRecords": "Không tìm thấy Nhân Viên nào",
-                "info": "Đang hiển thị trang _PAGE_ / _PAGES_",
-                "infoEmpty": "Không có dữ liệu",
-                "search": "Tìm kiếm nhanh:",
-                "paginate": {
-                    "first": "Đầu",
-                    "last": "Cuối",
-                    "next": "Sau",
-                    "previous": "Trước"
+        if ($('#nhanVienTable tbody td').length > 1) {
+            $('#nhanVienTable').DataTable({
+                "responsive": true,
+                "paging": false,
+                "searching": false,
+                "info": false,
+                "order": [],
+                "columnDefs": [
+                    { "orderable": false, "targets": [4] }
+                ],
+                "language": {
+                    "emptyTable": "<div class='text-muted py-5'><i class='bi bi-inbox fs-1 d-block mb-3 opacity-50'></i>Chưa có Nhân Viên nào.</div>"
                 }
-            },
-            "columnDefs": [
-                { "orderable": false, "targets": [4] }
-            ]
-        });
+            });
+        }
     });
 </script>
 

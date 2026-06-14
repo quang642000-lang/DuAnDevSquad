@@ -10,12 +10,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- ÁP DỤNG CLEAN ARCHITECTURE -->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/global.css">
 </head>
 <body>
-<!-- NHÚNG COMPONENT THÔNG BÁO -->
 <%@ include file="layout/toast.jsp" %>
 
 <div class="container-fluid mt-4 px-4 mb-5">
@@ -25,58 +22,23 @@
             <i class="bi bi-arrow-left me-1"></i> Dashboard
         </a>
     </div>
+
     <div class="row">
-        <!-- FORM THÊM MỚI SẢN PHẨM -->
-        <div class="col-lg-3 mb-4">
-            <div class="card">
-                <div class="card-header border-bottom-0 pb-0 pt-4">
-                    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-plus-circle-fill text-brand me-2"></i>Thêm Món Mới</h5>
-                </div>
-                <div class="card-body p-4">
-                    <form action="${pageContext.request.contextPath}/san-pham" method="post" enctype="multipart/form-data" onsubmit="showConfirmForm(event, this, 'Thêm Món', 'Bạn có chắc chắn muốn thêm món này?');">
-                        <input type="hidden" name="action" value="add">
-
-                        <!-- ĐÃ ĐẢO LÊN TRÊN: Danh Mục -->
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold text-muted small text-uppercase">Danh Mục</label>
-                            <select class="form-select bg-light" name="maDanhMuc" required>
-                                <option value="" disabled selected>-- Chọn danh mục --</option>
-                                <c:forEach var="dm" items="${requestScope.danhSachDm}">
-                                    <option value="${dm.maDanhMuc}">${dm.tenDanhMuc}</option>
-                                </c:forEach>
-                            </select>
-                        </div>
-
-                        <!-- ĐÃ ĐẢO XUỐNG DƯỚI: Tên Sản Phẩm -->
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold text-muted small text-uppercase">Tên Món Nước</label>
-                            <input type="text" class="form-control" name="tenSanPham" placeholder="VD: Trà sữa Oolong..." required>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold text-muted small text-uppercase">Tải Hình Ảnh Lên</label>
-                            <input type="file" class="form-control" name="hinhAnhFile" accept="image/*">
-                        </div>
-                        <button type="submit" class="btn btn-brand w-100 py-2"><i class="bi bi-check2 me-1"></i> Lưu Sản Phẩm</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- TÌM KIẾM VÀ DANH SÁCH SẢN PHẨM -->
-        <div class="col-lg-9 mb-4">
-            <div class="card mb-4">
+        <!-- BẢNG DANH SÁCH CHIẾM 100% -->
+        <div class="col-12 mb-4">
+            <!-- TÌM KIẾM BACKEND -->
+            <div class="card mb-3 border-0 shadow-sm">
                 <div class="card-body p-3">
                     <form action="${pageContext.request.contextPath}/san-pham" method="get">
                         <input type="hidden" name="action" value="search">
-                        <div class="row g-3">
-                            <div class="col-md-5">
+                        <div class="row g-3 align-items-center">
+                            <div class="col-md-4">
                                 <div class="input-group">
                                     <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
                                     <input type="text" class="form-control border-start-0 ps-0" name="keyword" placeholder="Tên hoặc mã SP..." value="${requestScope.selectedKeyword}">
                                 </div>
                             </div>
-                            <div class="col-md-5">
+                            <div class="col-md-4">
                                 <div class="input-group">
                                     <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-funnel"></i></span>
                                     <select class="form-select border-start-0 ps-0" name="filterDanhMuc">
@@ -88,26 +50,31 @@
                                 </div>
                             </div>
                             <div class="col-md-2">
-                                <button type="submit" class="btn btn-dark w-100">Tìm</button>
+                                <button type="submit" class="btn btn-dark w-100 fw-bold">Tìm Kiếm</button>
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <c:if test="${not empty requestScope.selectedKeyword or (not empty requestScope.selectedDanhMuc and requestScope.selectedDanhMuc != 'all')}">
+                                    <a href="${pageContext.request.contextPath}/san-pham?action=list" class="btn btn-outline-danger fw-bold w-100"><i class="bi bi-x-circle"></i> Xóa Lọc</a>
+                                </c:if>
                             </div>
                         </div>
                     </form>
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold text-dark">Danh Sách Thực Đơn</h5>
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
+                    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-list-task text-brand me-2"></i>Danh Sách Thực Đơn</h5>
                     <div>
-                        <c:if test="${not empty requestScope.selectedKeyword or (not empty requestScope.selectedDanhMuc and requestScope.selectedDanhMuc != 'all')}">
-                            <a href="${pageContext.request.contextPath}/san-pham?action=list" class="btn btn-sm btn-light text-danger fw-bold me-2"><i class="bi bi-x-circle"></i> Bỏ lọc</a>
-                        </c:if>
-                        <a href="${pageContext.request.contextPath}/san-pham?action=list" class="btn btn-sm btn-light border"><i class="bi bi-arrow-clockwise"></i></a>
+                        <!-- NÚT MỞ MODAL THÊM MỚI -->
+                        <button type="button" class="btn btn-brand fw-bold shadow-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#addModal">
+                            <i class="bi bi-plus-circle me-1"></i> Thêm Món Mới
+                        </button>
                     </div>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover table-custom mb-0 text-center">
+                        <table class="table table-hover table-custom mb-0 text-center align-middle">
                             <thead>
                             <tr>
                                 <th width="5%">STT</th>
@@ -165,33 +132,11 @@
                             </tbody>
                         </table>
 
-                        <!-- KHU VỰC PHÂN TRANG -->
+                        <!-- PHÂN TRANG -->
                         <c:if test="${totalPages > 1}">
-                            <div class="d-flex justify-content-center mt-4">
-                                <nav aria-label="Page navigation">
-                                    <ul class="pagination pagination-sm shadow-sm">
-
-                                        <!-- Nút Previous -->
-                                        <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
-                                            <a class="page-link text-brand fw-bold" href="${pageContext.request.contextPath}/san-pham?action=list&page=${currentPage - 1}">Trước</a>
-                                        </li>
-
-                                        <!-- Hiển thị các số trang -->
-                                        <c:forEach begin="1" end="${totalPages}" var="i">
-                                            <li class="page-item ${currentPage == i ? 'active' : ''}">
-                                                <a class="page-link ${currentPage == i ? 'bg-brand border-brand text-white' : 'text-dark'}"
-                                                   href="${pageContext.request.contextPath}/san-pham?action=list&page=${i}">${i}</a>
-                                            </li>
-                                        </c:forEach>
-
-                                        <!-- Nút Next -->
-                                        <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
-                                            <a class="page-link text-brand fw-bold" href="${pageContext.request.contextPath}/san-pham?action=list&page=${currentPage + 1}">Sau</a>
-                                        </li>
-
-                                    </ul>
-                                </nav>
-                            </div>
+                            <jsp:include page="layout/pagination.jsp">
+                                <jsp:param name="baseUrl" value="/san-pham?action=list" />
+                            </jsp:include>
                         </c:if>
                     </div>
                 </div>
@@ -200,13 +145,50 @@
     </div>
 </div>
 
-<!-- NHÚNG COMPONENT CONFIRM MODAL -->
 <%@ include file="layout/confirm_modal.jsp" %>
+
+<!-- MODAL THÊM MỚI SẢN PHẨM -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0" style="border-radius: 16px;">
+            <div class="modal-header border-0 py-3 bg-light">
+                <h5 class="modal-title fw-bold text-dark"><i class="bi bi-plus-circle-fill text-brand me-2"></i>Thêm Món Mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="${pageContext.request.contextPath}/san-pham" method="post" enctype="multipart/form-data" onsubmit="showConfirmForm(event, this, 'Thêm Món', 'Bạn có chắc chắn muốn thêm món này?');">
+                <div class="modal-body p-4">
+                    <input type="hidden" name="action" value="add">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-muted small text-uppercase">Danh Mục</label>
+                        <select class="form-select bg-light" name="maDanhMuc" required>
+                            <option value="" disabled selected>-- Chọn danh mục --</option>
+                            <c:forEach var="dm" items="${requestScope.danhSachDm}">
+                                <option value="${dm.maDanhMuc}">${dm.tenDanhMuc}</option>
+                            </c:forEach>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-muted small text-uppercase">Tên Món Nước</label>
+                        <input type="text" class="form-control" name="tenSanPham" placeholder="VD: Trà sữa Oolong..." required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold text-muted small text-uppercase">Tải Hình Ảnh Lên</label>
+                        <input type="file" class="form-control" name="hinhAnhFile" accept="image/*">
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0 p-3">
+                    <button type="button" class="btn btn-light fw-bold rounded-pill px-4 border me-2" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-brand fw-bold rounded-pill px-4 shadow-sm"><i class="bi bi-check2 me-1"></i> Lưu Sản Phẩm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <!-- MODAL CẬP NHẬT -->
 <div class="modal fade" id="editSpModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content shadow-lg">
+        <div class="modal-content shadow-lg border-0" style="border-radius: 16px;">
             <div class="modal-header bg-light border-0 py-3">
                 <h5 class="modal-title fw-bold text-dark"><i class="bi bi-pencil-square text-brand me-2"></i>Cập Nhật Món</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -221,8 +203,6 @@
                         <label class="form-label text-muted fw-bold small text-uppercase">Mã Sản Phẩm</label>
                         <input type="text" class="form-control bg-light fw-bold text-muted border-0" id="display_maSP" disabled>
                     </div>
-
-                    <!-- ĐÃ ĐẢO LÊN TRÊN: Danh Mục -->
                     <div class="mb-3">
                         <label class="form-label fw-bold text-dark small text-uppercase">Danh Mục</label>
                         <select class="form-select" name="maDanhMuc" id="edit_maDanhMuc" required>
@@ -231,13 +211,10 @@
                             </c:forEach>
                         </select>
                     </div>
-
-                    <!-- ĐÃ ĐẢO XUỐNG DƯỚI: Tên Sản Phẩm -->
                     <div class="mb-3">
                         <label class="form-label fw-bold text-dark small text-uppercase">Tên Sản Phẩm</label>
                         <input type="text" class="form-control" name="tenSanPham" id="edit_tenSanPham" required>
                     </div>
-
                     <div class="mb-2">
                         <label class="form-label fw-bold text-dark small text-uppercase">Thay Ảnh (Trống để giữ nguyên)</label>
                         <input type="file" class="form-control" name="hinhAnhFile" accept="image/*">
@@ -259,8 +236,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- NHÚNG GLOBAL JS XỬ LÝ SỰ KIỆN CHUNG -->
 <script src="${pageContext.request.contextPath}/assets/js/global.js"></script>
 
 <script>

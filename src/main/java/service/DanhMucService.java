@@ -7,7 +7,7 @@ import java.util.List;
 public class DanhMucService {
 
     private DanhMucRepository danhMucRepo = new DanhMucRepository();
-    private final int LIMIT = 5; // Số dòng trên 1 trang
+    private final int LIMIT = 5;
 
     public List<DanhMuc> getAll() {
         return danhMucRepo.getAll();
@@ -27,8 +27,6 @@ public class DanhMucService {
         if (dm.getTenDanhMuc() == null || dm.getTenDanhMuc().trim().isEmpty()) {
             return "Tên danh mục không được để trống!";
         }
-
-        // Đã xóa gọi hàm tự sinh mã trong java, nhường việc cho SQL Server
         boolean success = danhMucRepo.add(dm);
         return success ? "Thêm danh mục thành công!" : "Thêm thất bại. Vui lòng thử lại!";
     }

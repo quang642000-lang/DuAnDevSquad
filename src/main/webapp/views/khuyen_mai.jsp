@@ -12,7 +12,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/global.css">
-    <!-- DataTables CSS (Kèm Responsive) -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
 </head>
@@ -29,8 +28,34 @@
 
     <div class="row">
         <div class="col-12 mb-4">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center py-3">
+            <!-- TÌM KIẾM BACKEND -->
+            <div class="card mb-3 border-0 shadow-sm">
+                <div class="card-body p-3">
+                    <form action="${pageContext.request.contextPath}/khuyen-mai" method="get">
+                        <input type="hidden" name="action" value="search">
+                        <div class="row g-3 align-items-center">
+                            <div class="col-md-8">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                                    <input type="text" class="form-control border-start-0 ps-0" name="keyword" placeholder="Tìm tên hoặc mã code khuyến mãi..." value="${param.keyword}">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-dark w-100 fw-bold">Tìm Kiếm</button>
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <c:if test="${not empty param.keyword}">
+                                    <a href="${pageContext.request.contextPath}/khuyen-mai?action=list" class="btn btn-outline-danger fw-bold w-100"><i class="bi bi-x-circle"></i> Xóa Lọc</a>
+                                </c:if>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- BẢNG DỮ LIỆU -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
                     <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-ticket-perforated-fill text-brand me-2"></i>Danh Sách Mã Giảm Giá</h5>
                     <div>
                         <button type="button" class="btn btn-brand fw-bold shadow-sm me-2 rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#addModal">
@@ -40,10 +65,9 @@
                     </div>
                 </div>
 
-                <div class="card-body p-3">
-                    <!-- Bảng dữ liệu Khuyến Mãi (Có dt-responsive nowrap) -->
+                <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover table-custom mb-0 text-center dt-responsive nowrap" style="width:100%" id="khuyenMaiTable">
+                        <table class="table table-hover table-custom mb-0 text-center align-middle" style="width:100%" id="khuyenMaiTable">
                             <thead>
                             <tr>
                                 <th width="5%">STT</th>
@@ -61,7 +85,7 @@
                                 <c:when test="${not empty requestScope.danhSach}">
                                     <c:forEach var="km" items="${requestScope.danhSach}" varStatus="status">
                                         <tr>
-                                            <td class="fw-semibold text-muted">${status.index + 1}</td>
+                                            <td class="fw-semibold text-muted">${(currentPage != null ? (currentPage - 1) * 5 : 0) + status.index + 1}</td>
                                             <td class="text-start fw-bold text-dark" style="max-width: 200px; white-space: normal;">${km.tenKM}</td>
                                             <td><span class="badge border border-danger text-danger bg-danger bg-opacity-10 py-2 px-3 fw-bold fs-6">${km.maCode}</span></td>
                                             <td class="fw-bold text-danger">
@@ -110,6 +134,13 @@
                             </c:choose>
                             </tbody>
                         </table>
+
+                        <!-- PHÂN TRANG SERVER-SIDE -->
+                        <c:if test="${totalPages > 1}">
+                            <jsp:include page="layout/pagination.jsp">
+                                <jsp:param name="baseUrl" value="/khuyen-mai?action=list" />
+                            </jsp:include>
+                        </c:if>
                     </div>
                 </div>
             </div>
@@ -247,6 +278,7 @@
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/global.js"></script>
 
@@ -287,8 +319,6 @@
     }
 </script>
 
-<!-- Thư viện jQuery và DataTables -->
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
@@ -296,29 +326,21 @@
 
 <script>
     $(document).ready(function() {
-        // Cấu hình DataTables (Đã thêm thuộc tính "language" đầy đủ)
-        $('#khuyenMaiTable').DataTable({
-            "responsive": true,
-            "pageLength": 5,
-            "lengthMenu": [[5, 10, 20, -1], [5, 10, 20, "Tất cả"]],
-            "language": {
-                "lengthMenu": "Hiển thị _MENU_ dòng",
-                "zeroRecords": "Không tìm thấy Mã Khuyến Mãi nào",
-                "info": "Đang hiển thị trang _PAGE_ / _PAGES_",
-                "infoEmpty": "Không có dữ liệu",
-                "search": "Tìm kiếm nhanh:",
-                "paginate": {
-                    "first": "Đầu",
-                    "last": "Cuối",
-                    "next": "Sau",
-                    "previous": "Trước"
+        if ($('#khuyenMaiTable tbody td').length > 1) {
+            $('#khuyenMaiTable').DataTable({
+                "responsive": true,
+                "paging": false,
+                "searching": false,
+                "info": false,
+                "order": [],
+                "columnDefs": [
+                    { "orderable": false, "targets": [7] }
+                ],
+                "language": {
+                    "emptyTable": "<div class='text-muted py-5'><i class='bi bi-inbox fs-1 d-block mb-3 opacity-50'></i>Không có chương trình khuyến mãi nào.</div>"
                 }
-            },
-            "order": [],
-            "columnDefs": [
-                { "orderable": false, "targets": [7] }
-            ]
-        });
+            });
+        }
     });
 </script>
 </body>

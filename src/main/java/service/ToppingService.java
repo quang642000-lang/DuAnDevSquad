@@ -7,9 +7,20 @@ import java.util.List;
 public class ToppingService {
 
     private ToppingRepository toppingRepo = new ToppingRepository();
+    private final int LIMIT = 5;
 
     public List<Topping> getAll() {
         return toppingRepo.getAll();
+    }
+
+    public List<Topping> getAllByPage(int page) {
+        int offset = (page - 1) * LIMIT;
+        return toppingRepo.getAll(offset, LIMIT);
+    }
+
+    public int getTotalPages() {
+        int totalRecords = toppingRepo.getTotalCount();
+        return (int) Math.ceil((double) totalRecords / LIMIT);
     }
 
     public String add(Topping tp) {
@@ -20,9 +31,7 @@ public class ToppingService {
             return "Lỗi: Giá bán không được là số âm!";
         }
 
-        tp.setTrangThai(1); // Mặc định Đang bán khi thêm mới
-
-        // Không cần tự sinh mã ở đây nữa, DB sẽ lo việc đó
+        tp.setTrangThai(1);
         boolean success = toppingRepo.add(tp);
         return success ? "Thêm Topping thành công!" : "Thêm thất bại. Vui lòng kiểm tra lại!";
     }

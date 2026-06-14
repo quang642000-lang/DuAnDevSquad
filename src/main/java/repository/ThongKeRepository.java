@@ -197,7 +197,6 @@ public class ThongKeRepository {
                     receipt.put("maDH", rs.getString("ma_dh"));
                     receipt.put("nhanVien", rs.getString("ten_nv"));
 
-                    // CHỈ LẤY DỮ LIỆU THÔ, NHƯỜNG PHẦN FORMAT CHO SERVICE
                     receipt.put("thoi_gian_tho", rs.getTimestamp("thoi_gian_tao"));
                     receipt.put("ten_kh_tho", rs.getString("ten_kh"));
                     receipt.put("ten_pttt_tho", rs.getString("ten_phuong_thuc"));
@@ -219,7 +218,6 @@ public class ThongKeRepository {
                                 Map<String, Object> item = new LinkedHashMap<>();
                                 String maChiTiet = rsCT.getString("ma_chi_tiet");
                                 item.put("tenMon", rsCT.getString("ten_san_pham"));
-                                // Bổ sung rào chắn NULL để tránh lỗi 'Size |'
                                 item.put("size", rsCT.getString("kich_co") != null ? rsCT.getString("kich_co") : "");
                                 item.put("da", rsCT.getString("muc_da") != null ? rsCT.getString("muc_da") : "100%");
                                 item.put("duong", rsCT.getString("muc_duong") != null ? rsCT.getString("muc_duong") : "100%");
@@ -227,8 +225,6 @@ public class ThongKeRepository {
                                 item.put("giaChot", rsCT.getInt("gia_chot_mon"));
 
                                 List<Map<String, Object>> toppings = new ArrayList<>();
-
-                                // ĐÃ CẬP NHẬT: Lấy thêm ctt.gia_chot_topping
                                 String sqlTP = "SELECT tp.ten_topping, ctt.so_luong_topping, ctt.gia_chot_topping " +
                                         "FROM CHI_TIET_TOPPING ctt JOIN TOPPING tp ON ctt.ma_topping = tp.ma_topping " +
                                         "WHERE ctt.ma_chi_tiet = ?";
@@ -240,7 +236,7 @@ public class ThongKeRepository {
                                             Map<String, Object> topping = new LinkedHashMap<>();
                                             topping.put("ten", rsTP.getString("ten_topping"));
                                             topping.put("sl", rsTP.getInt("so_luong_topping"));
-                                            topping.put("gia", rsTP.getInt("gia_chot_topping")); // BỔ SUNG DÒNG NÀY ĐỂ HIỂN THỊ GIÁ TRÊN JSP
+                                            topping.put("gia", rsTP.getInt("gia_chot_topping"));
                                             toppings.add(topping);
                                         }
                                     }

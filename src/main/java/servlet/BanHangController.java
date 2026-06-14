@@ -96,17 +96,14 @@ public class BanHangController extends HttpServlet {
                 nvSession.setSDT(sdt);
                 nvSession.setEmail(email);
 
-                // 1. Cập nhật các thông tin cơ bản trước (Họ tên, SĐT, Email)
                 boolean isUpdated = nhanVienService.update(nvSession).contains("thành công");
 
                 if(isUpdated) {
-                    // 2. Nếu nhân viên có nhập mật khẩu mới, băm mật khẩu và gọi hàm đổi riêng biệt
                     if (newPass != null && !newPass.trim().isEmpty()) {
                         String hashedNewPass = SecurityUtil.hashPassword(newPass);
                         nhanVienService.resetPassword(nvSession.getMaNV(), hashedNewPass);
-                        nvSession.setMatKhau(hashedNewPass); // Cập nhật lại session
+                        nvSession.setMatKhau(hashedNewPass);
                     }
-
                     request.getSession().setAttribute("nhanVienDangNhap", nvSession);
                     request.getSession().setAttribute("message", "Cập nhật thông tin cá nhân thành công!");
                 } else {
@@ -128,7 +125,6 @@ public class BanHangController extends HttpServlet {
                 String sdtKhach = request.getParameter("sdtKhachHang");
                 String tenKhach = request.getParameter("tenKhachHang");
 
-                // Chống NumberFormatException gây sập trang khi parse dữ liệu rỗng
                 int diemSuDung = 0;
                 int tongTienHang = 0;
                 int soTienKhachDua = 0;
@@ -169,46 +165,8 @@ public class BanHangController extends HttpServlet {
                     dh.setKhuyenMai(km);
                 }
 
-                String[] indexArr = request.getParameterValues("itemIndex[]");
-                if (indexArr != null) {
-                    for (String idx : indexArr) {
-                        ChiTietDonHang ct = new ChiTietDonHang();
-
-                        BienTheSanPham bt = new BienTheSanPham();
-                        bt.setMaBienThe(request.getParameter("maBT_" + idx));
-
-                        SanPham sp = new SanPham();
-                        sp.setTenSanPham(request.getParameter("tenMon_" + idx));
-                        bt.setSanPham(sp);
-                        ct.setBienThe(bt);
-
-                        ct.setSoLuong(Integer.parseInt(request.getParameter("soLuong_" + idx)));
-                        ct.setGiaChot(Integer.parseInt(request.getParameter("giaChot_" + idx)));
-                        ct.setMucDa(request.getParameter("da_" + idx));
-                        ct.setMucDuong(request.getParameter("duong_" + idx));
-                        ct.setGhiChu("");
-
-                        String[] toppings = request.getParameterValues("toppings_" + idx + "[]");
-                        if (toppings != null) {
-                            for (String tpInfo : toppings) {
-                                String[] parts = tpInfo.split("\\|");
-                                ChiTietTopping ctt = new ChiTietTopping();
-                                Topping t = new Topping();
-                                t.setMaTopping(parts[0]);
-                                if (parts.length > 3) t.setTenTopping(parts[3]);
-                                ctt.setTopping(t);
-
-                                int qtyTopping = Integer.parseInt(parts[1]);
-                                int unitPrice = Integer.parseInt(parts[2]);
-
-                                ctt.setSoLuongTopping(qtyTopping * ct.getSoLuong());
-                                ctt.setGiaChot(unitPrice);
-                                ct.getDanhSachTopping().add(ctt);
-                            }
-                        }
-                        dh.getDanhSachChiTiet().add(ct);
-                    }
-                }
+                // Gọi hàm phụ trợ đã được tách để gom code gọn gàng
+                buildCartItems(request, dh);
 
                 String tb = donHangService.taoDonHangThanhToan(dh, sdtKhach, tenKhach, diemSuDung);
                 if (tb.contains("thành công")) {
@@ -223,5 +181,49 @@ public class BanHangController extends HttpServlet {
             }
         }
         response.sendRedirect(request.getContextPath() + "/ban-hang");
+    }
+
+    // --- HÀM PHỤ TRỢ XỬ LÝ CHI TIẾT GIỎ HÀNG ---
+    private void buildCartItems(HttpServletRequest request, DonHang dh) {
+        String[] indexArr = request.getParameterValues("itemIndex[]");
+        if (indexArr != null) {
+            for (String idx : indexArr) {
+                ChiTietDonHang ct = new ChiTietDonHang();
+
+                BienTheSanPham bt = new BienTheSanPham();
+                bt.setMaBienThe(request.getParameter("maBT_" + idx));
+
+                SanPham sp = new SanPham();
+                sp.setTenSanPham(request.getParameter("tenMon_" + idx));
+                bt.setSanPham(sp);
+                ct.setBienThe(bt);
+
+                ct.setSoLuong(Integer.parseInt(request.getParameter("soLuong_" + idx)));
+                ct.setGiaChot(Integer.parseInt(request.getParameter("giaChot_" + idx)));
+                ct.setMucDa(request.getParameter("da_" + idx));
+                ct.setMucDuong(request.getParameter("duong_" + idx));
+                ct.setGhiChu("");
+
+                String[] toppings = request.getParameterValues("toppings_" + idx + "[]");
+                if (toppings != null) {
+                    for (String tpInfo : toppings) {
+                        String[] parts = tpInfo.split("\\|");
+                        ChiTietTopping ctt = new ChiTietTopping();
+                        Topping t = new Topping();
+                        t.setMaTopping(parts[0]);
+                        if (parts.length > 3) t.setTenTopping(parts[3]);
+                        ctt.setTopping(t);
+
+                        int qtyTopping = Integer.parseInt(parts[1]);
+                        int unitPrice = Integer.parseInt(parts[2]);
+
+                        ctt.setSoLuongTopping(qtyTopping * ct.getSoLuong());
+                        ctt.setGiaChot(unitPrice);
+                        ct.getDanhSachTopping().add(ctt);
+                    }
+                }
+                dh.getDanhSachChiTiet().add(ct);
+            }
+        }
     }
 }

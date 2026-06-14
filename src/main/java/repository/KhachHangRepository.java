@@ -29,7 +29,6 @@ public class KhachHangRepository {
         return list;
     }
 
-    // 2. Nạp chồng hàm getAll() để phân trang bằng SQL
     public List<KhachHang> getAll(int offset, int limit) {
         List<KhachHang> list = new ArrayList<>();
         String sql = "SELECT * FROM KHACH_HANG ORDER BY ma_kh DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
@@ -60,6 +59,7 @@ public class KhachHangRepository {
         } catch (Exception e) { e.printStackTrace(); }
         return 0;
     }
+
     public KhachHang timKiemTheoSdt(String sdt) {
         String sql = "SELECT * FROM KHACH_HANG WHERE so_dien_thoai = ?";
         try (Connection con = DBConnect.getConnection();
@@ -82,7 +82,6 @@ public class KhachHangRepository {
     }
 
     public boolean add(KhachHang kh) {
-        // Đã xóa 'ma_kh' khỏi INSERT để SQL tự động sinh mã
         String sql = "INSERT INTO KHACH_HANG (ten_khach_hang, so_dien_thoai, diem_tich_luy) VALUES (?, ?, ?)";
         try (Connection con = DBConnect.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -109,7 +108,6 @@ public class KhachHangRepository {
         return false;
     }
 
-    // THÊM CHỨC NĂNG CẬP NHẬT
     public boolean update(KhachHang kh) {
         String sql = "UPDATE KHACH_HANG SET ten_khach_hang = ?, so_dien_thoai = ? WHERE ma_kh = ?";
         try (Connection con = DBConnect.getConnection();
@@ -124,7 +122,6 @@ public class KhachHangRepository {
         return false;
     }
 
-    // THÊM CHỨC NĂNG XÓA
     public boolean delete(String maKH) {
         String sql = "DELETE FROM KHACH_HANG WHERE ma_kh = ?";
         try (Connection con = DBConnect.getConnection();
@@ -132,7 +129,6 @@ public class KhachHangRepository {
             ps.setString(1, maKH);
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
-            // Nếu khách hàng đã có đơn hàng (ràng buộc khóa ngoại), SQL sẽ quăng lỗi.
             System.out.println("Lỗi khi xóa khách hàng: " + e.getMessage());
         }
         return false;

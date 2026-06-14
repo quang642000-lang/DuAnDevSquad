@@ -23,51 +23,24 @@
             <i class="bi bi-arrow-left me-1"></i> Dashboard
         </a>
     </div>
-    <div class="row">
-        <div class="col-lg-3 mb-4">
-            <div class="card">
-                <div class="card-header border-bottom-0 pb-0 pt-4">
-                    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-plus-circle-fill text-brand me-2"></i>Thêm Kích Cỡ</h5>
-                </div>
-                <div class="card-body p-4">
-                    <form action="${pageContext.request.contextPath}/bien-the" method="post" onsubmit="showConfirmForm(event, this, 'Tạo Kích Cỡ Mới', 'Xác nhận tạo kích cỡ mới cho sản phẩm này?');">
-                        <input type="hidden" name="action" value="add">
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold text-muted small text-uppercase">Sản Phẩm Gốc</label>
-                            <select class="form-select bg-light" name="maSP" required>
-                                <option value="" disabled selected>-- Chọn món --</option>
-                                <c:forEach var="sp" items="${requestScope.danhSachSP}">
-                                    <option value="${sp.maSP}">${sp.tenSanPham}</option>
-                                </c:forEach>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold text-muted small text-uppercase">Kích Cỡ (Size)</label>
-                            <input type="text" class="form-control" name="kichCo" placeholder="VD: M, L, XL..." required>
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold text-muted small text-uppercase">Giá Bán (VNĐ)</label>
-                            <input type="number" class="form-control text-danger fw-bold fs-5" name="giaBan" min="0" placeholder="0" required>
-                        </div>
-                        <button type="submit" class="btn btn-brand w-100 py-2"><i class="bi bi-check2 me-1"></i> Lưu Dữ Liệu</button>
-                    </form>
-                </div>
-            </div>
-        </div>
 
-        <div class="col-lg-9 mb-4">
-            <div class="card mb-4">
+    <div class="row">
+        <!-- BẢNG DANH SÁCH CHIẾM 100% -->
+        <div class="col-12 mb-4">
+
+            <!-- TÌM KIẾM BACKEND -->
+            <div class="card mb-3 border-0 shadow-sm">
                 <div class="card-body p-3">
                     <form action="${pageContext.request.contextPath}/bien-the" method="get">
                         <input type="hidden" name="action" value="search">
                         <div class="row g-3 align-items-center">
-                            <div class="col-md-5">
+                            <div class="col-md-4">
                                 <div class="input-group">
                                     <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
                                     <input type="text" class="form-control border-start-0 ps-0" name="keyword" placeholder="Tìm theo tên món, mã, size..." value="${requestScope.selectedKeyword}">
                                 </div>
                             </div>
-                            <div class="col-md-5">
+                            <div class="col-md-4">
                                 <div class="input-group">
                                     <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-funnel"></i></span>
                                     <select class="form-select border-start-0 ps-0" name="filterSanPham">
@@ -79,26 +52,31 @@
                                 </div>
                             </div>
                             <div class="col-md-2">
-                                <button type="submit" class="btn btn-dark w-100">Tìm Kiếm</button>
+                                <button type="submit" class="btn btn-dark w-100 fw-bold">Tìm Kiếm</button>
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <c:if test="${not empty requestScope.selectedKeyword or (not empty requestScope.selectedSanPham and requestScope.selectedSanPham != 'all')}">
+                                    <a href="${pageContext.request.contextPath}/bien-the?action=list" class="btn btn-outline-danger fw-bold w-100"><i class="bi bi-x-circle"></i> Xóa Lọc</a>
+                                </c:if>
                             </div>
                         </div>
                     </form>
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold text-dark">Danh Sách Giá Theo Size</h5>
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
+                    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-list-columns-reverse text-brand me-2"></i>Danh Sách Giá Theo Size</h5>
                     <div>
-                        <c:if test="${not empty requestScope.selectedKeyword or (not empty requestScope.selectedSanPham and requestScope.selectedSanPham != 'all')}">
-                            <a href="${pageContext.request.contextPath}/bien-the?action=list" class="btn btn-sm btn-light text-danger fw-bold me-2"><i class="bi bi-x-circle"></i> Xóa lọc</a>
-                        </c:if>
-                        <a href="${pageContext.request.contextPath}/bien-the?action=list" class="btn btn-sm btn-light border"><i class="bi bi-arrow-clockwise"></i></a>
+                        <!-- NÚT MỞ MODAL THÊM MỚI -->
+                        <button type="button" class="btn btn-brand fw-bold shadow-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#addModal">
+                            <i class="bi bi-plus-circle me-1"></i> Thêm Kích Cỡ
+                        </button>
                     </div>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover table-custom mb-0 text-center">
+                        <table class="table table-hover table-custom mb-0 text-center align-middle">
                             <thead>
                             <tr>
                                 <th width="5%">STT</th>
@@ -152,31 +130,12 @@
                             </c:choose>
                             </tbody>
                         </table>
-                        <!-- KHU VỰC PHÂN TRANG -->
+
+                        <!-- PHÂN TRANG -->
                         <c:if test="${totalPages > 1}">
-                            <div class="d-flex justify-content-center mt-4 mb-3">
-                                <nav aria-label="Page navigation">
-                                    <ul class="pagination pagination-sm shadow-sm">
-                                        <!-- Nút Trước -->
-                                        <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
-                                            <a class="page-link text-brand fw-bold" href="${pageContext.request.contextPath}/bien-the?action=list&page=${currentPage - 1}">Trước</a>
-                                        </li>
-
-                                        <!-- Hiển thị số trang -->
-                                        <c:forEach begin="1" end="${totalPages}" var="i">
-                                            <li class="page-item ${currentPage == i ? 'active' : ''}">
-                                                <a class="page-link ${currentPage == i ? 'bg-brand border-brand text-white' : 'text-dark'}"
-                                                   href="${pageContext.request.contextPath}/bien-the?action=list&page=${i}">${i}</a>
-                                            </li>
-                                        </c:forEach>
-
-                                        <!-- Nút Sau -->
-                                        <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
-                                            <a class="page-link text-brand fw-bold" href="${pageContext.request.contextPath}/bien-the?action=list&page=${currentPage + 1}">Sau</a>
-                                        </li>
-                                    </ul>
-                                </nav>
-                            </div>
+                            <jsp:include page="layout/pagination.jsp">
+                                <jsp:param name="baseUrl" value="/bien-the?action=list" />
+                            </jsp:include>
                         </c:if>
                     </div>
                 </div>
@@ -187,9 +146,48 @@
 
 <%@ include file="layout/confirm_modal.jsp" %>
 
+<!-- MODAL THÊM MỚI -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0" style="border-radius: 16px;">
+            <div class="modal-header border-0 py-3 bg-light">
+                <h5 class="modal-title fw-bold text-dark"><i class="bi bi-plus-circle-fill text-brand me-2"></i>Thêm Kích Cỡ Mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="${pageContext.request.contextPath}/bien-the" method="post" onsubmit="showConfirmForm(event, this, 'Tạo Kích Cỡ Mới', 'Xác nhận tạo kích cỡ mới cho sản phẩm này?');">
+                <div class="modal-body p-4">
+                    <input type="hidden" name="action" value="add">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-muted small text-uppercase">Sản Phẩm Gốc</label>
+                        <select class="form-select bg-light" name="maSP" required>
+                            <option value="" disabled selected>-- Chọn món --</option>
+                            <c:forEach var="sp" items="${requestScope.danhSachSP}">
+                                <option value="${sp.maSP}">${sp.tenSanPham}</option>
+                            </c:forEach>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-muted small text-uppercase">Kích Cỡ (Size)</label>
+                        <input type="text" class="form-control" name="kichCo" placeholder="VD: M, L, XL..." required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold text-muted small text-uppercase">Giá Bán (VNĐ)</label>
+                        <input type="number" class="form-control text-danger fw-bold fs-5" name="giaBan" min="0" placeholder="0" required>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0 p-3">
+                    <button type="button" class="btn btn-light fw-bold rounded-pill px-4 border me-2" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-brand fw-bold rounded-pill px-4 shadow-sm"><i class="bi bi-check2 me-1"></i> Lưu Dữ Liệu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CẬP NHẬT -->
 <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content shadow-lg">
+        <div class="modal-content shadow-lg border-0" style="border-radius: 16px;">
             <div class="modal-header bg-light border-0 py-3">
                 <h5 class="modal-title fw-bold text-dark"><i class="bi bi-pencil-square text-brand me-2"></i>Cập Nhật Kích Cỡ</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>

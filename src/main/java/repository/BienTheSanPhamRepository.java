@@ -13,7 +13,6 @@ public class BienTheSanPhamRepository {
 
     public List<BienTheSanPham> getAll() {
         List<BienTheSanPham> list = new ArrayList<>();
-        // ĐÃ FIX: Thêm JOIN với SAN_PHAM để lấy ten_san_pham
         String sql = "SELECT bt.*, sp.ten_san_pham FROM BIEN_THE_SAN_PHAM bt " +
                 "JOIN SAN_PHAM sp ON bt.ma_sp = sp.ma_sp";
         try (Connection con = DBConnect.getConnection();
@@ -28,7 +27,7 @@ public class BienTheSanPhamRepository {
 
                 SanPham sp = new SanPham();
                 sp.setMaSP(rs.getString("ma_sp"));
-                sp.setTenSanPham(rs.getString("ten_san_pham")); // ĐÃ BỔ SUNG LẤY TÊN
+                sp.setTenSanPham(rs.getString("ten_san_pham"));
                 bt.setSanPham(sp);
                 list.add(bt);
             }
@@ -40,7 +39,6 @@ public class BienTheSanPhamRepository {
 
     public List<BienTheSanPham> getAll(int offset, int limit) {
         List<BienTheSanPham> list = new ArrayList<>();
-        // ĐÃ FIX: Thêm JOIN với SAN_PHAM để lấy ten_san_pham
         String sql = "SELECT bt.*, sp.ten_san_pham FROM BIEN_THE_SAN_PHAM bt " +
                 "JOIN SAN_PHAM sp ON bt.ma_sp = sp.ma_sp " +
                 "ORDER BY bt.ma_bien_the DESC " +
@@ -59,7 +57,7 @@ public class BienTheSanPhamRepository {
 
                     SanPham sp = new SanPham();
                     sp.setMaSP(rs.getString("ma_sp"));
-                    sp.setTenSanPham(rs.getString("ten_san_pham")); // ĐÃ BỔ SUNG LẤY TÊN
+                    sp.setTenSanPham(rs.getString("ten_san_pham"));
                     bt.setSanPham(sp);
                     list.add(bt);
                 }
@@ -82,7 +80,6 @@ public class BienTheSanPhamRepository {
 
     public List<BienTheSanPham> search(String keyword, String maSP) {
         List<BienTheSanPham> list = new ArrayList<>();
-        // ĐÃ FIX: Thêm JOIN với SAN_PHAM để lấy ten_san_pham
         StringBuilder sql = new StringBuilder(
                 "SELECT bt.*, sp.ten_san_pham FROM BIEN_THE_SAN_PHAM bt " +
                         "JOIN SAN_PHAM sp ON bt.ma_sp = sp.ma_sp WHERE 1=1 ");
@@ -100,7 +97,7 @@ public class BienTheSanPhamRepository {
                 String likeValue = "%" + keyword.trim() + "%";
                 ps.setString(index++, likeValue);
                 ps.setString(index++, likeValue);
-                ps.setString(index++, likeValue); // Tìm kiếm theo cả tên SP
+                ps.setString(index++, likeValue);
             }
             if (maSP != null && !maSP.trim().isEmpty() && !maSP.equals("all")) {
                 ps.setString(index++, maSP);
@@ -115,7 +112,7 @@ public class BienTheSanPhamRepository {
 
                     SanPham sp = new SanPham();
                     sp.setMaSP(rs.getString("ma_sp"));
-                    sp.setTenSanPham(rs.getString("ten_san_pham")); // ĐÃ BỔ SUNG LẤY TÊN
+                    sp.setTenSanPham(rs.getString("ten_san_pham"));
                     bt.setSanPham(sp);
                     list.add(bt);
                 }
@@ -140,7 +137,6 @@ public class BienTheSanPhamRepository {
     }
 
     public BienTheSanPham findById(String maBT) {
-        // ĐÃ FIX: Thêm JOIN với SAN_PHAM để lấy ten_san_pham
         String sql = "SELECT bt.*, sp.ten_san_pham FROM BIEN_THE_SAN_PHAM bt " +
                 "JOIN SAN_PHAM sp ON bt.ma_sp = sp.ma_sp WHERE bt.ma_bien_the = ?";
         try (Connection con = DBConnect.getConnection();
@@ -156,7 +152,7 @@ public class BienTheSanPhamRepository {
 
                     SanPham sp = new SanPham();
                     sp.setMaSP(rs.getString("ma_sp"));
-                    sp.setTenSanPham(rs.getString("ten_san_pham")); // ĐÃ BỔ SUNG LẤY TÊN
+                    sp.setTenSanPham(rs.getString("ten_san_pham"));
                     bt.setSanPham(sp);
                     return bt;
                 }

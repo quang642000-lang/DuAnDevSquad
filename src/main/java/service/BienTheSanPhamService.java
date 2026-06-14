@@ -17,6 +17,16 @@ public class BienTheSanPhamService {
         return bienTheRepo.getAll();
     }
 
+    public List<BienTheSanPham> getAllByPage(int page) {
+        int offset = (page - 1) * LIMIT;
+        return bienTheRepo.getAll(offset, LIMIT);
+    }
+
+    public int getTotalPages() {
+        int totalRecords = bienTheRepo.getTotalCount();
+        return (int) Math.ceil((double) totalRecords / LIMIT);
+    }
+
     public String add(BienTheSanPham bt) {
         if (bt.getKichCo() == null || bt.getKichCo().trim().isEmpty()) {
             return "Lỗi: Kích cỡ không được để trống!";
@@ -28,21 +38,8 @@ public class BienTheSanPhamService {
             return "Lỗi: Vui lòng chọn sản phẩm!";
         }
 
-        bt.setTrangThai(1); // Mặc định Đang bán
-
+        bt.setTrangThai(1);
         return bienTheRepo.add(bt) ? "Thêm kích cỡ thành công!" : "Lỗi hệ thống khi thêm!";
-    }
-
-    // Lấy dữ liệu theo trang
-    public List<BienTheSanPham> getAllByPage(int page) {
-        int offset = (page - 1) * LIMIT;
-        return bienTheRepo.getAll(offset, LIMIT);
-    }
-
-    // Đếm tổng số trang
-    public int getTotalPages() {
-        int totalRecords = bienTheRepo.getTotalCount();
-        return (int) Math.ceil((double) totalRecords / LIMIT);
     }
 
     public String update(BienTheSanPham bt) {
@@ -55,7 +52,7 @@ public class BienTheSanPhamService {
     public String updateTrangThai(String maBienThe, int trangThai) {
         if (maBienThe == null || maBienThe.isEmpty()) return "Lỗi: Mã không hợp lệ!";
 
-        // --- LOGIC TỐI ƯU: KIỂM TRA SẢN PHẨM MẸ TRƯỚC KHI BẬT HOẠT ĐỘNG ---
+        // Kiểm tra sản phẩm mẹ trước khi bật trạng thái
         if (trangThai == 1) {
             String sql = "SELECT sp.trang_thai FROM SAN_PHAM sp INNER JOIN BIEN_THE_SAN_PHAM bt ON sp.ma_sp = bt.ma_sp WHERE bt.ma_bien_the = ?";
             try (Connection con = DBConnect.getConnection();
@@ -75,7 +72,6 @@ public class BienTheSanPhamService {
                 return "Lỗi hệ thống khi kiểm tra trạng thái sản phẩm mẹ!";
             }
         }
-        // -----------------------------------------------------------------
 
         return bienTheRepo.updateTrangThai(maBienThe, trangThai) ? "Cập nhật trạng thái thành công!" : "Lỗi khi cập nhật trạng thái!";
     }
@@ -85,7 +81,6 @@ public class BienTheSanPhamService {
         return bienTheRepo.delete(maBienThe) ? "Đã xóa kích cỡ!" : "Lỗi: Không thể xóa vì kích cỡ này đã phát sinh trong đơn hàng!";
     }
 
-    // HÀM MỚI: TÌM KIẾM
     public List<BienTheSanPham> search(String keyword, String maSp) {
         return bienTheRepo.search(keyword, maSp);
     }

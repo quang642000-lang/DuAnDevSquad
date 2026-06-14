@@ -9,11 +9,10 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.sql.Date;
 
-@MultipartConfig // QUAN TRỌNG: Giúp form gửi được mọi dữ liệu, khắc phục lỗi null
+@MultipartConfig
 @WebServlet(name = "KhuyenMaiController", value = "/khuyen-mai")
 public class KhuyenMaiController extends HttpServlet {
 
@@ -22,9 +21,7 @@ public class KhuyenMaiController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
-        if (action == null) {
-            action = "list";
-        }
+        if (action == null) action = "list";
 
         switch (action) {
             case "delete":
@@ -46,7 +43,14 @@ public class KhuyenMaiController extends HttpServlet {
                 break;
             case "list":
             default:
-                request.setAttribute("danhSach", khuyenMaiService.getAll());
+                int page = 1;
+                String pageParam = request.getParameter("page");
+                if (pageParam != null && !pageParam.isEmpty()) {
+                    try { page = Integer.parseInt(pageParam); } catch (Exception e) {}
+                }
+                request.setAttribute("danhSach", khuyenMaiService.getAllByPage(page));
+                request.setAttribute("currentPage", page);
+                request.setAttribute("totalPages", khuyenMaiService.getTotalPages());
                 request.getRequestDispatcher("/views/khuyen_mai.jsp").forward(request, response);
                 break;
         }
@@ -59,62 +63,32 @@ public class KhuyenMaiController extends HttpServlet {
 
         try {
             KhuyenMai km = new KhuyenMai();
-
-            // 1. Xử lý Tên Khuyến Mãi (Tự động bắt cả 2 kiểu đặt tên form)
             String ten = request.getParameter("tenKm");
-            if (ten == null || ten.trim().isEmpty()) {
-                ten = request.getParameter("tenKhuyenMai");
-            }
+            if (ten == null || ten.trim().isEmpty()) ten = request.getParameter("tenKhuyenMai");
             km.setTenKM(ten);
-
-            // 2. Lấy Mã Code và Loại giảm giá
             String maCode = request.getParameter("maCode");
             km.setMaCode(maCode != null ? maCode.trim().toUpperCase() : "");
             km.setLoaiGiamGia(request.getParameter("loaiGiamGia"));
 
-            // 3. Parse dữ liệu số nguyên an toàn
-            String giaTriGiamStr = request.getParameter("giaTriGiam");
-            String dieuKienStr = request.getParameter("dieuKienToiThieu");
-            String soLuongStr = request.getParameter("soLuong");
+            km.setGiaTriGiam(Integer.parseInt(request.getParameter("giaTriGiam")));
+            km.setDieuKienToiThieu(Integer.parseInt(request.getParameter("dieuKienToiThieu")));
+            km.setSoLuong(Integer.parseInt(request.getParameter("soLuong")));
 
-            km.setGiaTriGiam(giaTriGiamStr != null && !giaTriGiamStr.isEmpty() ? Integer.parseInt(giaTriGiamStr) : 0);
-            km.setDieuKienToiThieu(dieuKienStr != null && !dieuKienStr.isEmpty() ? Integer.parseInt(dieuKienStr) : 0);
-            km.setSoLuong(soLuongStr != null && !soLuongStr.isEmpty() ? Integer.parseInt(soLuongStr) : 0);
+            km.setNgayBatDau(Date.valueOf(request.getParameter("ngayBatDau")));
+            km.setNgayKetThuc(Date.valueOf(request.getParameter("ngayKetThuc")));
 
-            // 4. Parse dữ liệu Ngày tháng an toàn
-            String ngayBatDauStr = request.getParameter("ngayBatDau");
-            String ngayKetThucStr = request.getParameter("ngayKetThuc");
-
-            if (ngayBatDauStr != null && !ngayBatDauStr.isEmpty()) {
-                km.setNgayBatDau(Date.valueOf(ngayBatDauStr));
-            }
-            if (ngayKetThucStr != null && !ngayKetThucStr.isEmpty()) {
-                km.setNgayKetThuc(Date.valueOf(ngayKetThucStr));
-            }
-
-            // 5. Điều hướng Service
             if ("add".equals(action)) {
                 request.getSession().setAttribute("message", khuyenMaiService.add(km));
             } else if ("update".equals(action)) {
                 String idUpdate = request.getParameter("maKm");
-                if (idUpdate == null || idUpdate.isEmpty()) {
-                    idUpdate = request.getParameter("id");
-                }
+                if (idUpdate == null || idUpdate.isEmpty()) idUpdate = request.getParameter("id");
                 km.setMaKM(idUpdate);
                 request.getSession().setAttribute("message", khuyenMaiService.update(km));
             }
-
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-            request.getSession().setAttribute("message", "Lỗi: Số lượng, Giá trị giảm hoặc Điều kiện tối thiểu phải là số hợp lệ!");
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-            request.getSession().setAttribute("message", "Lỗi: Vui lòng nhập đúng định dạng Ngày bắt đầu và Ngày kết thúc!");
         } catch (Exception e) {
             e.printStackTrace();
-            request.getSession().setAttribute("message", "Lỗi hệ thống: " + e.getMessage());
+            request.getSession().setAttribute("message", "Lỗi dữ liệu đầu vào!");
         }
-
         response.sendRedirect(request.getContextPath() + "/khuyen-mai");
     }
 }

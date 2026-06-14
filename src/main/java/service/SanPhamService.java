@@ -14,10 +14,12 @@ public class SanPhamService {
     public List<SanPham> getAll() {
         return sanPhamRepo.getAll();
     }
+
     public List<SanPham> getAllByPage(int page) {
         int offset = (page - 1) * LIMIT;
         return sanPhamRepo.getAll(offset, LIMIT);
     }
+
     public int getTotalPages() {
         int totalRecords = sanPhamRepo.getTotalCount();
         return (int) Math.ceil((double) totalRecords / LIMIT);
@@ -40,7 +42,7 @@ public class SanPhamService {
         return sanPhamRepo.update(sp) ? "Cập nhật sản phẩm thành công!" : "Lỗi khi cập nhật!";
     }
 
-    // ĐÃ TỐI ƯU: Sử dụng Transaction gộp cả cập nhật Sản Phẩm và Biến Thể chung 1 luồng
+    // TỐI ƯU: Cập nhật đồng bộ Sản phẩm và Biến thể bằng Transaction
     public String updateTrangThai(String maSP, int trangThai) {
         if (maSP == null || maSP.isEmpty()) return "Mã sản phẩm không hợp lệ!";
 
@@ -48,17 +50,15 @@ public class SanPhamService {
         String sqlBT = "UPDATE BIEN_THE_SAN_PHAM SET trang_thai = ? WHERE ma_sp = ?";
 
         try (Connection con = DBConnect.getConnection()) {
-            con.setAutoCommit(false); // Bắt đầu Transaction
+            con.setAutoCommit(false);
 
             try (PreparedStatement ps1 = con.prepareStatement(sqlSP);
                  PreparedStatement ps2 = con.prepareStatement(sqlBT)) {
 
-                // 1. Cập nhật trạng thái Sản phẩm mẹ
                 ps1.setInt(1, trangThai);
                 ps1.setString(2, maSP);
                 int spUpdated = ps1.executeUpdate();
 
-                // 2. Cập nhật đồng loạt các Biến thể (Kích cỡ) con
                 if (spUpdated > 0) {
                     ps2.setInt(1, trangThai);
                     ps2.setString(2, maSP);
@@ -68,11 +68,11 @@ public class SanPhamService {
                     return "Lỗi: Không tìm thấy sản phẩm cần cập nhật!";
                 }
 
-                con.commit(); // Thành công -> Lưu vào Database
+                con.commit();
                 return "Cập nhật trạng thái thành công!";
 
             } catch (Exception e) {
-                con.rollback(); // Bị lỗi -> Hoàn tác mọi thứ về ban đầu
+                con.rollback();
                 e.printStackTrace();
                 return "Lỗi khi cập nhật trạng thái!";
             } finally {

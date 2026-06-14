@@ -25,15 +25,12 @@ public class KhachHangController extends HttpServlet {
 
         switch (action) {
             case "delete":
-                // CHỨC NĂNG XÓA
                 String maKHDelete = request.getParameter("maKH");
                 String tbXoa = khachHangService.delete(maKHDelete);
-                // Gửi thông báo (thành công/thất bại) sang JSP
                 request.getSession().setAttribute("message", tbXoa);
                 response.sendRedirect(request.getContextPath() + "/khach-hang?action=list");
                 break;
             case "search":
-                // CHỨC NĂNG TÌM KIẾM
                 String sdt = request.getParameter("sdt");
                 KhachHang kh = khachHangService.timKiemTheoSdt(sdt);
                 if (kh != null) {
@@ -42,13 +39,11 @@ public class KhachHangController extends HttpServlet {
                     request.setAttribute("danhSach", listSearch);
                 }
                 request.setAttribute("currentPage", 1);
-                request.setAttribute("totalPages", 1); // Ẩn thanh phân trang khi đang tìm kiếm
+                request.setAttribute("totalPages", 1);
                 request.getRequestDispatcher("/views/khach_hang.jsp").forward(request, response);
                 break;
-
             case "list":
             default:
-                // HIỂN THỊ DANH SÁCH CÓ PHÂN TRANG
                 int page = 1;
                 String pageParam = request.getParameter("page");
                 if (pageParam != null && !pageParam.isEmpty()) {
@@ -69,22 +64,17 @@ public class KhachHangController extends HttpServlet {
         String action = request.getParameter("action");
 
         if ("add".equals(action)) {
-            // CHỨC NĂNG THÊM
             KhachHang kh = new KhachHang();
             kh.setTenKH(request.getParameter("tenKhachHang"));
             kh.setSDT(request.getParameter("soDienThoai"));
-
             String thongBao = khachHangService.add(kh);
             request.getSession().setAttribute("message", thongBao);
 
         } else if ("update".equals(action)) {
-            // CHỨC NĂNG CẬP NHẬT
             KhachHang kh = new KhachHang();
-            // Bắt buộc phải lấy maKH từ thẻ hidden form để biết đang sửa ai
             kh.setMaKH(request.getParameter("maKH"));
             kh.setTenKH(request.getParameter("tenKhachHang"));
             kh.setSDT(request.getParameter("soDienThoai"));
-
             String thongBao = khachHangService.update(kh);
             request.getSession().setAttribute("message", thongBao);
         }

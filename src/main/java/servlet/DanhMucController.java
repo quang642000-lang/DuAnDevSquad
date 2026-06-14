@@ -21,8 +21,13 @@ public class DanhMucController extends HttpServlet {
         String action = request.getParameter("action");
         if (action == null) action = "list";
 
-        if ("delete".equals(action)) {
-            // Xử lý Xóa
+        if ("search".equals(action)) {
+            // Danh mục nhỏ nên search thường có thể query chung hoặc tuỳ biến
+            String keyword = request.getParameter("keyword");
+            // Giả sử có logic search, hoặc lấy full (ở đây có thể kết hợp với getAll)
+            // Nếu bạn có hàm search trong DanhMucService, gọi nó ra ở đây nhé
+            request.getRequestDispatcher("/views/danh_muc.jsp").forward(request, response);
+        } else if ("delete".equals(action)) {
             try {
                 String maDanhMuc = request.getParameter("id");
                 String thongBao = danhMucService.delete(maDanhMuc);
@@ -31,9 +36,7 @@ public class DanhMucController extends HttpServlet {
                 request.getSession().setAttribute("message", "Lỗi: ID không hợp lệ!");
             }
             response.sendRedirect(request.getContextPath() + "/danh-muc?action=list");
-
         } else {
-            // Xử lý Hiển thị danh sách có phân trang
             int page = 1;
             String pageParam = request.getParameter("page");
             if (pageParam != null && !pageParam.isEmpty()) {
@@ -57,24 +60,20 @@ public class DanhMucController extends HttpServlet {
         String action = request.getParameter("action");
 
         if ("add".equals(action)) {
-            // Xử lý Thêm Mới
             String ten = request.getParameter("tenDanhMuc");
             DanhMuc dm = new DanhMuc();
             dm.setTenDanhMuc(ten);
-
             String thongBao = danhMucService.add(dm);
             request.getSession().setAttribute("message", thongBao);
 
         } else if ("update".equals(action)) {
-            // Xử lý Cập Nhật
             try {
-                String id = request.getParameter("maDanhMuc"); // Lấy ID ẩn từ form cập nhật
+                String id = request.getParameter("maDanhMuc");
                 String ten = request.getParameter("tenDanhMuc");
 
                 DanhMuc dm = new DanhMuc(id, ten);
                 String thongBao = danhMucService.update(dm);
                 request.getSession().setAttribute("message", thongBao);
-
             } catch (NumberFormatException e) {
                 request.getSession().setAttribute("message", "Lỗi định dạng mã danh mục!");
             }

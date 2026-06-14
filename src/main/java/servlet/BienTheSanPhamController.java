@@ -52,19 +52,16 @@ public class BienTheSanPhamController extends HttpServlet {
 
             case "list":
             default:
-                // Lấy số trang hiện tại
                 int page = 1;
                 String pageParam = request.getParameter("page");
                 if (pageParam != null && !pageParam.isEmpty()) {
                     try { page = Integer.parseInt(pageParam); } catch (Exception e) {}
                 }
 
-                // Phân trang
                 request.setAttribute("danhSach", bienTheService.getAllByPage(page));
                 request.setAttribute("currentPage", page);
                 request.setAttribute("totalPages", bienTheService.getTotalPages());
 
-                // Giữ nguyên list Sản Phẩm gốc để in ra Dropdown lọc / Thêm mới
                 request.setAttribute("danhSachSP", sanPhamService.getAll());
                 request.getRequestDispatcher("/views/bien_the.jsp").forward(request, response);
                 break;
@@ -79,34 +76,22 @@ public class BienTheSanPhamController extends HttpServlet {
         if ("add".equals(action)) {
             BienTheSanPham bt = new BienTheSanPham();
             bt.setKichCo(request.getParameter("kichCo"));
-
-            try {
-                bt.setGiaBan(Integer.parseInt(request.getParameter("giaBan")));
-            } catch (Exception e) {
-                bt.setGiaBan(0);
-            }
+            try { bt.setGiaBan(Integer.parseInt(request.getParameter("giaBan"))); } catch (Exception e) { bt.setGiaBan(0); }
 
             SanPham sp = new SanPham();
-            sp.setMaSP(request.getParameter("maSP")); // ĐÃ CHUẨN HÓA
+            sp.setMaSP(request.getParameter("maSP"));
             bt.setSanPham(sp);
-
             request.getSession().setAttribute("message", bienTheService.add(bt));
 
         } else if ("update".equals(action)) {
             BienTheSanPham bt = new BienTheSanPham();
             bt.setMaBienThe(request.getParameter("maBienThe"));
             bt.setKichCo(request.getParameter("kichCo"));
-
-            try {
-                bt.setGiaBan(Integer.parseInt(request.getParameter("giaBan")));
-            } catch (Exception e) {
-                bt.setGiaBan(0);
-            }
+            try { bt.setGiaBan(Integer.parseInt(request.getParameter("giaBan"))); } catch (Exception e) { bt.setGiaBan(0); }
 
             SanPham sp = new SanPham();
-            sp.setMaSP(request.getParameter("maSP")); // ĐÃ CHUẨN HÓA
+            sp.setMaSP(request.getParameter("maSP"));
             bt.setSanPham(sp);
-
             request.getSession().setAttribute("message", bienTheService.update(bt));
         }
 

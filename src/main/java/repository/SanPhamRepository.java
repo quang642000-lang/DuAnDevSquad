@@ -75,7 +75,7 @@ public class SanPhamRepository {
         } catch (Exception e) { e.printStackTrace(); }
         return 0;
     }
-    // Ném lỗi lên trên để Service xử lý thay vì chỉ in ra console
+
     public boolean add(SanPham sp) {
         String sql = "INSERT INTO SAN_PHAM (ten_san_pham, trang_thai, hinh_anh, ma_danh_muc) VALUES (?, ?, ?, ?)";
         try (Connection con = DBConnect.getConnection();
@@ -87,9 +87,6 @@ public class SanPhamRepository {
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             System.err.println("Lỗi DB khi thêm sản phẩm: " + e.getMessage());
-            // Trả về throw RuntimeException hoặc false tuỳ kiến trúc service.
-            // Để an toàn và tương thích, trả về false, service sẽ báo lỗi chung
-            // hoặc lý tưởng là throws Exception
         }
         return false;
     }

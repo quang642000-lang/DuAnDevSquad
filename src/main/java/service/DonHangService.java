@@ -88,6 +88,10 @@ public class DonHangService {
                     kh.setDiemTichLuy(0);
                     khachHangRepo.add(kh);
                     kh = khachHangRepo.timKiemTheoSdt(sdtKhachHang.trim());
+
+                    if (kh == null) {
+                        return "Lỗi: Không thể tự động tạo thẻ khách hàng mới do lỗi CSDL. Vui lòng thử lại!";
+                    }
                 }
                 if (diemSuDung > kh.getDiemTichLuy()) diemSuDung = kh.getDiemTichLuy();
                 int tienSauVoucher = tongTienHang - tienGiamVoucher;

@@ -3,7 +3,6 @@ package servlet;
 import model.NhanVien;
 import model.VaiTro;
 import service.NhanVienService;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -26,7 +25,6 @@ public class NhanVienController extends HttpServlet {
                 String idToggle = request.getParameter("id");
                 int status = Integer.parseInt(request.getParameter("status"));
                 NhanVien currentNVToggle = (NhanVien) request.getSession().getAttribute("nhanVienDangNhap");
-
                 if (currentNVToggle != null && currentNVToggle.getMaNV().equals(idToggle) && status == 0) {
                     request.getSession().setAttribute("message", "Lỗi: Bạn không thể tự khóa tài khoản của chính mình!");
                 } else {
@@ -37,7 +35,6 @@ public class NhanVienController extends HttpServlet {
             case "delete":
                 String idDel = request.getParameter("id");
                 NhanVien currentNVDel = (NhanVien) request.getSession().getAttribute("nhanVienDangNhap");
-                // ĐÃ FIX: Chặn tự xóa chính mình
                 if (currentNVDel != null && currentNVDel.getMaNV().equals(idDel)) {
                     request.getSession().setAttribute("message", "Lỗi: Dại dột! Bạn không thể tự xóa tài khoản của chính mình!");
                 } else {
@@ -45,10 +42,21 @@ public class NhanVienController extends HttpServlet {
                 }
                 response.sendRedirect(request.getContextPath() + "/nhan-vien?action=list");
                 break;
-
+            case "search":
+                request.setAttribute("danhSach", nhanVienService.getAll());
+                request.setAttribute("selectedKeyword", request.getParameter("keyword"));
+                request.getRequestDispatcher("/views/nhan_vien.jsp").forward(request, response);
+                break;
             case "list":
             default:
-                request.setAttribute("danhSach", nhanVienService.getAll());
+                int page = 1;
+                String pageParam = request.getParameter("page");
+                if (pageParam != null && !pageParam.isEmpty()) {
+                    try { page = Integer.parseInt(pageParam); } catch (Exception e) {}
+                }
+                request.setAttribute("danhSach", nhanVienService.getAllByPage(page));
+                request.setAttribute("currentPage", page);
+                request.setAttribute("totalPages", nhanVienService.getTotalPages());
                 request.getRequestDispatcher("/views/nhan_vien.jsp").forward(request, response);
                 break;
         }
@@ -57,10 +65,7 @@ public class NhanVienController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
-        String action = request.getParameter("action");
-
-        // Admin chỉ còn được Thêm mới nhân viên, không còn action Update và Reset
-        if ("add".equals(action)) {
+        if ("add".equals(request.getParameter("action"))) {
             NhanVien nv = new NhanVien();
             nv.setHoTen(request.getParameter("hoTen"));
             nv.setTenDangNhap(request.getParameter("tenDangNhap"));
@@ -74,7 +79,6 @@ public class NhanVienController extends HttpServlet {
 
             request.getSession().setAttribute("message", nhanVienService.add(nv));
         }
-
         response.sendRedirect(request.getContextPath() + "/nhan-vien?action=list");
     }
 }

@@ -7,9 +7,20 @@ import java.util.List;
 public class PhuongThucThanhToanService {
 
     private PhuongThucThanhToanRepository repo = new PhuongThucThanhToanRepository();
+    private final int LIMIT = 5;
 
     public List<PhuongThucThanhToan> getAll() {
         return repo.getAll();
+    }
+
+    public List<PhuongThucThanhToan> getAllByPage(int page) {
+        int offset = (page - 1) * LIMIT;
+        return repo.getAll(offset, LIMIT);
+    }
+
+    public int getTotalPages() {
+        int totalRecords = repo.getTotalCount();
+        return (int) Math.ceil((double) totalRecords / LIMIT);
     }
 
     public String add(PhuongThucThanhToan pt) {
@@ -17,8 +28,7 @@ public class PhuongThucThanhToanService {
             return "Lỗi: Tên phương thức không được để trống!";
         }
 
-        pt.setTrangThai(1); // Mặc định Hoạt động khi mới thêm
-
+        pt.setTrangThai(1);
         return repo.add(pt) ? "Thêm phương thức thanh toán thành công!" : "Lỗi hệ thống khi thêm!";
     }
 

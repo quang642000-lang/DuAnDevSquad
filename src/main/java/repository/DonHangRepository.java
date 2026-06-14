@@ -17,11 +17,10 @@ public class DonHangRepository {
         String sqlTopping = "INSERT INTO CHI_TIET_TOPPING (so_luong_topping, gia_chot_topping, ma_chi_tiet, ma_topping) VALUES (?, ?, ?, ?)";
         String updateDiem = "UPDATE KHACH_HANG SET diem_tich_luy = diem_tich_luy - ? + ? WHERE ma_kh = ?";
 
-        // Try-with-resources tự động đóng Connection (Chống Memory Leak)
         try (Connection con = DBConnect.getConnection()) {
-            con.setAutoCommit(false); // Mở Transaction
+            con.setAutoCommit(false);
             try {
-                // 1. CHỐNG RACE CONDITION: Lock dòng Khuyến mãi và kiểm tra lượt dùng
+                // 1. CHỐNG RACE CONDITION
                 if (dh.getKhuyenMai() != null && dh.getKhuyenMai().getMaKM() != null && !dh.getKhuyenMai().getMaKM().isEmpty()) {
                     try (PreparedStatement psCheck = con.prepareStatement(checkKhuyenMai)) {
                         psCheck.setString(1, dh.getKhuyenMai().getMaKM());
@@ -43,7 +42,6 @@ public class DonHangRepository {
                     psDH.setInt(3, dh.getTongTienTra());
                     psDH.setInt(4, dh.getSoTienKhachDua());
                     psDH.setString(5, dh.getNhanVien().getMaNV());
-                    // Xử lý khách vãng lai an toàn (NULL) thay vì "0000000000"
                     if (dh.getKhachHang() != null && dh.getKhachHang().getMaKH() != null) {
                         psDH.setString(6, dh.getKhachHang().getMaKH());
                     } else {
@@ -90,7 +88,7 @@ public class DonHangRepository {
                     }
                 }
 
-                // 4. TRỪ/CỘNG ĐIỂM NGAY TRONG TRANSACTION (Đảm bảo tính ACID)
+                // 4. TRỪ/CỘNG ĐIỂM
                 if (dh.getKhachHang() != null && dh.getKhachHang().getMaKH() != null) {
                     try (PreparedStatement psDiem = con.prepareStatement(updateDiem)) {
                         psDiem.setInt(1, diemSuDung);
