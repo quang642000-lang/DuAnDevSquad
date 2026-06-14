@@ -25,13 +25,24 @@ public class NhanVienController extends HttpServlet {
             case "toggle-status":
                 String idToggle = request.getParameter("id");
                 int status = Integer.parseInt(request.getParameter("status"));
-                request.getSession().setAttribute("message", nhanVienService.updateTrangThai(idToggle, status));
+                NhanVien currentNVToggle = (NhanVien) request.getSession().getAttribute("nhanVienDangNhap");
+
+                if (currentNVToggle != null && currentNVToggle.getMaNV().equals(idToggle) && status == 0) {
+                    request.getSession().setAttribute("message", "Lỗi: Bạn không thể tự khóa tài khoản của chính mình!");
+                } else {
+                    request.getSession().setAttribute("message", nhanVienService.updateTrangThai(idToggle, status));
+                }
                 response.sendRedirect(request.getContextPath() + "/nhan-vien?action=list");
                 break;
-
             case "delete":
                 String idDel = request.getParameter("id");
-                request.getSession().setAttribute("message", nhanVienService.delete(idDel));
+                NhanVien currentNVDel = (NhanVien) request.getSession().getAttribute("nhanVienDangNhap");
+                // ĐÃ FIX: Chặn tự xóa chính mình
+                if (currentNVDel != null && currentNVDel.getMaNV().equals(idDel)) {
+                    request.getSession().setAttribute("message", "Lỗi: Dại dột! Bạn không thể tự xóa tài khoản của chính mình!");
+                } else {
+                    request.getSession().setAttribute("message", nhanVienService.delete(idDel));
+                }
                 response.sendRedirect(request.getContextPath() + "/nhan-vien?action=list");
                 break;
 
