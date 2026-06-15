@@ -1,23 +1,24 @@
-    <%@ page contentType="text/html;charset=UTF-8" language="java" isELIgnored="false" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" isELIgnored="false" %>
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
 <%@ taglib uri="jakarta.tags.functions" prefix="fn" %>
 
+<!-- VÙNG CHỨA CÁC THÔNG BÁO TỪ BACKEND -->
 <div class="toast-container position-fixed top-0 end-0 p-3 mt-2" style="z-index: 1055;" id="js-toast-container">
     <c:if test="${not empty sessionScope.message}">
         <c:choose>
             <c:when test="${fn:contains(sessionScope.message, 'Lỗi') || fn:contains(sessionScope.message, 'Không thể') || fn:contains(sessionScope.message, 'thất bại')}">
-                <div class="toast align-items-center border-0 mb-2 shadow-lg rounded-3 alert-danger" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast align-items-center text-white border-0 mb-2 shadow-lg rounded-3 bg-danger" role="alert" aria-live="assertive" aria-atomic="true">
                     <div class="d-flex">
-                        <div class="toast-body fw-bold d-flex align-items-center"><i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i> ${sessionScope.message}</div>
-                        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
+                        <div class="toast-body fw-bold d-flex align-items-center"><i class="bi bi-x-circle-fill me-2 fs-5"></i> ${sessionScope.message}</div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
                     </div>
                 </div>
             </c:when>
             <c:otherwise>
-                <div class="toast align-items-center border-0 mb-2 shadow-lg rounded-3 alert-success" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast align-items-center text-white border-0 mb-2 shadow-lg rounded-3 bg-success" role="alert" aria-live="assertive" aria-atomic="true">
                     <div class="d-flex">
                         <div class="toast-body fw-bold d-flex align-items-center"><i class="bi bi-check-circle-fill me-2 fs-5"></i> ${sessionScope.message}</div>
-                        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
                     </div>
                 </div>
             </c:otherwise>

@@ -1,9 +1,10 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
+<!-- MODAL XÁC NHẬN CHUNG (SỬ DỤNG LẠI CHO TOÀN BỘ HỆ THỐNG) -->
 <div class="modal fade" id="jsConfirmModal" tabindex="-1" aria-hidden="true" style="z-index: 1060;">
     <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content shadow-lg border-0 text-center" style="border-radius: 16px;">
-            <div class="modal-body p-4 bg-white">
+        <div class="modal-content shadow-lg border-0 text-center">
+            <div class="modal-body p-4 bg-white rounded-3">
                 <div class="text-warning mb-3">
                     <i class="bi bi-question-circle-fill" style="font-size: 3.5rem;"></i>
                 </div>

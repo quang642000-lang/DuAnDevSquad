@@ -29,129 +29,139 @@
     <!-- ================= MAIN CONTENT ================= -->
     <div class="main-content">
         <!-- NAVBAR CỦA ADMIN -->
-        <header class="top-navbar">
-            <!-- Mobile Header Row (Nút Menu + Tiêu đề + User Profile) -->
-            <div class="mobile-header-row d-lg-none">
-                <div class="d-flex align-items-center">
-                    <button class="btn btn-light me-3 border-0 shadow-sm rounded-3 px-3 py-2" onclick="toggleSidebar()">
-                        <i class="bi bi-list fs-5"></i>
-                    </button>
-                    <h5 class="mb-0 fw-bold text-dark">TEA POS</h5>
-                </div>
-                <div class="dropdown">
-                    <button class="btn btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-sm" style="width: 42px; height: 42px;" type="button" data-bs-toggle="dropdown">
-                        <img src="https://ui-avatars.com/api/?name=${sessionScope.nhanVienDangNhap.hoTen}&background=D97706&color=fff&rounded=true&bold=true" alt="avatar" width="34" height="34" class="rounded-circle">
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 rounded-3">
-                        <li><h6 class="dropdown-header">${sessionScope.nhanVienDangNhap.hoTen}</h6></li>
-                        <li><a class="dropdown-item text-danger fw-semibold py-2" href="${pageContext.request.contextPath}/auth?action=logout"><i class="bi bi-box-arrow-right me-2"></i> Đăng Xuất</a></li>
-                    </ul>
-                </div>
+        <header class="top-navbar bg-white shadow-sm px-4 py-3 d-flex justify-content-between align-items-center mb-4">
+            <!-- Mobile Header -->
+            <div class="d-flex align-items-center d-lg-none">
+                <button class="btn btn-light me-3 border-0 shadow-sm" onclick="toggleSidebar()">
+                    <i class="bi bi-list fs-5"></i>
+                </button>
+                <h5 class="mb-0 fw-bold text-dark">TEA POS</h5>
             </div>
 
             <!-- Desktop Left Side (Tiêu đề) -->
             <div class="d-none d-lg-flex align-items-center">
-                <h5 class="mb-0 fw-bold text-dark me-4">Dashboard</h5>
+                <h4 class="mb-0 fw-bold text-dark me-4"><i class="bi bi-grid-1x2-fill text-brand me-2"></i>Bảng Điều Khiển</h4>
             </div>
 
             <!-- BỘ LỌC NGÀY & NHÂN VIÊN -->
-            <form action="${pageContext.request.contextPath}/admin" method="get" class="filter-form d-flex flex-wrap align-items-center gap-2 bg-white rounded-3 p-2 border shadow-sm flex-grow-1 justify-content-lg-end" style="border-color: #E2E8F0 !important;">
-                <div class="d-flex align-items-center bg-light rounded-pill px-3 py-1">
+            <form action="${pageContext.request.contextPath}/admin" method="get" class="filter-form d-none d-md-flex align-items-center gap-2 bg-light rounded-pill p-1 border shadow-sm">
+                <div class="d-flex align-items-center px-3 border-end">
                     <span class="small text-muted fw-bold me-2">Từ:</span>
-                    <input type="date" class="form-control form-control-sm border-0 bg-transparent shadow-none p-0 fw-medium text-dark w-100" name="tuNgay" id="filterTuNgay" value="${requestScope.tuNgay}">
+                    <input type="date" class="form-control form-control-sm border-0 bg-transparent shadow-none p-0 fw-medium text-dark" name="tuNgay" value="${requestScope.tuNgay}">
                 </div>
-                <div class="d-flex align-items-center bg-light rounded-pill px-3 py-1">
+                <div class="d-flex align-items-center px-3 border-end">
                     <span class="small text-muted fw-bold me-2">Đến:</span>
-                    <input type="date" class="form-control form-control-sm border-0 bg-transparent shadow-none p-0 fw-medium text-dark w-100" name="denNgay" id="filterDenNgay" value="${requestScope.denNgay}">
+                    <input type="date" class="form-control form-control-sm border-0 bg-transparent shadow-none p-0 fw-medium text-dark" name="denNgay" value="${requestScope.denNgay}">
                 </div>
-                <div class="d-flex align-items-center bg-light rounded-pill px-2 py-1">
+                <div class="d-flex align-items-center px-2">
                     <i class="bi bi-person-badge text-primary ms-1 me-2"></i>
-                    <select class="form-select form-select-sm border-0 bg-transparent shadow-none fw-medium text-dark p-0 pe-4 w-100" name="maNV" id="filterMaNV">
+                    <select class="form-select form-select-sm border-0 bg-transparent shadow-none fw-medium text-dark p-0 pe-4" name="maNV">
                         <option value="">Mọi nhân viên</option>
                         <c:forEach var="nv" items="${requestScope.danhSachNhanVien}">
                             <option value="${nv.maNV}" ${requestScope.selectedNV == nv.maNV ? 'selected' : ''}>${nv.hoTen}</option>
                         </c:forEach>
                     </select>
                 </div>
-                <div class="d-flex gap-2">
-                    <button class="btn btn-sm btn-dark rounded-pill px-4 fw-bold w-100" type="submit">Lọc</button>
-                    <a href="${pageContext.request.contextPath}/admin" class="btn btn-sm btn-light border text-danger rounded-pill px-3 w-100" title="Xóa Lọc"><i class="bi bi-arrow-clockwise"></i></a>
-                </div>
+                <button class="btn btn-sm btn-dark rounded-pill px-3 fw-bold" type="submit">Lọc</button>
+                <a href="${pageContext.request.contextPath}/admin" class="btn btn-sm btn-light text-danger rounded-pill px-2 me-1" title="Xóa Lọc"><i class="bi bi-arrow-clockwise"></i></a>
             </form>
 
-            <!-- Desktop Profile -->
-            <div class="dropdown d-none d-lg-block ms-auto ps-3">
+            <!-- Profile -->
+            <div class="dropdown d-flex align-items-center ms-3">
                 <button class="btn btn-light rounded-pill px-3 py-2 fw-semibold border-0 shadow-sm d-flex align-items-center" type="button" data-bs-toggle="dropdown">
                     <img src="https://ui-avatars.com/api/?name=${sessionScope.nhanVienDangNhap.hoTen}&background=D97706&color=fff&rounded=true&bold=true" alt="avatar" width="28" height="28" class="me-2 rounded-circle">
-                    <span>${sessionScope.nhanVienDangNhap.hoTen}</span>
+                    <span class="d-none d-sm-inline">${sessionScope.nhanVienDangNhap.hoTen}</span>
                     <i class="bi bi-chevron-down ms-2 small text-muted"></i>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 rounded-3">
+                    <li><h6 class="dropdown-header d-sm-none">${sessionScope.nhanVienDangNhap.hoTen}</h6></li>
                     <li><a class="dropdown-item text-danger fw-semibold py-2" href="${pageContext.request.contextPath}/auth?action=logout"><i class="bi bi-box-arrow-right me-2"></i> Đăng Xuất</a></li>
                 </ul>
             </div>
         </header>
 
         <!-- NỘI DUNG TRANG CHỦ -->
-        <div class="container-fluid p-4">
+        <div class="container-fluid px-4 mb-5">
+            <!-- Mobile Lọc (Chỉ hiện trên mobile) -->
+            <div class="d-block d-md-none mb-4">
+                <form action="${pageContext.request.contextPath}/admin" method="get" class="bg-white p-3 rounded-4 shadow-sm border">
+                    <div class="row g-2">
+                        <div class="col-6"><input type="date" class="form-control form-control-sm" name="tuNgay" value="${requestScope.tuNgay}"></div>
+                        <div class="col-6"><input type="date" class="form-control form-control-sm" name="denNgay" value="${requestScope.denNgay}"></div>
+                        <div class="col-12">
+                            <select class="form-select form-select-sm" name="maNV">
+                                <option value="">Mọi nhân viên</option>
+                                <c:forEach var="nv" items="${requestScope.danhSachNhanVien}">
+                                    <option value="${nv.maNV}" ${requestScope.selectedNV == nv.maNV ? 'selected' : ''}>${nv.hoTen}</option>
+                                </c:forEach>
+                            </select>
+                        </div>
+                        <div class="col-12 d-flex gap-2">
+                            <button class="btn btn-sm btn-dark flex-grow-1" type="submit">Lọc</button>
+                            <a href="${pageContext.request.contextPath}/admin" class="btn btn-sm btn-outline-danger"><i class="bi bi-arrow-clockwise"></i></a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6 class="text-muted fw-bold mb-0 text-uppercase small" style="letter-spacing: 0.5px;">Chỉ Số Doanh Thu</h6>
+                <h6 class="text-muted fw-bold mb-0 text-uppercase small" style="letter-spacing: 0.5px;">Chỉ Số Tổng Quan</h6>
                 <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-3 py-2 fs-6 rounded-pill shadow-sm">
-                        <i class="bi bi-graph-up-arrow me-1"></i> Tháng này: <fmt:formatNumber value="${not empty requestScope.thongKe.doanhThuThangNay ? requestScope.thongKe.doanhThuThangNay : 0}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
-                    </span>
+                    <i class="bi bi-graph-up-arrow me-1"></i> Tháng này: <fmt:formatNumber value="${not empty requestScope.thongKe.doanhThuThangNay ? requestScope.thongKe.doanhThuThangNay : 0}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
+                </span>
             </div>
 
             <!-- THẺ THỐNG KÊ -->
             <div class="row g-4 mb-4">
                 <div class="col-md-6 col-xl-3">
-                    <div class="card stat-card shadow-sm h-100">
-                        <div class="d-flex justify-content-between align-items-center">
+                    <div class="card stat-card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                        <div class="card-body d-flex justify-content-between align-items-center p-4">
                             <div>
                                 <h6 class="text-muted fw-semibold mb-1 small text-uppercase">DOANH THU KỲ LỌC</h6>
-                                <h3 class="fw-bold text-dark mb-0" id="statDoanhThu">
+                                <h3 class="fw-bold text-dark mb-0">
                                     <fmt:formatNumber value="${requestScope.thongKe.doanhThuHomNay}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
                                 </h3>
                             </div>
-                            <div class="stat-icon bg-success bg-opacity-10 text-success">
+                            <div class="stat-icon bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; font-size: 1.5rem;">
                                 <i class="bi bi-cash-stack"></i>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6 col-xl-3">
-                    <div class="card stat-card shadow-sm h-100">
-                        <div class="d-flex justify-content-between align-items-center">
+                    <div class="card stat-card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                        <div class="card-body d-flex justify-content-between align-items-center p-4">
                             <div>
                                 <h6 class="text-muted fw-semibold mb-1 small text-uppercase">ĐƠN HÀNG KỲ LỌC</h6>
-                                <h3 class="fw-bold text-dark mb-0" id="statDonHang">${requestScope.thongKe.donHangMoi} <span class="fs-6 fw-medium text-muted">đơn</span></h3>
+                                <h3 class="fw-bold text-dark mb-0">${requestScope.thongKe.donHangMoi} <span class="fs-6 fw-medium text-muted">đơn</span></h3>
                             </div>
-                            <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                            <div class="stat-icon bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; font-size: 1.5rem;">
                                 <i class="bi bi-receipt-cutoff"></i>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6 col-xl-3">
-                    <div class="card stat-card shadow-sm h-100">
-                        <div class="d-flex justify-content-between align-items-center">
+                    <div class="card stat-card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                        <div class="card-body d-flex justify-content-between align-items-center p-4">
                             <div>
                                 <h6 class="text-muted fw-semibold mb-1 small text-uppercase">MÓN ĐANG BÁN</h6>
                                 <h3 class="fw-bold text-dark mb-0">${requestScope.thongKe.tongSanPham} <span class="fs-6 fw-medium text-muted">món</span></h3>
                             </div>
-                            <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                            <div class="stat-icon bg-warning bg-opacity-10 text-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; font-size: 1.5rem;">
                                 <i class="bi bi-cup-hot-fill"></i>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6 col-xl-3">
-                    <div class="card stat-card shadow-sm h-100">
-                        <div class="d-flex justify-content-between align-items-center">
+                    <div class="card stat-card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                        <div class="card-body d-flex justify-content-between align-items-center p-4">
                             <div>
                                 <h6 class="text-muted fw-semibold mb-1 small text-uppercase">TỔNG KHÁCH HÀNG</h6>
                                 <h3 class="fw-bold text-dark mb-0">${requestScope.thongKe.tongKhachHang} <span class="fs-6 fw-medium text-muted">người</span></h3>
                             </div>
-                            <div class="stat-icon bg-danger bg-opacity-10 text-danger">
+                            <div class="stat-icon bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; font-size: 1.5rem;">
                                 <i class="bi bi-people-fill"></i>
                             </div>
                         </div>
@@ -162,9 +172,9 @@
             <!-- PHẦN BIỂU ĐỒ VÀ TOP SẢN PHẨM -->
             <div class="row g-4 mb-4">
                 <div class="col-lg-8">
-                    <div class="card card-box h-100">
-                        <div class="card-header-box d-flex justify-content-between align-items-center">
-                            <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-bar-chart-fill text-primary me-2"></i>Biểu Đồ Doanh Thu Lọc</h6>
+                    <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                        <div class="card-header bg-white border-bottom py-3">
+                            <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-bar-chart-fill text-primary me-2"></i>Biểu Đồ Doanh Thu</h6>
                         </div>
                         <div class="card-body p-4">
                             <canvas id="revenueChart" style="max-height: 300px; width: 100%;"></canvas>
@@ -172,9 +182,9 @@
                     </div>
                 </div>
                 <div class="col-lg-4">
-                    <div class="card card-box h-100">
-                        <div class="card-header-box">
-                            <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-fire text-danger me-2"></i>Top 5 Món Bán Chạy Nhất</h6>
+                    <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                        <div class="card-header bg-white border-bottom py-3">
+                            <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-fire text-danger me-2"></i>Top 5 Món Bán Chạy</h6>
                         </div>
                         <div class="card-body p-0">
                             <div class="table-responsive">
@@ -227,19 +237,19 @@
             <!-- BẢNG DANH SÁCH ĐƠN HÀNG -->
             <div class="row g-4">
                 <div class="col-12">
-                    <div class="card card-box mb-4">
-                        <div class="card-header-box d-flex justify-content-between align-items-center">
+                    <div class="card border-0 shadow-sm mb-4" style="border-radius: 16px;">
+                        <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
                             <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-receipt text-success me-2"></i>Lịch Sử Giao Dịch Đã Lọc</h6>
                             <span class="badge bg-dark text-white rounded-pill px-3 py-2 shadow-sm">${requestScope.totalRecords} đơn hàng</span>
                         </div>
                         <div class="card-body p-0">
                             <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
-                                <table class="table table-hover table-custom mb-0 text-center align-middle dt-responsive nowrap " style="width:100%" id="orderTable">
-                                    <thead class="sticky-top bg-white shadow-sm">
+                                <table class="table table-hover table-custom mb-0 text-center align-middle dt-responsive nowrap" style="width:100%" id="orderTable">
+                                    <thead class="sticky-top bg-light shadow-sm">
                                     <tr>
                                         <th width="10%">Giờ Tạo</th>
                                         <th width="15%" class="text-start">Mã Hóa Đơn</th>
-                                        <th width="20%">Người Thu Tiền</th>
+                                        <th width="20%">Thu Ngân</th>
                                         <th width="20%" class="text-end">Tổng Doanh Thu</th>
                                         <th width="15%">Trạng Thái</th>
                                         <th width="10%">Thao Tác</th>
@@ -248,12 +258,8 @@
                                     <tbody>
                                     <c:forEach var="dh" items="${requestScope.listDonHang}">
                                         <tr>
-                                            <td class="fw-semibold text-muted">
-                                                <fmt:formatDate value="${dh.thoiGian}" pattern="HH:mm:ss dd/MM"/>
-                                            </td>
-                                            <td class="text-start fw-bold text-dark">
-                                                    ${dh.maDH}
-                                            </td>
+                                            <td class="fw-semibold text-muted"><fmt:formatDate value="${dh.thoiGian}" pattern="HH:mm dd/MM"/></td>
+                                            <td class="text-start fw-bold text-dark">${dh.maDH}</td>
                                             <td>
                                                 <div class="d-flex align-items-center justify-content-center">
                                                     <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold me-2" style="width:28px; height:28px; font-size:0.75rem;">
@@ -262,25 +268,22 @@
                                                     <span class="fw-medium text-dark">${dh.tenNhanVien}</span>
                                                 </div>
                                             </td>
-                                            <td class="text-end fw-bold text-danger fs-6">
-                                                <fmt:formatNumber value="${dh.tongTien}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
-                                            </td>
+                                            <td class="text-end fw-bold text-danger fs-6"><fmt:formatNumber value="${dh.tongTien}" type="currency" currencySymbol="₫" maxFractionDigits="0"/></td>
                                             <td>
                                                 <c:choose>
                                                     <c:when test="${dh.trangThai == 'Hoàn thành'}">
-                                                        <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill"><i class="bi bi-check2-circle me-1"></i>Hoàn thành</span>
+                                                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill">Hoàn thành</span>
                                                     </c:when>
                                                     <c:when test="${dh.trangThai == 'Đã hủy'}">
-                                                        <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill"><i class="bi bi-x-circle me-1"></i>Đã hủy</span>
+                                                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-3 py-2 rounded-pill">Đã hủy</span>
                                                     </c:when>
                                                     <c:otherwise>
-                                                        <span class="badge bg-warning bg-opacity-10 text-warning px-3 py-2 rounded-pill"><i class="bi bi-hourglass-split me-1"></i>${dh.trangThai}</span>
+                                                        <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 px-3 py-2 rounded-pill">${dh.trangThai}</span>
                                                     </c:otherwise>
                                                 </c:choose>
                                             </td>
                                             <td>
-                                                <button class="btn btn-light btn-sm rounded-circle shadow-sm text-primary" style="width: 36px; height: 36px;" title="Xem Hóa Đơn"
-                                                        onclick="viewOrderReceipt('${dh.maDH}')">
+                                                <button class="btn btn-light btn-sm rounded-circle shadow-sm text-primary border" style="width: 36px; height: 36px;" title="Xem Hóa Đơn" onclick="viewOrderReceipt('${dh.maDH}')">
                                                     <i class="bi bi-receipt"></i>
                                                 </button>
                                             </td>
@@ -294,13 +297,11 @@
                                     <nav>
                                         <ul class="pagination pagination-sm shadow-sm mb-0">
                                             <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
-                                                <!-- Rất quan trọng: Phải nối đủ tham số tuNgay, denNgay, maNV để không bị mất kết quả lọc khi chuyển trang -->
                                                 <a class="page-link text-brand fw-bold" href="${pageContext.request.contextPath}/admin?tuNgay=${requestScope.tuNgay}&denNgay=${requestScope.denNgay}&maNV=${requestScope.selectedNV}&page=${currentPage - 1}">Trước</a>
                                             </li>
                                             <c:forEach begin="1" end="${totalPages}" var="i">
                                                 <li class="page-item ${currentPage == i ? 'active' : ''}">
-                                                    <a class="page-link ${currentPage == i ? 'bg-brand border-brand text-white' : 'text-dark'}"
-                                                       href="${pageContext.request.contextPath}/admin?tuNgay=${requestScope.tuNgay}&denNgay=${requestScope.denNgay}&maNV=${requestScope.selectedNV}&page=${i}">${i}</a>
+                                                    <a class="page-link ${currentPage == i ? 'bg-brand border-brand text-white' : 'text-dark'}" href="${pageContext.request.contextPath}/admin?tuNgay=${requestScope.tuNgay}&denNgay=${requestScope.denNgay}&maNV=${requestScope.selectedNV}&page=${i}">${i}</a>
                                                 </li>
                                             </c:forEach>
                                             <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
@@ -318,9 +319,7 @@
     </div>
 </div>
 
-<!-- ============================================= -->
-<!-- MODAL XEM CHI TIẾT ĐƠN HÀNG LẤY TỪ AJAX       -->
-<!-- ============================================= -->
+<!-- MODAL XEM CHI TIẾT ĐƠN HÀNG LẤY TỪ AJAX -->
 <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content border-0 bg-transparent shadow-none">
@@ -330,7 +329,6 @@
                     <div style="font-size:12px; margin-top: 5px;">Bản Sao Hóa Đơn</div>
                     <hr>
                 </div>
-
                 <div style="font-size:12px; margin-bottom:15px; line-height: 1.6;">
                     <div><span style="font-weight:bold;">Mã HD:</span> <span id="r_maDH">Đang tải...</span></div>
                     <div><span style="font-weight:bold;">Ngày:</span> <span id="r_ngay">...</span></div>
@@ -338,7 +336,6 @@
                     <div><span style="font-weight:bold;">Khách:</span> <span id="r_khach">...</span></div>
                     <div><span style="font-weight:bold;">TT:</span> <span id="r_pttt">...</span></div>
                 </div>
-
                 <hr>
                 <div style="font-size:12px;">
                     <table style="width:100%; border-collapse:collapse;" id="r_items">
@@ -346,34 +343,16 @@
                     </table>
                 </div>
                 <hr>
-
                 <div style="font-size:12px; line-height: 1.6;">
-                    <div style="display:flex; justify-content:space-between;">
-                        <span>Tổng cộng:</span>
-                        <span style="font-weight:bold;" id="r_tongTienHang">0</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between;">
-                        <span>Giảm giá/Điểm:</span>
-                        <span id="r_giamGia">0</span>
-                    </div>
+                    <div style="display:flex; justify-content:space-between;"><span>Tổng cộng:</span><span style="font-weight:bold;" id="r_tongTienHang">0</span></div>
+                    <div style="display:flex; justify-content:space-between;"><span>Giảm giá/Điểm:</span><span id="r_giamGia">0</span></div>
                     <hr>
-                    <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:16px; margin-top:5px; margin-bottom:5px;">
-                        <span>THANH TOÁN:</span>
-                        <span id="r_tongPhaiTra">0</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between;">
-                        <span>Tiền nhận:</span>
-                        <span id="r_tienKhachDua">0</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between;">
-                        <span>Tiền thối:</span>
-                        <span id="r_tienThoi">0</span>
-                    </div>
+                    <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:16px; margin-top:5px; margin-bottom:5px;"><span>THANH TOÁN:</span><span id="r_tongPhaiTra">0</span></div>
+                    <div style="display:flex; justify-content:space-between;"><span>Tiền nhận:</span><span id="r_tienKhachDua">0</span></div>
+                    <div style="display:flex; justify-content:space-between;"><span>Tiền thối:</span><span id="r_tienThoi">0</span></div>
                 </div>
                 <hr>
-                <div style="text-align:center; font-size:11px; margin-top:15px; color:#555;">
-                    Bản sao được trích xuất từ hệ thống.
-                </div>
+                <div style="text-align:center; font-size:11px; margin-top:15px; color:#555;">Bản sao được trích xuất từ hệ thống.</div>
             </div>
             <div class="text-center mt-3 pb-4">
                 <button type="button" class="btn btn-light fw-bold px-4 rounded-pill shadow-sm" data-bs-dismiss="modal">Đóng Bản Sao</button>
@@ -390,7 +369,6 @@
 <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/global.js"></script>
 
-<!-- JAVASCRIPT XỬ LÝ GIAO DIỆN -->
 <script>
     // --- HỆ THỐNG TOAST ---
     function showToast(message, type = 'danger') {
@@ -464,7 +442,7 @@
                             tbody.appendChild(tr);
 
                             // Tùy chọn
-                            let sizeText = item.size ? item.size : 'M'; // Fallback nếu rỗng
+                            let sizeText = item.size ? item.size : 'M';
                             let trDetails = document.createElement('tr');
                             trDetails.innerHTML = `<td colspan="2" style="padding-left:12px; color:#555; font-size:11px; padding-bottom: 2px;">- Size \${sizeText}, \${item.da} Đá, \${item.duong} Đường</td>`;
                             tbody.appendChild(trDetails);
@@ -603,7 +581,7 @@
                     "searching": false,
                     "info": false,
                     "order": [],
-                    "columnDefs": [ { "orderable": false, "targets": [5] } ], /* Cấm sắp xếp cột Thao tác */
+                    "columnDefs": [ { "orderable": false, "targets": [5] } ],
                     "language": {
                         "emptyTable": '<div class="d-flex flex-column align-items-center py-4"><i class="bi bi-inbox fs-1 text-light mb-3"></i><p class="mb-0 fw-medium text-muted">Chưa có giao dịch nào phù hợp với bộ lọc.</p></div>'
                     }
