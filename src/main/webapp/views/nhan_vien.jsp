@@ -63,7 +63,6 @@
                         <button type="button" class="btn btn-brand fw-bold shadow-sm me-2 rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#addModal">
                             <i class="bi bi-plus-circle me-1"></i> Cấp Tài Khoản
                         </button>
-                        <a href="${pageContext.request.contextPath}/nhan-vien?action=list" class="btn btn-light border rounded-circle" style="width: 38px; height: 38px;"><i class="bi bi-arrow-clockwise"></i></a>
                     </div>
                 </div>
                 <div class="card-body p-0">
