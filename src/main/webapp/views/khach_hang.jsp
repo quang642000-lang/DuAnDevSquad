@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- ÁP DỤNG CLEAN ARCHITECTURE -->
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/global.css?v=2">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/global.css?v=4">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
 </head>

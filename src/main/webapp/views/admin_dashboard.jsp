@@ -8,17 +8,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TEA POS - Bảng Điều Khiển Quản Lý</title>
-
-    <!-- CÁC THƯ VIỆN BÊN NGOÀI -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <!-- ✅ ĐÃ XÓA KHỐI <style> CŨ VÀ GỌI CHUNG FILE GLOBAL.CSS -->
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/global.css?v=3">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/global.css?v=99">
 </head>
 <body>
 <input type="hidden" id="appContextPath" value="${pageContext.request.contextPath}">
@@ -250,60 +244,46 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <c:choose>
-                                        <c:when test="${not empty requestScope.listDonHang}">
-                                            <c:forEach var="dh" items="${requestScope.listDonHang}">
-                                                <tr>
-                                                    <td class="fw-semibold text-muted">
-                                                        <fmt:formatDate value="${dh.thoiGian}" pattern="HH:mm:ss dd/MM"/>
-                                                    </td>
-                                                    <td class="text-start fw-bold text-dark">
-                                                            ${dh.maDH}
-                                                    </td>
-                                                    <td>
-                                                        <div class="d-flex align-items-center justify-content-center">
-                                                            <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold me-2" style="width:28px; height:28px; font-size:0.75rem;">
-                                                                    ${fn:substring(dh.tenNhanVien, 0, 1)}
-                                                            </div>
-                                                            <span class="fw-medium text-dark">${dh.tenNhanVien}</span>
-                                                        </div>
-                                                    </td>
-                                                    <td class="text-end fw-bold text-danger fs-6">
-                                                        <fmt:formatNumber value="${dh.tongTien}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
-                                                    </td>
-                                                    <td>
-                                                        <c:choose>
-                                                            <c:when test="${dh.trangThai == 'Hoàn thành'}">
-                                                                <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill"><i class="bi bi-check2-circle me-1"></i>Hoàn thành</span>
-                                                            </c:when>
-                                                            <c:when test="${dh.trangThai == 'Đã hủy'}">
-                                                                <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill"><i class="bi bi-x-circle me-1"></i>Đã hủy</span>
-                                                            </c:when>
-                                                            <c:otherwise>
-                                                                <span class="badge bg-warning bg-opacity-10 text-warning px-3 py-2 rounded-pill"><i class="bi bi-hourglass-split me-1"></i>${dh.trangThai}</span>
-                                                            </c:otherwise>
-                                                        </c:choose>
-                                                    </td>
-                                                    <td>
-                                                        <button class="btn btn-light btn-sm rounded-circle shadow-sm text-primary" style="width: 36px; height: 36px;" title="Xem Hóa Đơn"
-                                                                onclick="viewOrderReceipt('${dh.maDH}')">
-                                                            <i class="bi bi-receipt"></i>
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            </c:forEach>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <tr>
-                                                <td colspan="6" class="text-center text-muted py-5">
-                                                    <div class="d-flex flex-column align-items-center">
-                                                        <i class="bi bi-inbox fs-1 text-light mb-3"></i>
-                                                        <p class="mb-0 fw-medium">Chưa có giao dịch nào phù hợp với bộ lọc.</p>
+                                    <c:forEach var="dh" items="${requestScope.listDonHang}">
+                                        <tr>
+                                            <td class="fw-semibold text-muted">
+                                                <fmt:formatDate value="${dh.thoiGian}" pattern="HH:mm:ss dd/MM"/>
+                                            </td>
+                                            <td class="text-start fw-bold text-dark">
+                                                    ${dh.maDH}
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold me-2" style="width:28px; height:28px; font-size:0.75rem;">
+                                                            ${fn:substring(dh.tenNhanVien, 0, 1)}
                                                     </div>
-                                                </td>
-                                            </tr>
-                                        </c:otherwise>
-                                    </c:choose>
+                                                    <span class="fw-medium text-dark">${dh.tenNhanVien}</span>
+                                                </div>
+                                            </td>
+                                            <td class="text-end fw-bold text-danger fs-6">
+                                                <fmt:formatNumber value="${dh.tongTien}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
+                                            </td>
+                                            <td>
+                                                <c:choose>
+                                                    <c:when test="${dh.trangThai == 'Hoàn thành'}">
+                                                        <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill"><i class="bi bi-check2-circle me-1"></i>Hoàn thành</span>
+                                                    </c:when>
+                                                    <c:when test="${dh.trangThai == 'Đã hủy'}">
+                                                        <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill"><i class="bi bi-x-circle me-1"></i>Đã hủy</span>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <span class="badge bg-warning bg-opacity-10 text-warning px-3 py-2 rounded-pill"><i class="bi bi-hourglass-split me-1"></i>${dh.trangThai}</span>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-light btn-sm rounded-circle shadow-sm text-primary" style="width: 36px; height: 36px;" title="Xem Hóa Đơn"
+                                                        onclick="viewOrderReceipt('${dh.maDH}')">
+                                                    <i class="bi bi-receipt"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </c:forEach>
                                     </tbody>
                                 </table>
                             </div>
@@ -400,7 +380,13 @@
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/global.js"></script>
 
 <!-- JAVASCRIPT XỬ LÝ GIAO DIỆN -->
 <script>
@@ -528,100 +514,101 @@
 
     // Biểu đồ
     document.addEventListener("DOMContentLoaded", function() {
-        const labelsString = '${requestScope.chartLabels != null ? requestScope.chartLabels : "[]"}';
-        const dataValuesString = '${requestScope.chartValues != null ? requestScope.chartValues : "[]"}';
-
-        let labels = [];
-        let dataValues = [];
         try {
+            const labelsString = '${requestScope.chartLabels != null ? requestScope.chartLabels : "[]"}';
+            const dataValuesString = '${requestScope.chartValues != null ? requestScope.chartValues : "[]"}';
+
+            let labels = [];
+            let dataValues = [];
+
             if (!labelsString.startsWith("$")) { labels = JSON.parse(labelsString); }
             if (!dataValuesString.startsWith("$")) { dataValues = JSON.parse(dataValuesString); }
-        } catch (e) {
-            console.error("Lỗi đọc dữ liệu biểu đồ:", e);
-        }
 
-        if (labels.length > 0) {
-            const ctx = document.getElementById('revenueChart').getContext('2d');
-            let gradient = ctx.createLinearGradient(0, 0, 0, 400);
-            gradient.addColorStop(0, 'rgba(217, 119, 6, 0.8)');
-            gradient.addColorStop(1, 'rgba(217, 119, 6, 0.1)');
+            if (labels.length > 0) {
+                const ctx = document.getElementById('revenueChart').getContext('2d');
+                let gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                gradient.addColorStop(0, 'rgba(217, 119, 6, 0.8)');
+                gradient.addColorStop(1, 'rgba(217, 119, 6, 0.1)');
 
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Doanh thu (VNĐ)',
-                        data: dataValues,
-                        backgroundColor: gradient,
-                        borderColor: '#D97706',
-                        borderWidth: 1,
-                        borderRadius: 8,
-                        barPercentage: 0.5
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: '#0F172A',
-                            titleFont: { family: 'Plus Jakarta Sans', size: 13 },
-                            bodyFont: { family: 'Plus Jakarta Sans', size: 14, weight: 'bold' },
-                            padding: 12,
-                            cornerRadius: 8,
-                            callbacks: {
-                                label: function(context) {
-                                    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(context.raw);
-                                }
-                            }
-                        }
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Doanh thu (VNĐ)',
+                            data: dataValues,
+                            backgroundColor: gradient,
+                            borderColor: '#D97706',
+                            borderWidth: 1,
+                            borderRadius: 8,
+                            barPercentage: 0.5
+                        }]
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { borderDash: [1], color: '#E2E8F0', drawBorder: false },
-                            ticks: {
-                                font: { family: 'Plus Jakarta Sans' },
-                                color: '#64748B',
-                                callback: function(value) {
-                                    if(value >= 1000000) return (value / 1000000) + 'M';
-                                    if(value >= 1000) return (value / 1000) + 'k';
-                                    return value;
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: '#0F172A',
+                                titleFont: { family: 'Plus Jakarta Sans', size: 13 },
+                                bodyFont: { family: 'Plus Jakarta Sans', size: 14, weight: 'bold' },
+                                padding: 12,
+                                cornerRadius: 8,
+                                callbacks: {
+                                    label: function(context) {
+                                        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(context.raw);
+                                    }
                                 }
                             }
                         },
-                        x: {
-                            grid: { display: false, drawBorder: false },
-                            ticks: { font: { family: 'Plus Jakarta Sans' }, color: '#64748B' }
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { borderDash: [1], color: '#E2E8F0', drawBorder: false },
+                                ticks: {
+                                    font: { family: 'Plus Jakarta Sans' },
+                                    color: '#64748B',
+                                    callback: function(value) {
+                                        if(value >= 1000000) return (value / 1000000) + 'M';
+                                        if(value >= 1000) return (value / 1000) + 'k';
+                                        return value;
+                                    }
+                                }
+                            },
+                            x: {
+                                grid: { display: false, drawBorder: false },
+                                ticks: { font: { family: 'Plus Jakarta Sans' }, color: '#64748B' }
+                            }
                         }
                     }
-                }
-            });
-        } else {
-            let canvasParent = document.getElementById('revenueChart').parentElement;
-            canvasParent.innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-graph-down text-light fs-1 d-block mb-2"></i><span class="fw-medium">Chưa có đủ dữ liệu giao dịch để vẽ biểu đồ.</span></div>';
+                });
+            } else {
+                let canvasParent = document.getElementById('revenueChart').parentElement;
+                canvasParent.innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-graph-down text-light fs-1 d-block mb-2"></i><span class="fw-medium">Chưa có đủ dữ liệu giao dịch để vẽ biểu đồ.</span></div>';
+            }
+        } catch (e) {
+            console.error("Lỗi vẽ biểu đồ:", e);
         }
     });
-</script>
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
-<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
-<script>
+
     $(document).ready(function() {
-        if ($('#orderTable tbody td').length > 1) {
-            $('#orderTable').DataTable({
-                "responsive": true,
-                "paging": false,
-                "searching": false,
-                "info": false,
-                "order": [],
-                "columnDefs": [ { "orderable": false, "targets": [6] } ], /* Cấm sắp xếp cột Thao tác */
-                "language": { "emptyTable": "Chưa có dữ liệu." }
-            });
+        try {
+            if ($('#orderTable').length > 0) {
+                $('#orderTable').DataTable({
+                    "responsive": true,
+                    "paging": false,
+                    "searching": false,
+                    "info": false,
+                    "order": [],
+                    "columnDefs": [ { "orderable": false, "targets": [5] } ], /* Cấm sắp xếp cột Thao tác */
+                    "language": {
+                        "emptyTable": '<div class="d-flex flex-column align-items-center py-4"><i class="bi bi-inbox fs-1 text-light mb-3"></i><p class="mb-0 fw-medium text-muted">Chưa có giao dịch nào phù hợp với bộ lọc.</p></div>'
+                    }
+                });
+            }
+        } catch (e) {
+            console.error("Lỗi khởi tạo DataTable:", e);
         }
     });
 </script>

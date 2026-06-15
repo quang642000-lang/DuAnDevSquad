@@ -141,8 +141,10 @@ body {
 /* =========================================================
    CSS ĐỊNH DẠNG SIDEBAR & HEADER DÙNG CHUNG
 ========================================================= */
+/* =========================================================
+   CSS ĐỊNH DẠNG SIDEBAR & HEADER DÙNG CHUNG
+========================================================= */
 .wrapper { display: flex; width: 100%; min-height: 100vh; }
-
 .sidebar { width: 280px; background-color: var(--brand-dark); color: #fff; display: flex; flex-direction: column; transition: all 0.3s ease; z-index: 1050; height: 100vh; position: sticky; top: 0; }
 .sidebar-header { padding: 24px 20px; text-align: center; background: rgba(0,0,0,0.1); border-bottom: 1px solid rgba(255,255,255,0.05); }
 .sidebar-menu { flex-grow: 1; padding: 15px 10px; overflow-y: auto; }
@@ -151,7 +153,7 @@ body {
 .menu-item { padding: 12px 16px; margin-bottom: 4px; display: flex; align-items: center; color: #94A3B8; text-decoration: none; font-weight: 500; border-radius: 8px; transition: all 0.2s;}
 .menu-item:hover, .menu-item.active { color: #fff; background-color: rgba(255,255,255,0.1); transform: translateX(4px); }
 .menu-item i { margin-right: 12px; font-size: 1.2rem; width: 24px; text-align: center;}
-.sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1040; }
+.sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1040; cursor: pointer; }
 
 .main-content { flex-grow: 1; display: flex; flex-direction: column; min-height: 100vh; width: calc(100% - 280px); transition: all 0.3s ease; }
 
@@ -162,23 +164,25 @@ body {
     position: sticky !important; top: 0 !important; z-index: 1030 !important;
 }
 
-/* Tối ưu khi xem trên Điện thoại */
+/* Tối ưu bóp chữ và thu gọn Sidebar trên máy tính */
 @media (min-width: 992px) {
-    .table-custom td, .table-custom th {
-        white-space: normal !important; /* Ép chữ tự rớt dòng */
-        font-size: 0.85rem !important; /* Bóp nhỏ chữ một chút */
-        padding: 0.6rem 0.4rem !important; /* Giảm lề để tiết kiệm diện tích */
-    }
-    .table-custom .badge {
-        white-space: normal !important; /* Cho phép thẻ trạng thái rớt dòng */
-        display: inline-block;
-        line-height: 1.4;
-    }
-    .table-custom .btn-group {
-        white-space: normal !important;
-        display: flex;
-        flex-wrap: wrap; /* Ép cụm nút thao tác tự xếp chồng nếu chật */
-        gap: 3px;
-        justify-content: center;
-    }
+    .table-custom td, .table-custom th { white-space: normal !important; font-size: 0.85rem !important; padding: 0.6rem 0.4rem !important; }
+    .table-custom .badge { white-space: normal !important; display: inline-block; line-height: 1.4; }
+    .table-custom .btn-group { white-space: normal !important; display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; }
+
+    .sidebar.collapsed { width: 80px; }
+    .sidebar.collapsed .sidebar-header h4 { display: none; }
+    .sidebar.collapsed .menu-item span { display: none; }
+    .sidebar.collapsed .sidebar-menu .text-uppercase { display: none; }
+    .main-content.expanded { width: calc(100% - 80px); }
+}
+
+/* Tối ưu khi xem trên Điện thoại */
+@media (max-width: 991.98px) {
+    .sidebar { position: fixed; top: 0; left: 0; height: 100vh; transform: translateX(-100%); box-shadow: 4px 0 15px rgba(0,0,0,0.2); }
+    .sidebar.show { transform: translateX(0); }
+    .sidebar-overlay.show { display: block; }
+    .main-content { width: 100%; margin-left: 0; }
+    .top-navbar { padding: 10px 15px; }
+    .mobile-header-row { width: 100%; display: flex; justify-content: space-between; align-items: center; }
 }
