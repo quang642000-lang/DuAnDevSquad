@@ -529,7 +529,9 @@
                  data-code="${km.maCode}"
                  data-loai="${km.loaiGiamGia}"
                  data-giatri="${km.giaTriGiam}"
-                 data-min="${km.dieuKienToiThieu}"></div>
+                 data-min="${km.dieuKienToiThieu}"
+                 data-start="${km.ngayBatDau.time}"
+                 data-end="${km.ngayKetThuc.time}"></div>
         </c:if>
     </c:forEach>
 </div>
@@ -557,7 +559,9 @@
             code: item.getAttribute('data-code').toUpperCase(),
             loai: item.getAttribute('data-loai'),
             giaTri: parseFloat(item.getAttribute('data-giatri')),
-            min: parseFloat(item.getAttribute('data-min'))
+            min: parseFloat(item.getAttribute('data-min')),
+            start: parseInt(item.getAttribute('data-start')), // Thêm dòng này
+            end: parseInt(item.getAttribute('data-end'))      // Thêm dòng này
         });
     });
 

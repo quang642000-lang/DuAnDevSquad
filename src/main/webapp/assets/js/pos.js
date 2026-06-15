@@ -413,8 +413,22 @@ function changeModalTpQty(id, amount) {
 function checkAndApplyVoucher() {
     let codeInput = document.getElementById('inputVoucherCode').value.trim().toUpperCase();
     if (codeInput === '') { showToast("Vui lòng nhập mã giảm giá!", "danger"); return; }
+
     let found = window.availableVouchers.find(v => v.code === codeInput);
     if (found) {
+        // ---- BẮT ĐẦU VÁ LỖI LOGIC: KIỂM TRA THỜI GIAN THỰC TẾ ----
+        let now = new Date().getTime(); // Lấy thời gian hiện tại
+        if (now < found.start) {
+            showToast("Lỗi: Mã giảm giá này chưa đến ngày sử dụng!", "warning");
+            return;
+        }
+        // Cộng thêm 86399000 (23:59:59) để mã dùng được trọn vẹn đến hết ngày kết thúc
+        if (now > (found.end + 86399000)) {
+            showToast("Lỗi: Mã giảm giá này đã hết hạn!", "danger");
+            return;
+        }
+        // ---- KẾT THÚC KIỂM TRA THỜI GIAN ----
+
         let tongTienHang = cart.reduce((sum, item) => sum + (item.giaChot * item.soLuong), 0);
         if (tongTienHang >= found.min) {
             currentVoucher = found;

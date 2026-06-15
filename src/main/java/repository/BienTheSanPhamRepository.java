@@ -179,13 +179,14 @@ public class BienTheSanPhamRepository {
     }
 
     public boolean update(BienTheSanPham bt) {
-        String sql = "UPDATE BIEN_THE_SAN_PHAM SET kich_co = ?, gia_ban = ?, trang_thai = ? WHERE ma_bien_the = ?";
+        String sql = "UPDATE BIEN_THE_SAN_PHAM SET kich_co = ?, gia_ban = ? WHERE ma_bien_the = ?";
+
         try (Connection con = DBConnect.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, bt.getKichCo());
             ps.setInt(2, bt.getGiaBan());
-            ps.setInt(3, bt.getTrangThai());
-            ps.setString(4, bt.getMaBienThe());
+            ps.setString(3, bt.getMaBienThe());
+
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
