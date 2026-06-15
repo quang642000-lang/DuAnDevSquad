@@ -8,19 +8,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TEA POS - Bảng Điều Khiển Quản Lý</title>
+
+    <!-- CÁC THƯ VIỆN BÊN NGOÀI -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        :root {
-            --brand-primary: #D97706; /* Amber 600 */
-            --brand-dark: #0F172A; /* Slate 900 */
-            --bg-surface: #F8FAFC; /* Slate 50 */
-            --card-radius: 16px;
-        }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-surface); overflow-x: hidden; color: #334155;}
-    </style>
+
+    <!-- ✅ ĐÃ XÓA KHỐI <style> CŨ VÀ GỌI CHUNG FILE GLOBAL.CSS -->
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/global.css?v=3">
 </head>
 <body>
 <input type="hidden" id="appContextPath" value="${pageContext.request.contextPath}">
