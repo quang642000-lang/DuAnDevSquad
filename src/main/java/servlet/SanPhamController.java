@@ -109,7 +109,7 @@ public class SanPhamController extends HttpServlet {
                 sp.setHinhAnh(safeFileName);
             } else {
                 String oldHinhAnh = request.getParameter("oldHinhAnh");
-                sp.setHinhAnh(oldHinhAnh != null && !oldHinhAnh.isEmpty() ? oldHinhAnh : "default.png");
+                sp.setHinhAnh(oldHinhAnh != null && !oldHinhAnh.isEmpty() ? oldHinhAnh : "new File(uploadPath + File.separator + oldHinhAnh).delete();");
             }
 
             DanhMuc dm = new DanhMuc();

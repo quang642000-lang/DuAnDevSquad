@@ -52,7 +52,7 @@ public class DonHangService {
                     if (km.getNgayBatDau() != null && now.before(km.getNgayBatDau())) {
                         return "Lỗi: Mã giảm giá này chưa đến ngày bắt đầu sử dụng!";
                     }
-                    if (km.getNgayKetThuc() != null && now.after(km.getNgayKetThuc())) {
+                    if (km.getNgayKetThuc() != null && now.getTime() > (km.getNgayKetThuc().getTime() + 86399000)) {
                         return "Lỗi: Mã giảm giá này đã hết hạn sử dụng!";
                     }
 
