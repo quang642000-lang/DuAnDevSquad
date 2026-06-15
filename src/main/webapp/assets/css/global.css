@@ -163,11 +163,22 @@ body {
 }
 
 /* Tối ưu khi xem trên Điện thoại */
-@media (max-width: 991.98px) {
-    .sidebar { position: fixed; top: 0; left: 0; height: 100vh; transform: translateX(-100%); box-shadow: 4px 0 15px rgba(0,0,0,0.2); }
-    .sidebar.show { transform: translateX(0); }
-    .sidebar-overlay.show { display: block; }
-    .main-content { width: 100%; margin-left: 0; }
-    .top-navbar { padding: 10px 15px; }
-    .mobile-header-row { width: 100%; display: flex; justify-content: space-between; align-items: center; }
+@media (min-width: 992px) {
+    .table-custom td, .table-custom th {
+        white-space: normal !important; /* Ép chữ tự rớt dòng */
+        font-size: 0.85rem !important; /* Bóp nhỏ chữ một chút */
+        padding: 0.6rem 0.4rem !important; /* Giảm lề để tiết kiệm diện tích */
+    }
+    .table-custom .badge {
+        white-space: normal !important; /* Cho phép thẻ trạng thái rớt dòng */
+        display: inline-block;
+        line-height: 1.4;
+    }
+    .table-custom .btn-group {
+        white-space: normal !important;
+        display: flex;
+        flex-wrap: wrap; /* Ép cụm nút thao tác tự xếp chồng nếu chật */
+        gap: 3px;
+        justify-content: center;
+    }
 }

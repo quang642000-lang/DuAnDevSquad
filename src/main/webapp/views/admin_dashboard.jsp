@@ -17,6 +17,8 @@
 
     <!-- ✅ ĐÃ XÓA KHỐI <style> CŨ VÀ GỌI CHUNG FILE GLOBAL.CSS -->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/global.css?v=3">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
 </head>
 <body>
 <input type="hidden" id="appContextPath" value="${pageContext.request.contextPath}">
@@ -236,8 +238,7 @@
                         </div>
                         <div class="card-body p-0">
                             <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
-                                <!-- Sửa lỗi UX 4: Thêm class text-nowrap để bảng không bị bóp vỡ dòng trên màn hình hẹp -->
-                                <table class="table table-hover table-custom mb-0 text-center text-nowrap" id="orderTable">
+                                <table class="table table-hover table-custom mb-0 text-center align-middle dt-responsive nowrap " style="width:100%" id="orderTable">
                                     <thead class="sticky-top bg-white shadow-sm">
                                     <tr>
                                         <th width="10%">Giờ Tạo</th>
@@ -601,6 +602,26 @@
         } else {
             let canvasParent = document.getElementById('revenueChart').parentElement;
             canvasParent.innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-graph-down text-light fs-1 d-block mb-2"></i><span class="fw-medium">Chưa có đủ dữ liệu giao dịch để vẽ biểu đồ.</span></div>';
+        }
+    });
+</script>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+<script>
+    $(document).ready(function() {
+        if ($('#orderTable tbody td').length > 1) {
+            $('#orderTable').DataTable({
+                "responsive": true,
+                "paging": false,
+                "searching": false,
+                "info": false,
+                "order": [],
+                "columnDefs": [ { "orderable": false, "targets": [6] } ], /* Cấm sắp xếp cột Thao tác */
+                "language": { "emptyTable": "Chưa có dữ liệu." }
+            });
         }
     });
 </script>

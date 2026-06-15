@@ -21,7 +21,7 @@
 <div class="wrapper">
     <%@ include file="layout/sidebar.jsp" %>
     <div class="main-content">
-        <header class="top-navbar bg-white shadow-sm mb-4 px-4 py-3 d-flex justify-content-between align-items-center">
+        <header class="top-navbar bg-white shadow-sm mb-4 px-4 py-3 d-flex justify-content-between align-items-center ">
             <div class="d-flex align-items-center">
                 <button class="btn btn-light me-3 border-0 shadow-sm d-lg-none" onclick="toggleSidebar()"><i class="bi bi-list fs-5"></i></button>
                 <h4 class="text-dark fw-bold m-0"><i class="bi bi-cup-hot-fill text-brand me-2"></i>Quản Lý...</h4> <!-- Sửa tên tiêu đề tương ứng -->

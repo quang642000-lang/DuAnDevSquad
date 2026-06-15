@@ -69,7 +69,7 @@
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover table-custom mb-0 text-center align-middle" style="width:100%" id="toppingTable">
+                        <table class="table table-hover table-custom mb-0 text-center align-middle dt-responsive nowrap" style="width:100%" id="toppingTable">
                             <thead>
                             <tr>
                                 <th width="5%">STT</th>
