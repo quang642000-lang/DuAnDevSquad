@@ -107,9 +107,14 @@ public class SanPhamController extends HttpServlet {
                 String safeFileName = UUID.randomUUID().toString() + extension;
                 filePart.write(uploadPath + File.separator + safeFileName);
                 sp.setHinhAnh(safeFileName);
+                // Xóa ảnh cũ
+                String oldHinhAnh = request.getParameter("oldHinhAnh");
+                if (oldHinhAnh != null && !oldHinhAnh.isEmpty() && !oldHinhAnh.equals("default.png")) {
+                    new File(uploadPath + File.separator + oldHinhAnh).delete();
+                }
             } else {
                 String oldHinhAnh = request.getParameter("oldHinhAnh");
-                sp.setHinhAnh(oldHinhAnh != null && !oldHinhAnh.isEmpty() ? oldHinhAnh : "new File(uploadPath + File.separator + oldHinhAnh).delete();");
+                sp.setHinhAnh(oldHinhAnh != null && !oldHinhAnh.isEmpty() ? oldHinhAnh : "default.png");
             }
 
             DanhMuc dm = new DanhMuc();

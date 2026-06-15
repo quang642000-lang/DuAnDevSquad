@@ -46,26 +46,35 @@ public class AuthController extends HttpServlet {
         if ("login".equals(action)) {
             String tenDangNhap = request.getParameter("username");
             String matKhau = request.getParameter("password");
-            NhanVien nv = authService.login(tenDangNhap, matKhau);
-            if (nv != null) {
-                HttpSession session = request.getSession();
-                session.setAttribute("nhanVienDangNhap", nv);
-                if (nv.getVaiTro().getMaVaiTro() == 1) {
-                    response.sendRedirect(request.getContextPath() + "/admin");
+
+            try {
+                // Gọi hàm login (Nếu sai mật khẩu hoặc bị phạt giờ, nó sẽ ném Exception)
+                NhanVien nv = authService.login(tenDangNhap, matKhau);
+
+                if (nv != null) {
+                    HttpSession session = request.getSession();
+                    session.setAttribute("nhanVienDangNhap", nv);
+                    if (nv.getVaiTro().getMaVaiTro() == 1) {
+                        response.sendRedirect(request.getContextPath() + "/admin");
+                    } else {
+                        response.sendRedirect(request.getContextPath() + "/ban-hang");
+                    }
                 } else {
-                    response.sendRedirect(request.getContextPath() + "/ban-hang");
+                    request.setAttribute("error", "Tên đăng nhập không tồn tại hoặc đã bị khóa cứng bởi Admin!");
+                    request.getRequestDispatcher("/views/login.jsp").forward(request, response);
                 }
-            } else {
-                request.setAttribute("error", "Tên đăng nhập, mật khẩu sai hoặc tài khoản đã bị khóa!");
+            } catch (Exception e) {
+                // HỨNG CÂU THÔNG BÁO SAI MẬT KHẨU / KHÓA 5 PHÚT TỪ SERVICE
+                request.setAttribute("error", e.getMessage());
                 request.getRequestDispatcher("/views/login.jsp").forward(request, response);
             }
+
         } else if ("send-otp".equals(action)) {
             String email = request.getParameter("email");
             String tenDangNhap = authService.checkEmailAndGetUsername(email);
             if (tenDangNhap != null) {
                 Random random = new Random();
                 String otp = String.valueOf(100000 + random.nextInt(900000));
-
                 if (EmailUtil.sendOtpEmail(email, otp)) {
                     HttpSession session = request.getSession();
                     session.setAttribute("reset_user", tenDangNhap);
@@ -82,6 +91,7 @@ public class AuthController extends HttpServlet {
                 request.setAttribute("error", "Email không tồn tại hoặc tài khoản bị khóa!");
                 request.getRequestDispatcher("/views/forgot_password.jsp").forward(request, response);
             }
+
         } else if ("verify-otp".equals(action)) {
             HttpSession session = request.getSession();
             String userOtp = request.getParameter("otpInput");
@@ -100,11 +110,13 @@ public class AuthController extends HttpServlet {
                 request.setAttribute("error", "Mã OTP không chính xác. Vui lòng thử lại!");
                 request.getRequestDispatcher("/views/verify_otp.jsp").forward(request, response);
             }
+
         } else if ("reset".equals(action)) {
             HttpSession session = request.getSession();
             String tenDangNhap = (String) session.getAttribute("reset_user");
             String matKhauMoi = request.getParameter("newPassword");
             Boolean isVerified = (Boolean) session.getAttribute("otp_verified");
+
             if (isVerified != null && isVerified && tenDangNhap != null && authService.resetPassword(tenDangNhap, matKhauMoi)) {
                 session.removeAttribute("reset_user");
                 session.removeAttribute("reset_email");

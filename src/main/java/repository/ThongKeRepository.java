@@ -165,7 +165,7 @@ public class ThongKeRepository {
         Map<String, Integer> chartData = new LinkedHashMap<>();
         String[] dates = getDefaultDates(tuNgay, denNgay);
         String nvCondition = (maNV != null && !maNV.isEmpty()) ? " AND ma_nv = ? " : "";
-        String sql = "SELECT TOP 14 FORMAT(thoi_gian_tao, 'dd/MM') as ngay, SUM(tong_phai_tra) as tong_doanh_thu " +
+        String sql = "SELECT FORMAT(thoi_gian_tao, 'dd/MM') as ngay, SUM(tong_phai_tra) as tong_doanh_thu " +
                 "FROM DON_HANG WHERE CAST(thoi_gian_tao AS DATE) >= ? AND CAST(thoi_gian_tao AS DATE) <= ? AND trang_thai_don = N'Hoàn thành' " + nvCondition +
                 "GROUP BY FORMAT(thoi_gian_tao, 'dd/MM'), CAST(thoi_gian_tao AS DATE) ORDER BY CAST(thoi_gian_tao AS DATE) ASC";
         try (Connection con = DBConnect.getConnection();

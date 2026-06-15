@@ -70,11 +70,23 @@ public class ToppingController extends HttpServlet {
 
         Part filePart = request.getPart("hinhAnhFile");
         String originalName = filePart.getSubmittedFileName();
+
+        // TRƯỜNG HỢP 1: CÓ TẢI ẢNH MỚI LÊN
         if (originalName != null && !originalName.isEmpty()) {
             String extension = originalName.substring(originalName.lastIndexOf("."));
             String safeFileName = UUID.randomUUID().toString() + extension;
             filePart.write(uploadPath + File.separator + safeFileName);
-            tp.setHinhAnh(safeFileName);
+            tp.setHinhAnh(safeFileName); // Lưu tên ảnh mới vào Database
+
+            // --- THÊM LOGIC DỌN RÁC Ổ CỨNG VÀO ĐÂY ---
+            String oldHinhAnh = request.getParameter("oldHinhAnh");
+            // Kiểm tra: Nếu có ảnh cũ và không phải ảnh mặc định thì xóa file cũ đi
+            if (oldHinhAnh != null && !oldHinhAnh.isEmpty() && !oldHinhAnh.equals("default.png")) {
+                new File(uploadPath + File.separator + oldHinhAnh).delete();
+            }
+            // ----------------------------------------
+
+            // TRƯỜNG HỢP 2: KHÔNG TẢI ẢNH MỚI -> GIỮ NGUYÊN ẢNH CŨ
         } else {
             String oldHinhAnh = request.getParameter("oldHinhAnh");
             tp.setHinhAnh(oldHinhAnh != null && !oldHinhAnh.isEmpty() ? oldHinhAnh : "default.png");

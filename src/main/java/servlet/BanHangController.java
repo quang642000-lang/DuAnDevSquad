@@ -57,12 +57,19 @@ public class BanHangController extends HttpServlet {
         String filterDanhMuc = request.getParameter("maDanhMuc");
         request.setAttribute("danhSachDanhMuc", danhMucService.getAll());
 
-        List<SanPham> dsSanPham = sanPhamService.getAll();
+        List<SanPham> dsSanPham;
+
+        // KIỂM TRA: Nếu người dùng có bấm lọc danh mục -> Giao cho SQL Server lọc
         if (filterDanhMuc != null && !filterDanhMuc.isEmpty()) {
-            dsSanPham = dsSanPham.stream()
-                    .filter(sp -> sp.getDanhMuc() != null && sp.getDanhMuc().getMaDanhMuc().equals(filterDanhMuc))
-                    .collect(Collectors.toList());
+            // Truyền chuỗi rỗng "" cho keyword, và truyền mã danh mục vào để Database tự lọc
+            dsSanPham = sanPhamService.search("", filterDanhMuc);
         }
+        // Nếu không lọc -> Mới tải tất cả danh sách
+        else {
+            dsSanPham = sanPhamService.getAll();
+        }
+
+        request.setAttribute("danhSachSanPham", dsSanPham);
 
         request.setAttribute("danhSachSanPham", dsSanPham);
         request.setAttribute("danhSachBienThe", bienTheService.getAll());

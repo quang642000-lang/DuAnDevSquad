@@ -17,9 +17,9 @@ public class DBConnect {
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             con = DriverManager.getConnection(URL, USER, PASS);
         } catch (ClassNotFoundException e) {
-            System.err.println("❌ LỖI: Thiếu thư viện mssql-jdbc trong pom.xml!");
+            System.err.println(" LỖI: Thiếu thư viện mssql-jdbc trong pom.xml!");
         } catch (SQLException e) {
-            System.err.println("❌ LỖI KẾT NỐI DATABASE: " + e.getMessage());
+            System.err.println(" LỖI KẾT NỐI DATABASE: " + e.getMessage());
         }
         return con;
     }
@@ -28,9 +28,9 @@ public class DBConnect {
         System.out.println("⏳ Đang thử kết nối tới SQL Server...");
         Connection con = getConnection();
         if (con != null) {
-            System.out.println("✅ CHÚC MỪNG! KẾT NỐI THÀNH CÔNG TỚI DATABASE!");
+            System.out.println(" CHÚC MỪNG! KẾT NỐI THÀNH CÔNG TỚI DATABASE!");
         } else {
-            System.out.println("❌ KẾT NỐI THẤT BẠI. HÃY KIỂM TRA LẠI FILE application.properties NHÉ!");
+            System.out.println(" KẾT NỐI THẤT BẠI. HÃY KIỂM TRA LẠI FILE application.properties NHÉ!");
         }
     }
 }

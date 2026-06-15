@@ -27,6 +27,10 @@ public class KhuyenMaiService {
     }
 
     public String add(KhuyenMai km) {
+        boolean isDuplicate = repo.getAll().stream().anyMatch(v -> v.getMaCode().equalsIgnoreCase(km.getMaCode()));
+        if (isDuplicate) {
+            return "Lỗi: Mã Code này đã tồn tại trong hệ thống. Vui lòng đặt mã khác!";
+        }
         if ("Phần Trăm".equals(km.getLoaiGiamGia()) && km.getGiaTriGiam() > 100) {
             return "Lỗi: Mức giảm phần trăm không được vượt quá 100%!";
         }
